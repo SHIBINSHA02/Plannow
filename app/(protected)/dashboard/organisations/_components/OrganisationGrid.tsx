@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Organisation } from "@/types/organisation";
 
 export default function OrganisationGrid() {
     const [organisations, setOrganisations] = useState<Organisation[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const router = useRouter();
 
     useEffect(() => {
         fetch("/api/organisation/my-organisations")
@@ -27,11 +30,20 @@ export default function OrganisationGrid() {
             {organisations.map((org) => (
                 <div
                     key={org.organisationId}
-                    className="p-5 bg-white rounded-xl shadow"
+                    onClick={() =>
+                        router.push(`/dashboard/organisations/${org.organisationId}`)
+
+                    }
+                    className="p-5 bg-white rounded-xl shadow cursor-pointer
+                               hover:shadow-lg transition"
                 >
-                    <h3 className="font-semibold">{org.organisationName}</h3>
-                    
-                    <p className="text-sm text-gray-400">Admin: {org.adminName}</p>
+                    <h3 className="font-semibold">
+                        {org.organisationName}
+                    </h3>
+
+                    <p className="text-sm text-gray-400">
+                        Admin: {org.adminName}
+                    </p>
                 </div>
             ))}
         </div>
