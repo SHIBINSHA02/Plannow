@@ -30,7 +30,7 @@ export default function OrganisationGrid() {
                     className="p-5 bg-white rounded-xl shadow"
                 >
                     <h3 className="font-semibold">{org.organisationName}</h3>
-                    <p className="text-sm text-gray-500">{org.organisationId}</p>
+                    
                     <p className="text-sm text-gray-400">Admin: {org.adminName}</p>
                 </div>
             ))}

@@ -21,6 +21,7 @@ export default function Sidebar() {
 
             {/* Logo */}
             <div className="h-16 px-6 border-b flex items-center">
+                <Link href='/'>
                 <div className="relative w-32 h-8">
                     <Image
                         src="/logo.svg"
@@ -30,6 +31,7 @@ export default function Sidebar() {
                         priority
                     />
                 </div>
+                </Link>
             </div>
 
             {/* Profile */}

@@ -1,5 +1,5 @@
-import OrganisationGrid from "./_components/OrganisationGrid";
+import OrganisationsClient from "./_components/OrganisationsClient";
 
 export default function OrganisationPage() {
-    return <OrganisationGrid />;
+    return <OrganisationsClient />;
 }

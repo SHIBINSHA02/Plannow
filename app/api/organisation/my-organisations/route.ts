@@ -4,6 +4,8 @@ import { connectDB } from "@/lib/db";
 import Organisation from "@/models/Organisation";
 import User from "@/models/User";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
     try {
         const clerkUser = await currentUser();
@@ -17,27 +19,29 @@ export async function GET() {
 
         await connectDB();
 
-        const user = await User.findOne({
-            clerkUserId: clerkUser.id
-        });
+        // ✅ Ensure user exists (no false 404s)
+        const user = await User.findOneAndUpdate(
+            { clerkUserId: clerkUser.id },
+            {
+                clerkUserId: clerkUser.id,
+                email: clerkUser.emailAddresses[0]?.emailAddress,
+                name: clerkUser.fullName ?? "",
+            },
+            { upsert: true, new: true }
+        );
 
-        if (!user || !user.email) {
-            return NextResponse.json(
-                { message: "User not found" },
-                { status: 404 }
-            );
-        }
-
+        // ✅ Fetch organisations (may be empty)
         const organisations = await Organisation.find({
-            adminName: user.email
+            adminName: user.email,
         });
 
+        // ✅ ZERO organisations is NOT an error
         return NextResponse.json({
             count: organisations.length,
-            organisations
+            organisations, // [] when none exist
         });
     } catch (error) {
-        console.error(error);
+        console.error("my-organisations error:", error);
         return NextResponse.json(
             { message: "Failed to fetch organisations" },
             { status: 500 }
