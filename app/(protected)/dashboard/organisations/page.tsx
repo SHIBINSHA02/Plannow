@@ -1,3 +1,5 @@
+import OrganisationGrid from "./_components/OrganisationGrid";
+
 export default function OrganisationPage() {
-    return <div>Protected Dashboard</div>;
+    return <OrganisationGrid />;
 }
