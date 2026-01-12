@@ -9,7 +9,17 @@ const userSchema = new mongoose.Schema({
     },
 
     name: String,
-    email: String,
+
+    email: {
+        type: String,
+        required: true,
+        lowercase: true,
+        index: true
+    },
+
+    imageUrl: {
+        type: String, 
+    },
 
     role: {
         type: String,
