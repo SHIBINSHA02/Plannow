@@ -28,7 +28,7 @@ const TeacherSchema = new Schema(
         },
 
         organisations: {
-            type: [String], // 🔥 teacher belongs to MANY orgs
+            type: [String], 
             default: []
         },
 
