@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import Connect from "./_components/Landing/Connect";
-import Footer from "./_components/Landing/Footer";
+import Footer from "./_components/Footer";
 import Navbar from "./_components/Navbar";
 
 export default function Home() {
@@ -168,7 +168,7 @@ export default function Home() {
 
 
             <Connect />
-            <Footer />
+        
         </div>
     );
 }
