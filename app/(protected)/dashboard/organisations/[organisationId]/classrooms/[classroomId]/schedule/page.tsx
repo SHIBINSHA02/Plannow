@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ClassroomScheduleTable from "../../../_components/ClassroomScheduleTable";
+import { Assignment } from "../../../../../_types/schedule";
+import { ScheduleGridProvider } from "./../../../../../context/ScheduleGridContext";
 
 /* ---------- Types ---------- */
 
@@ -12,18 +14,13 @@ type ScheduleSlot = {
     classroomId: string;
     teacherId: string;
     subject: string;
-    day: number;     // 1-based
-    period: number;  // 1-based
+    day: number;
+    period: number;
 };
 
 type Classroom = {
     classroomId: string;
     className: string;
-};
-
-type Assignment = {
-    teacherId: string;
-    subject: string;
 };
 
 /* ---------- Constants ---------- */
@@ -33,20 +30,18 @@ const periods = ["P1", "P2", "P3", "P4", "P5"];
 
 /* ---------- Helpers ---------- */
 
-const createEmptyGrid = () =>
-    days.map(() =>
-        periods.map(() => [] as Assignment[])
-    );
+const createEmptyGrid = (): Assignment[][][] =>
+    days.map(() => periods.map(() => []));
 
-function scheduleToGrid(schedule: ScheduleSlot[]) {
+const scheduleToGrid = (schedule: ScheduleSlot[]) => {
     const grid = createEmptyGrid();
 
     schedule.forEach((slot) => {
-        const dayIndex = slot.day - 1;
-        const periodIndex = slot.period - 1;
+        const d = slot.day - 1;
+        const p = slot.period - 1;
 
-        if (grid[dayIndex]?.[periodIndex]) {
-            grid[dayIndex][periodIndex].push({
+        if (grid[d]?.[p]) {
+            grid[d][p].push({
                 teacherId: slot.teacherId,
                 subject: slot.subject,
             });
@@ -54,7 +49,7 @@ function scheduleToGrid(schedule: ScheduleSlot[]) {
     });
 
     return grid;
-}
+};
 
 /* ---------- Page ---------- */
 
@@ -66,84 +61,33 @@ export default function ClassroomSchedulePage() {
     const classroomId = params.classroomId as string;
 
     const [className, setClassName] = useState(classroomId);
-    const [grid, setGrid] = useState<Assignment[][][]>(createEmptyGrid());
+    const [initialGrid, setInitialGrid] =
+        useState<Assignment[][][]>(createEmptyGrid());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    /* ---------- Grid Mutations ---------- */
-
-    const addAssignment = (day: number, period: number) => {
-        setGrid((prev) => {
-            const copy = structuredClone(prev);
-            copy[day][period].push({ teacherId: "", subject: "" });
-            return copy;
-        });
-    };
-
-    const updateAssignment = (
-        day: number,
-        period: number,
-        index: number,
-        field: keyof Assignment,
-        value: string
-    ) => {
-        setGrid((prev) => {
-            const copy = structuredClone(prev);
-            copy[day][period][index][field] = value;
-            return copy;
-        });
-    };
-
-    const deleteAssignment = (
-        day: number,
-        period: number,
-        index: number
-    ) => {
-        setGrid((prev) => {
-            const copy = structuredClone(prev);
-            copy[day][period].splice(index, 1);
-            return copy;
-        });
-    };
-
-    /* ---------- Fetch ---------- */
 
     useEffect(() => {
         const loadData = async () => {
             try {
-                // 1️⃣ Classrooms (WORKING API)
                 const classroomRes = await fetch(
                     `/api/classrooms?organisationId=${organisationId}`
                 );
-
-                if (!classroomRes.ok) {
-                    throw new Error("Failed to load classrooms");
-                }
+                if (!classroomRes.ok) throw new Error("Failed to load classrooms");
 
                 const classrooms: Classroom[] = await classroomRes.json();
                 const current = classrooms.find(
                     (c) => c.classroomId === classroomId
                 );
+                if (current) setClassName(current.className);
 
-                if (current) {
-                    setClassName(current.className);
-                }
-
-                // 2️⃣ Schedule
                 const scheduleRes = await fetch(
                     `/api/schedule/classroom/${classroomId}?organisationId=${organisationId}`
                 );
+                if (!scheduleRes.ok) throw new Error("Failed to load schedule");
 
-                if (!scheduleRes.ok) {
-                    throw new Error("Failed to load schedule");
-                }
-
-                const scheduleData: ScheduleSlot[] =
-                    await scheduleRes.json();
-
-                setGrid(scheduleToGrid(scheduleData));
+                const schedule: ScheduleSlot[] = await scheduleRes.json();
+                setInitialGrid(scheduleToGrid(schedule));
             } catch (err: any) {
-                console.error(err);
                 setError(err.message);
             } finally {
                 setLoading(false);
@@ -152,8 +96,6 @@ export default function ClassroomSchedulePage() {
 
         loadData();
     }, [organisationId, classroomId]);
-
-    /* ---------- Render ---------- */
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
@@ -174,16 +116,13 @@ export default function ClassroomSchedulePage() {
             {error && <p className="text-red-500">{error}</p>}
 
             {!loading && !error && (
-                <ClassroomScheduleTable
-                    grid={grid}
+                <ScheduleGridProvider
+                    initialGrid={initialGrid}
                     days={days}
                     periods={periods}
-                    teachers={[]}   // plug later
-                    subjects={[]}   // plug later
-                    addAssignment={addAssignment}
-                    updateAssignment={updateAssignment}
-                    deleteAssignment={deleteAssignment}
-                />
+                >
+                    <ClassroomScheduleTable />
+                </ScheduleGridProvider>
             )}
         </div>
     );

@@ -3,15 +3,18 @@
 import React, {
     createContext,
     useContext,
+    useEffect,
     useState,
     ReactNode,
 } from "react";
+import { useParams } from "next/navigation";
 
 /* ---------- Types ---------- */
 
 export type Teacher = {
     teacherId: string;
     teacherName: string;
+    subjects: string[];
 };
 
 export type Assignment = {
@@ -38,6 +41,7 @@ type ScheduleGridContextType = {
         period: number,
         index: number
     ) => void;
+    saveSlot: (day: number, period: number, slot: Assignment) => Promise<void>;
 };
 
 const ScheduleGridContext =
@@ -56,14 +60,38 @@ export function ScheduleGridProvider({
     days: string[];
     periods: string[];
 }) {
-    const [grid, setGrid] = useState<Assignment[][][]>(initialGrid);
+    const params = useParams();
+    const organisationId = params.organisationId as string;
+    const classroomId = params.classroomId as string;
 
-    // ✅ Explicitly typed arrays (FIX)
-    const teachers: Teacher[] = [];
-    const subjects: string[] = [];
+    const [grid, setGrid] = useState(initialGrid);
+    const [teachers, setTeachers] = useState<Teacher[]>([]);
+    const [subjects, setSubjects] = useState<string[]>([]);
+
+    /* ---------- Load teachers ---------- */
+
+    useEffect(() => {
+        const loadTeachers = async () => {
+            const res = await fetch(
+                `/api/teacher?organisationId=${organisationId}`
+            );
+            const data: Teacher[] = await res.json();
+            setTeachers(data);
+
+            // collect unique subjects
+            const uniqueSubjects = Array.from(
+                new Set(data.flatMap(t => t.subjects))
+            );
+            setSubjects(uniqueSubjects);
+        };
+
+        if (organisationId) loadTeachers();
+    }, [organisationId]);
+
+    /* ---------- Grid Mutations ---------- */
 
     const addAssignment = (day: number, period: number) => {
-        setGrid((prev) => {
+        setGrid(prev => {
             const copy = structuredClone(prev);
             copy[day][period].push({ teacherId: "", subject: "" });
             return copy;
@@ -77,22 +105,39 @@ export function ScheduleGridProvider({
         field: keyof Assignment,
         value: string
     ) => {
-        setGrid((prev) => {
+        setGrid(prev => {
             const copy = structuredClone(prev);
             copy[day][period][index][field] = value;
             return copy;
         });
     };
 
-    const deleteAssignment = (
-        day: number,
-        period: number,
-        index: number
-    ) => {
-        setGrid((prev) => {
+    const deleteAssignment = (day: number, period: number, index: number) => {
+        setGrid(prev => {
             const copy = structuredClone(prev);
             copy[day][period].splice(index, 1);
             return copy;
+        });
+    };
+
+    /* ---------- Save Slot ---------- */
+
+    const saveSlot = async (
+        day: number,
+        period: number,
+        slot: Assignment
+    ) => {
+        await fetch(`/api/schedule/classroom/${classroomId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                organisationId,
+                classroomId,
+                teacherId: slot.teacherId,
+                subject: slot.subject,
+                day: day + 1,
+                period: period + 1,
+            }),
         });
     };
 
@@ -107,6 +152,7 @@ export function ScheduleGridProvider({
                 addAssignment,
                 updateAssignment,
                 deleteAssignment,
+                saveSlot,
             }}
         >
             {children}
