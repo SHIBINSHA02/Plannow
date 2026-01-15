@@ -41,7 +41,7 @@ export default async function Page({
         classroomId: string;
     }>;
 }) {
-    // ✅ UNWRAP params (REQUIRED in Next 15+)
+ 
     const { organisationId, classroomId } = await params;
 
     // ✅ Allow loading.tsx to render first

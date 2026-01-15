@@ -6,15 +6,23 @@ export default async function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { userId } = await auth(); 
+    const { userId } = await auth();
 
     if (userId) {
-        // fire-and-forget (server-safe)
-        fetch("/api/auth/sync-user", { cache: "no-store" });
+        const baseUrl =
+            process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+        
+        fetch(`${baseUrl}/api/auth/sync-user`, {
+            method: "POST",
+            cache: "no-store",
+        }).catch(() => { });
     }
 
-    return <>
-    {children}
-        <Footer />
-    </>;
+    return (
+        <>
+            {children}
+            <Footer />
+        </>
+    );
 }
