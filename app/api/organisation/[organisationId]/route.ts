@@ -5,6 +5,50 @@ import Organisation from "@/models/Organisation";
 
 export const dynamic = "force-dynamic";
 
+export async function PATCH(
+    req: Request,
+    context: { params: Promise<{ organisationId: string }> }
+) {
+    try {
+        const clerkUser = await currentUser();
+        if (!clerkUser) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+
+        const { organisationId } = await context.params;
+        const { profileImageUrl, backgroundImageUrl } = await req.json();
+
+        await connectDB();
+
+        const organisation = await Organisation.findOneAndUpdate(
+            { organisationId },
+            {
+                $set: {
+                    profileImageUrl: profileImageUrl ?? null,
+                    backgroundImageUrl: backgroundImageUrl ?? null,
+                },
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (!organisation) {
+            return NextResponse.json(
+                { message: "Organisation not found" },
+                { status: 404 }
+            );
+        }
+
+        return NextResponse.json({ organisation });
+    } catch (error) {
+        console.error("PATCH organisation error:", error);
+        return NextResponse.json(
+            { message: "Failed to update organisation" },
+            { status: 500 }
+        );
+    }
+}
+
+
 export async function GET(
     req: Request,
     context: { params: Promise<{ organisationId: string }> }

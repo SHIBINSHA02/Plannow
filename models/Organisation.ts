@@ -7,7 +7,10 @@ const organisationSchema = new Schema(
         adminName: { type: String, required: true },
         workingDays: { type: Number, default: 5 },
         periodsPerDay: { type: Number, default: 6 },
-        editors: { type: [String], default: [] }
+        editors: { type: [String], default: [] },
+
+        profileImageUrl: { type: String, default: null },
+        backgroundImageUrl: { type: String, default: null },
     },
     { timestamps: true }
 );
