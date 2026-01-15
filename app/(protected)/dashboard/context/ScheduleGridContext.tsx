@@ -89,7 +89,7 @@ export function ScheduleGridProvider({
     useEffect(() => {
         const loadTeachers = async () => {
             const res = await fetch(
-                `/api/teacher?organisationId=${organisationId}`
+                `/api/teachers?organisationId=${organisationId}`
             );
             const data: Teacher[] = await res.json();
             setTeachers(data);
