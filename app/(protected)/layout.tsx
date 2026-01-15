@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import Footer from "../_components/Footer";
 
 export default async function DashboardLayout({
     children,
@@ -12,5 +13,8 @@ export default async function DashboardLayout({
         fetch("/api/auth/sync-user", { cache: "no-store" });
     }
 
-    return <>{children}</>;
+    return <>
+    {children}
+        <Footer />
+    </>;
 }

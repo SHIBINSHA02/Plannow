@@ -17,17 +17,17 @@ const ClassroomScheduleTable: React.FC = () => {
     } = useScheduleGrid();
 
     return (
-        <div className="relative overflow-x-auto rounded-lg shadow-lg">
-            <table className="min-w-full border border-gray-300">
+        <div className="relative overflow-x-auto rounded-xl shadow-lg shadow-blue-50">
+            <table className="min-w-full border border-gray-300 rounded-xl">
                 <thead>
                     <tr className="bg-gray-100">
-                        <th className="px-4 py-2 border border-gray-300">
+                        <th className="px-4 py-2 border border-gray-200">
                             Day / Period
                         </th>
                         {periods.map((p) => (
                             <th
                                 key={p}
-                                className="px-4 py-2 border border-gray-300 text-center"
+                                className="px-4 py-2 border border-gray-200 text-center"
                             >
                                 {p}
                             </th>
@@ -38,7 +38,7 @@ const ClassroomScheduleTable: React.FC = () => {
                 <tbody>
                     {grid.map((row, dayIndex) => (
                         <tr key={dayIndex}>
-                            <td className="px-4 py-2 border border-gray-300 font-semibold bg-gray-50">
+                            <td className="px-4 py-2 border border-gray-200 rounded-lg font-semibold bg-gray-50">
                                 {days[dayIndex]}
                             </td>
 
