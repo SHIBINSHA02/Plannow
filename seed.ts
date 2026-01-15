@@ -2,6 +2,7 @@
 
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import path from "path";
 
 // ✅ ESM imports MUST end with .js
 import Organisation from "./models/Organisation.js";
@@ -10,12 +11,9 @@ import Classroom from "./models/Classroom.js";
 import ScheduleSlot from "./models/ScheduleSlot.js";
 import TeacherWorkload from "./models/TeacherWorkload.js";
 
-import path from "path";
-
 dotenv.config({
     path: path.resolve(process.cwd(), ".env.local"),
 });
-
 
 const ADMIN_EMAIL = "shibin24666@gmail.com";
 
@@ -28,19 +26,33 @@ async function seed() {
         }
 
         await mongoose.connect(process.env.MONGODB_URI);
+        console.log("✅ Connected to MongoDB");
 
-        /* ================= CLEAN OLD DATA ================= */
+        /* ================= HARD RESET (DEV SAFE) ================= */
+
+        // 🔥 DROP schedule slots collection completely (removes indexes too)
+        const collections = await mongoose.connection.db
+            .listCollections({ name: "scheduleslots" })
+            .toArray();
+
+        if (collections.length > 0) {
+            await mongoose.connection.db.dropCollection("scheduleslots");
+            console.log("🧹 scheduleslots collection dropped (data + indexes)");
+        }
+
+        /* ================= CLEAN OTHER DATA ================= */
+
         await Promise.all([
             Organisation.deleteMany({}),
             Teacher.deleteMany({}),
             Classroom.deleteMany({}),
-            ScheduleSlot.deleteMany({}),
             TeacherWorkload.deleteMany({}),
         ]);
 
-        console.log("🧹 Old data cleared");
+        console.log("🧹 Other collections cleared");
 
         /* ================= ORGANISATIONS ================= */
+
         await Organisation.insertMany([
             {
                 organisationId: "ORG1",
@@ -63,6 +75,7 @@ async function seed() {
         console.log("🏫 Organisations created");
 
         /* ================= TEACHERS ================= */
+
         await Teacher.insertMany(
             [
                 {
@@ -100,6 +113,7 @@ async function seed() {
         console.log("👩‍🏫 Teachers created");
 
         /* ================= CLASSROOMS ================= */
+
         await Classroom.insertMany(
             [
                 {
@@ -154,6 +168,7 @@ async function seed() {
         console.log("🏷️ Classrooms created");
 
         /* ================= SCHEDULE SLOTS ================= */
+
         await ScheduleSlot.insertMany(
             [
                 {
@@ -163,6 +178,14 @@ async function seed() {
                     subject: "Maths",
                     day: 1,
                     period: 1,
+                },
+                {
+                    organisationId: "ORG1",
+                    classroomId: "ORG1-C1",
+                    teacherId: "T-4",
+                    subject: "Physics",
+                    day: 1,
+                    period: 1, // parallel teacher ✅
                 },
                 {
                     organisationId: "ORG1",

@@ -68,7 +68,7 @@ const ClassroomScheduleTable: React.FC = () => {
                                                         );
                                                         saveSlot(
                                                             dayIndex,
-                                                            periodIndex,
+                                                            periodIndex,idx,
                                                             {
                                                                 ...slot,
                                                                 teacherId:
@@ -106,7 +106,7 @@ const ClassroomScheduleTable: React.FC = () => {
                                                         );
                                                         saveSlot(
                                                             dayIndex,
-                                                            periodIndex,
+                                                            periodIndex,idx,
                                                             {
                                                                 ...slot,
                                                                 subject: value,

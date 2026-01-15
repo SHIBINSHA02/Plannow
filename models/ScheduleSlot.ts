@@ -41,17 +41,17 @@ const ScheduleSlotSchema = new Schema<IScheduleSlot>(
 );
 
 /* 🔐 Prevent duplicate slots */
-// ScheduleSlotSchema.index(
-//     {
-//         organisationId: 1,
-//         classroomId: 1,
-//         teacherId: 1,
-//         subject: 1,
-//         day: 1,
-//         period: 1
-//     },
-//     { unique: true }
-// );
+ScheduleSlotSchema.index(
+    {
+        organisationId: 1,
+        classroomId: 1,
+        teacherId: 1,
+        subject: 1,
+        day: 1,
+        period: 1
+    },
+    { unique: true }
+);
 
 
 /* ✅ At least one of teacherId or subject must exist */

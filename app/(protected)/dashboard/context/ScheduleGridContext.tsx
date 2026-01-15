@@ -43,7 +43,13 @@ type ScheduleGridContextType = {
         period: number,
         index: number
     ) => Promise<void>;
-    saveSlot: (day: number, period: number, slot: Assignment) => void;
+    saveSlot: (
+        day: number,
+        period: number,
+        index: number,
+        slot: Assignment
+    ) => void;
+
 };
 
 /* ---------- Context ---------- */
@@ -126,14 +132,15 @@ export function ScheduleGridProvider({
         period: number,
         slot: Assignment
     ) => {
+        // Don't save empty slots
         if (!slot.teacherId && !slot.subject) return;
 
         const isUpdate = Boolean(slot._id);
 
         const res = await fetch(
             isUpdate
-                ? `/api/schedule/${slot._id}?organisationId=${organisationId}` // PATCH
-                : `/api/schedule/classroom/${classroomId}`,                    // POST
+                ? `/api/schedule/${slot._id}?organisationId=${organisationId}`
+                : `/api/schedule/classroom/${classroomId}`,
             {
                 method: isUpdate ? "PATCH" : "POST",
                 headers: { "Content-Type": "application/json" },
@@ -144,25 +151,33 @@ export function ScheduleGridProvider({
                     subject: slot.subject || undefined,
                     day: day + 1,
                     period: period + 1,
+                    slotId: slot._id, // for PATCH
                 }),
             }
         );
 
-        if (!res.ok) return;
+        // ✅ Ignore duplicate conflict silently
+        if (res.status === 409) return;
 
-        const saved = await res.json();
+        if (!res.ok) {
+            console.error("Failed to save slot");
+            return;
+        }
 
-        // attach _id after first save
-        if (!slot._id && saved?._id) {
-            setGrid((prev) => {
+        // Attach _id after first POST
+        if (!isUpdate) {
+            const saved = await res.json();
+
+            setGrid(prev => {
                 const copy = structuredClone(prev);
-                const target =
+                const last =
                     copy[day][period][copy[day][period].length - 1];
-                target._id = saved._id;
+                last._id = saved._id;
                 return copy;
             });
         }
     };
+
 
     /* ---------- Debounced Save ---------- */
 
@@ -188,19 +203,33 @@ export function ScheduleGridProvider({
     ) => {
         const slot = grid[day][period][index];
 
-        if (slot?._id) {
-            await fetch(
-                `/api/schedule/${slot._id}?organisationId=${organisationId}`,
-                { method: "DELETE" }
-            );
+        // 🛑 If no _id, just remove locally
+        if (!slot?._id) {
+            setGrid(prev => {
+                const copy = structuredClone(prev);
+                copy[day][period].splice(index, 1);
+                return copy;
+            });
+            return;
         }
 
-        setGrid((prev) => {
+        const res = await fetch(
+            `/api/schedule/${slot._id}?organisationId=${organisationId}`,
+            { method: "DELETE" }
+        );
+
+        if (!res.ok) {
+            console.error("Failed to delete slot");
+            return;
+        }
+
+        setGrid(prev => {
             const copy = structuredClone(prev);
             copy[day][period].splice(index, 1);
             return copy;
         });
     };
+
 
     /* ---------- Provider ---------- */
 
@@ -215,9 +244,9 @@ export function ScheduleGridProvider({
                 addAssignment,
                 updateAssignment,
                 deleteAssignment,
-                saveSlot: (day, period, slot) =>
+                saveSlot: (day, period, index, slot) =>
                     debouncedSave(
-                        `${day}-${period}-${slot._id ?? Math.random()}`,
+                        `${day}-${period}-${index}`, // ✅ STABLE
                         day,
                         period,
                         slot
