@@ -2,7 +2,7 @@
 
 import ClassroomGrid from "./_components/ClassroomGrid";
 import ClassOnboardingModal from "./_components/ClassOnboardingModal";
-
+import TeachersSection from "./_components/Teachers/TeachersSection";
 export default function OrganisationPage() {
     return (
         <div className="space-y-6">
@@ -18,6 +18,7 @@ export default function OrganisationPage() {
 
             {/* Classroom list */}
             <ClassroomGrid />
+            <TeachersSection />
         </div>
     );
 }
