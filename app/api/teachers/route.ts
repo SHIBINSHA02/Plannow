@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Teacher from "@/models/Teacher";
+import { nanoid } from "nanoid";
 
 /**
  * CREATE TEACHER (under an organisation)
@@ -10,7 +11,6 @@ export async function POST(req: Request) {
         await connectDB();
 
         const {
-            teacherId,
             teacherName,
             email,
             subjects = [],
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
             metadata = {}
         } = await req.json();
 
-        if (!teacherId || !teacherName || !email || !organisationId) {
+        if (!teacherName || !email || !organisationId) {
             return NextResponse.json(
                 { error: "Missing required fields" },
                 { status: 400 }
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
         }
 
         const teacher = await Teacher.create({
-            teacherId,
+            teacherId: `T-${nanoid(6)}`, // ✅ generated here
             teacherName,
             email,
             subjects,

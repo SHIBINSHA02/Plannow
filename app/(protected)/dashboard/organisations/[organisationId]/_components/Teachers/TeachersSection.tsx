@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import TeacherOnboardingModal from "./TeacherOnboardingModal";
 
 type Teacher = {
     _id: string;
@@ -14,20 +15,25 @@ type Teacher = {
 export default function TeachersSection() {
     const params = useParams();
     const organisationId = params.organisationId as string;
-
+    const [open, setOpen] = useState(false);
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
+    const fetchTeachers = async () => {
         if (!organisationId) return;
 
-        fetch(`/api/teachers?organisationId=${organisationId}`, {
-            cache: "no-store",
-        })
-            .then(res => res.json())
-            .then(data => setTeachers(data))
-            .finally(() => setLoading(false));
+        setLoading(true);
+        const res = await fetch(
+            `/api/teachers?organisationId=${organisationId}`,
+            { cache: "no-store" }
+        );
+        const data = await res.json();
+        setTeachers(data);
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        fetchTeachers();
     }, [organisationId]);
 
     return (
@@ -36,9 +42,20 @@ export default function TeachersSection() {
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">Teachers</h2>
 
-                <button className="rounded-lg bg-black px-4 py-2 text-sm text-white">
+                <button
+                    onClick={() => setOpen(true)}
+                    className="rounded-lg bg-black px-4 py-2 text-sm text-white"
+                >
                     + Create Teacher
                 </button>
+                <TeacherOnboardingModal
+                    open={open}
+                    onClose={() => {
+                        setOpen(false);
+                         fetchTeachers();
+                        }
+                    }
+                />
             </div>
 
             {/* Search */}

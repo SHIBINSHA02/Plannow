@@ -37,8 +37,8 @@ export default function TeacherOnboardingModal({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 organisationId,
-                teachername: teacherName,
-                mailid: teacherEmail,
+                teacherName,
+                email: teacherEmail,
                 subjects,
             }),
         });
