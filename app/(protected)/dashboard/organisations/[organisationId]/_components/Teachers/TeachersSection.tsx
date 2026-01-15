@@ -1,28 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import TeacherOnboardingModal from "./TeacherOnboardingModal";
+import { useParams } from "next/navigation";
 
 type Teacher = {
     _id: string;
-    name: string;
+    teacherId: string;
+    teacherName: string;
     email: string;
     subjects: string[];
-    imageUrl?: string | null;
 };
 
 export default function TeachersSection() {
+    const params = useParams();
+    const organisationId = params.organisationId as string;
+
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
-    const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        fetch("/api/organisation/teachers", { cache: "no-store" })
+        if (!organisationId) return;
+
+        fetch(`/api/teachers?organisationId=${organisationId}`, {
+            cache: "no-store",
+        })
             .then(res => res.json())
             .then(data => setTeachers(data))
             .finally(() => setLoading(false));
-    }, []);
+    }, [organisationId]);
 
     return (
         <div className="rounded-xl border border-gray-300 bg-white p-6 space-y-5">
@@ -30,10 +36,7 @@ export default function TeachersSection() {
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">Teachers</h2>
 
-                <button
-                    onClick={() => setOpen(true)}
-                    className="rounded-lg bg-black px-4 py-2 text-sm text-white hover:bg-gray-800"
-                >
+                <button className="rounded-lg bg-black px-4 py-2 text-sm text-white">
                     + Create Teacher
                 </button>
             </div>
@@ -41,40 +44,39 @@ export default function TeachersSection() {
             {/* Search */}
             <input
                 type="text"
-                placeholder="Search teachers by name or email"
+                placeholder="Search by name or email"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-black"
+                className="w-full rounded-lg border px-3 py-2 text-sm"
             />
 
-            {/* Profiles */}
+            {/* Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {loading && <p className="text-sm text-gray-500">Loading teachers...</p>}
+                {loading && (
+                    <p className="text-sm text-gray-500">Loading teachers...</p>
+                )}
 
                 {!loading &&
                     teachers
                         .filter(t =>
-                            t.name.toLowerCase().includes(search.toLowerCase()) ||
+                            t.teacherName.toLowerCase().includes(search.toLowerCase()) ||
                             t.email.toLowerCase().includes(search.toLowerCase())
                         )
                         .map(t => (
                             <div
                                 key={t._id}
-                                className="rounded-xl border p-4 space-y-2 hover:shadow-sm"
+                                className="rounded-xl border border-blue-100  shadow-xl shadow-blue-50 p-4 space-y-3 hover:shadow-sm"
                             >
-                                <div className="flex items-center gap-3">
-                                    <img
-                                        src={t.imageUrl || "/avatar.png"}
-                                        className="h-10 w-10 rounded-full object-cover"
-                                    />
-
-                                    <div>
-                                        <p className="font-medium">{t.name}</p>
-                                        <p className="text-xs text-gray-500">{t.email}</p>
-                                    </div>
+                                <div>
+                                    <p className="font-semibold text-lg">
+                                        {t.teacherName}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        {t.email}
+                                    </p>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2 pt-2">
+                                <div className="flex flex-wrap gap-2">
                                     {t.subjects.map((s, i) => (
                                         <span
                                             key={i}
@@ -84,11 +86,13 @@ export default function TeachersSection() {
                                         </span>
                                     ))}
                                 </div>
+
+                                <p className="text-xs text-gray-400">
+                                    Teacher ID: {t.teacherId}
+                                </p>
                             </div>
                         ))}
             </div>
-
-            <TeacherOnboardingModal open={open} onClose={() => setOpen(false)} />
         </div>
     );
 }
