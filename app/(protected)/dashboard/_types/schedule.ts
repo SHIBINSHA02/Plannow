@@ -1,4 +1,5 @@
 export type Assignment = {
+    _id?: string;
     teacherId: string;
     subject: string;
 };

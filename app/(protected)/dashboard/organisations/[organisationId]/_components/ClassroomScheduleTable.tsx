@@ -50,9 +50,16 @@ const ClassroomScheduleTable: React.FC = () => {
                                     <div className="space-y-2">
                                         {cell.map((slot, idx) => (
                                             <div
-                                                key={idx}
+                                                key={
+                                                    slot._id ??
+                                                    slot.teacherId + "-" + slot.subject + "-" + dayIndex + "-" + periodIndex
+                                                }
                                                 className="p-2 rounded bg-gray-50 border border-gray-200"
                                             >
+
+
+                                                
+                                        
                                                 {/* Teacher */}
                                                 <select
                                                     value={slot.teacherId}
@@ -127,6 +134,7 @@ const ClassroomScheduleTable: React.FC = () => {
 
                                                 {/* Delete */}
                                                 <button
+                                                    type="button"   
                                                     onClick={() =>
                                                         deleteAssignment(
                                                             dayIndex,
@@ -138,21 +146,21 @@ const ClassroomScheduleTable: React.FC = () => {
                                                 >
                                                     Delete
                                                 </button>
+
                                             </div>
                                         ))}
 
                                         {/* Add Assignment */}
                                         <button
+                                            type="button"   
                                             onClick={() =>
-                                                addAssignment(
-                                                    dayIndex,
-                                                    periodIndex
-                                                )
+                                                addAssignment(dayIndex, periodIndex)
                                             }
                                             className="w-full px-2 py-1 text-xs text-green-700 bg-green-100 border border-green-300 rounded hover:bg-green-200"
                                         >
                                             + Add Assignment
                                         </button>
+
                                     </div>
                                 </td>
                             ))}

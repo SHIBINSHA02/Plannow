@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import ScheduleSlot from "@/models/ScheduleSlot";
-import { decrementWorkload } from "@/lib/workload";
 import { connectDB } from "@/lib/db";
+import { decrementWorkload } from "@/lib/workload";
 
 /* ---------- UPDATE SLOT ---------- */
 export async function PATCH(
@@ -30,12 +30,12 @@ export async function PATCH(
                 teacherId: teacherId ?? undefined,
                 subject: subject ?? undefined,
             },
-            { new: true, runValidators: true }
+            { new: true }
         );
 
         if (!updated) {
             return NextResponse.json(
-                { message: "Not found" },
+                { message: "Slot not found" },
                 { status: 404 }
             );
         }
@@ -61,17 +61,26 @@ export async function DELETE(
 
     try {
         const { slotId } = await params;
-
         const { searchParams } = new URL(req.url);
         const organisationId = searchParams.get("organisationId");
 
+        if (!organisationId) {
+            return NextResponse.json(
+                { error: "organisationId is required" },
+                { status: 400 }
+            );
+        }
+
         const slot = await ScheduleSlot.findOne({
             _id: slotId,
-            organisationId
+            organisationId,
         }).session(session);
 
         if (!slot) {
-            return NextResponse.json({ message: "Not found" }, { status: 404 });
+            return NextResponse.json(
+                { message: "Slot not found" },
+                { status: 404 }
+            );
         }
 
         if (slot.teacherId) {
@@ -80,7 +89,7 @@ export async function DELETE(
                 teacherId: slot.teacherId,
                 day: slot.day,
                 period: slot.period,
-                session
+                session,
             });
         }
 
@@ -94,6 +103,10 @@ export async function DELETE(
     } catch (err: any) {
         await session.abortTransaction();
         session.endSession();
-        return NextResponse.json({ error: err.message }, { status: 500 });
+
+        return NextResponse.json(
+            { error: err.message },
+            { status: 500 }
+        );
     }
 }

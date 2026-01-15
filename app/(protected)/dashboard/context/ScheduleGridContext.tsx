@@ -9,6 +9,7 @@ import React, {
     ReactNode,
 } from "react";
 import { useParams } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 /* ---------- Types ---------- */
 
@@ -19,7 +20,7 @@ export type Teacher = {
 };
 
 export type Assignment = {
-    _id?: string;          // 👈 backend slot id
+    _id?: string;
     teacherId: string;
     subject: string;
 };
@@ -38,21 +39,9 @@ type ScheduleGridContextType = {
         field: keyof Assignment,
         value: string
     ) => void;
-    deleteAssignment: (
-        day: number,
-        period: number,
-        index: number
-    ) => Promise<void>;
-    saveSlot: (
-        day: number,
-        period: number,
-        index: number,
-        slot: Assignment
-    ) => void;
-
+    deleteAssignment: (day: number, period: number, index: number) => Promise<void>;
+    saveSlot: (day: number, period: number, index: number, slot: Assignment) => void;
 };
-
-/* ---------- Context ---------- */
 
 const ScheduleGridContext =
     createContext<ScheduleGridContextType | null>(null);
@@ -74,12 +63,26 @@ export function ScheduleGridProvider({
     const organisationId = params.organisationId as string;
     const classroomId = params.classroomId as string;
 
+    const { getToken } = useAuth();
+
     const [grid, setGrid] = useState(initialGrid);
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [subjects, setSubjects] = useState<string[]>([]);
 
-    /* ---------- Debounce Store ---------- */
     const saveTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
+
+    /* ---------- Helpers ---------- */
+
+    const debounceKey = (slot: Assignment, d: number, p: number, i: number) =>
+        slot._id ?? `tmp-${d}-${p}-${i}`;
+
+    const isDuplicateInCell = (day: number, period: number, slot: Assignment) =>
+        grid[day][period].some(
+            (s) =>
+                s !== slot &&
+                s.teacherId === slot.teacherId &&
+                s.subject === slot.subject
+        );
 
     /* ---------- Load Teachers ---------- */
 
@@ -91,11 +94,9 @@ export function ScheduleGridProvider({
             const data: Teacher[] = await res.json();
             setTeachers(data);
 
-            // extract unique subjects
-            const uniqueSubjects = Array.from(
-                new Set(data.flatMap((t) => t.subjects))
+            setSubjects(
+                Array.from(new Set(data.flatMap(t => t.subjects)))
             );
-            setSubjects(uniqueSubjects);
         };
 
         if (organisationId) loadTeachers();
@@ -104,7 +105,7 @@ export function ScheduleGridProvider({
     /* ---------- Grid Mutations ---------- */
 
     const addAssignment = (day: number, period: number) => {
-        setGrid((prev) => {
+        setGrid(prev => {
             const copy = structuredClone(prev);
             copy[day][period].push({ teacherId: "", subject: "" });
             return copy;
@@ -118,23 +119,20 @@ export function ScheduleGridProvider({
         field: keyof Assignment,
         value: string
     ) => {
-        setGrid((prev) => {
+        setGrid(prev => {
             const copy = structuredClone(prev);
             copy[day][period][index][field] = value;
             return copy;
         });
     };
 
-    /* ---------- SAVE (POST / PATCH) ---------- */
+    /* ---------- SAVE ---------- */
 
-    const saveSlot = async (
-        day: number,
-        period: number,
-        slot: Assignment
-    ) => {
-        // Don't save empty slots
-        if (!slot.teacherId && !slot.subject) return;
+    const saveSlot = async (day: number, period: number, slot: Assignment) => {
+        if (!slot.teacherId || !slot.subject) return;
+        if (isDuplicateInCell(day, period, slot)) return;
 
+        const token = await getToken();
         const isUpdate = Boolean(slot._id);
 
         const res = await fetch(
@@ -143,43 +141,32 @@ export function ScheduleGridProvider({
                 : `/api/schedule/classroom/${classroomId}`,
             {
                 method: isUpdate ? "PATCH" : "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify({
                     organisationId,
                     classroomId,
-                    teacherId: slot.teacherId || undefined,
-                    subject: slot.subject || undefined,
+                    teacherId: slot.teacherId,
+                    subject: slot.subject,
                     day: day + 1,
                     period: period + 1,
-                    slotId: slot._id, // for PATCH
                 }),
             }
         );
 
-        // ✅ Ignore duplicate conflict silently
-        if (res.status === 409) return;
+        if (res.status === 409 || !res.ok) return;
 
-        if (!res.ok) {
-            console.error("Failed to save slot");
-            return;
-        }
-
-        // Attach _id after first POST
         if (!isUpdate) {
             const saved = await res.json();
-
             setGrid(prev => {
                 const copy = structuredClone(prev);
-                const last =
-                    copy[day][period][copy[day][period].length - 1];
-                last._id = saved._id;
+                copy[day][period][copy[day][period].length - 1]._id = saved._id;
                 return copy;
             });
         }
     };
-
-
-    /* ---------- Debounced Save ---------- */
 
     const debouncedSave = (
         key: string,
@@ -188,10 +175,10 @@ export function ScheduleGridProvider({
         slot: Assignment
     ) => {
         clearTimeout(saveTimeouts.current[key]);
-
-        saveTimeouts.current[key] = setTimeout(() => {
-            saveSlot(day, period, slot);
-        }, 400);
+        saveTimeouts.current[key] = setTimeout(
+            () => saveSlot(day, period, slot),
+            400
+        );
     };
 
     /* ---------- DELETE ---------- */
@@ -203,7 +190,6 @@ export function ScheduleGridProvider({
     ) => {
         const slot = grid[day][period][index];
 
-        // 🛑 If no _id, just remove locally
         if (!slot?._id) {
             setGrid(prev => {
                 const copy = structuredClone(prev);
@@ -213,15 +199,17 @@ export function ScheduleGridProvider({
             return;
         }
 
+        const token = await getToken();
+
         const res = await fetch(
             `/api/schedule/${slot._id}?organisationId=${organisationId}`,
-            { method: "DELETE" }
+            {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            }
         );
 
-        if (!res.ok) {
-            console.error("Failed to delete slot");
-            return;
-        }
+        if (!res.ok) return;
 
         setGrid(prev => {
             const copy = structuredClone(prev);
@@ -229,7 +217,6 @@ export function ScheduleGridProvider({
             return copy;
         });
     };
-
 
     /* ---------- Provider ---------- */
 
@@ -244,13 +231,8 @@ export function ScheduleGridProvider({
                 addAssignment,
                 updateAssignment,
                 deleteAssignment,
-                saveSlot: (day, period, index, slot) =>
-                    debouncedSave(
-                        `${day}-${period}-${index}`, // ✅ STABLE
-                        day,
-                        period,
-                        slot
-                    ),
+                saveSlot: (d, p, i, s) =>
+                    debouncedSave(debounceKey(s, d, p, i), d, p, s),
             }}
         >
             {children}
@@ -262,10 +244,6 @@ export function ScheduleGridProvider({
 
 export function useScheduleGrid() {
     const ctx = useContext(ScheduleGridContext);
-    if (!ctx) {
-        throw new Error(
-            "useScheduleGrid must be used inside ScheduleGridProvider"
-        );
-    }
+    if (!ctx) throw new Error("useScheduleGrid must be used inside provider");
     return ctx;
 }

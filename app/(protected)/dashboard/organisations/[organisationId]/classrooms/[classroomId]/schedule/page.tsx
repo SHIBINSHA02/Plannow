@@ -42,6 +42,7 @@ const scheduleToGrid = (schedule: ScheduleSlot[]) => {
 
         if (grid[d]?.[p]) {
             grid[d][p].push({
+                _id: slot._id,          
                 teacherId: slot.teacherId,
                 subject: slot.subject,
             });
@@ -50,6 +51,7 @@ const scheduleToGrid = (schedule: ScheduleSlot[]) => {
 
     return grid;
 };
+
 
 /* ---------- Page ---------- */
 
