@@ -19,7 +19,8 @@ const TeacherSchema = new Schema(
             required: true,
             lowercase: true,
             unique: true, // 🔥 GLOBAL UNIQUE
-            trim: true
+            trim: true,
+            index: true  
         },
 
         subjects: {

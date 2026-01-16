@@ -115,7 +115,7 @@ export default function Sidebar() {
                     <NavItem href="/dashboard/organisations" icon={<Building2 size={18} />} label="Organisations" />
                     <NavItem href="/dashboard/classrooms" icon={<GraduationCap size={18} />} label="Classrooms" />
                     <NavItem href="/dashboard/schedules" icon={<Calendar size={18} />} label="Schedules" />
-                    <NavItem href="/dashboard/conversations" icon={<MessageSquare size={18} />} label="Conversations" />
+                    <NavItem href="/dashboard/substitution" icon={<MessageSquare size={18} />} label="Substitution" />
                     <NavItem href="/dashboard/profile" icon={<User size={18} />} label="Profile" />
 
                     <div className="pt-4">

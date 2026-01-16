@@ -31,13 +31,28 @@ async function seed() {
         /* ================= HARD RESET (DEV SAFE) ================= */
 
         // 🔥 DROP schedule slots collection completely (removes indexes too)
-        const collections = await mongoose.connection.db
+        const scheduleCollections = await mongoose.connection.db
             .listCollections({ name: "scheduleslots" })
             .toArray();
 
-        if (collections.length > 0) {
+        if (scheduleCollections.length > 0) {
             await mongoose.connection.db.dropCollection("scheduleslots");
             console.log("🧹 scheduleslots collection dropped (data + indexes)");
+        }
+
+        /* ================= FIX TEACHER INDEXES (CRITICAL) ================= */
+
+        const teacherCollection = mongoose.connection.db.collection("teachers");
+        const teacherIndexes = await teacherCollection.indexes();
+
+        for (const index of teacherIndexes) {
+            if (
+                index.name === "email_1" ||
+                index.name === "organisationId_1_email_1"
+            ) {
+                await teacherCollection.dropIndex(index.name);
+                console.log(`🧹 Dropped index: ${index.name}`);
+            }
         }
 
         /* ================= CLEAN OTHER DATA ================= */
@@ -99,12 +114,14 @@ async function seed() {
                     subjects: ["CS"],
                     organisations: ["ORG2"],
                 },
+
+                // ✅ SAME EMAIL — NOW VALID
                 {
                     teacherId: "T-4",
                     teacherName: "David Park",
-                    email: "david@college.com",
+                    email: "alice@college.com",
                     subjects: ["Physics"],
-                    organisations: ["ORG1", "ORG2"],
+                    organisations: ["ORG2"],
                 },
             ],
             { ordered: false }
@@ -150,17 +167,6 @@ async function seed() {
                         { subject: "CS", defaultTeacherId: "T-3", weeklyHours: 5 },
                     ],
                 },
-                {
-                    organisationId: "ORG2",
-                    classroomId: "ORG2-C2",
-                    className: "AI A",
-                    department: "AI",
-                    adminEmail: ADMIN_EMAIL,
-                    editorEmails: [ADMIN_EMAIL],
-                    subjects: [
-                        { subject: "CS", defaultTeacherId: "T-3", weeklyHours: 5 },
-                    ],
-                },
             ],
             { ordered: false }
         );
@@ -185,7 +191,7 @@ async function seed() {
                     teacherId: "T-4",
                     subject: "Physics",
                     day: 1,
-                    period: 1, // parallel teacher ✅
+                    period: 1,
                 },
                 {
                     organisationId: "ORG1",
