@@ -2,8 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { syncUser } from "@/lib/syncUser";
 import { NextResponse } from "next/server";
 
-export async function GET() {
-    const { userId } =await auth();
+export async function POST() {
+    const { userId } = await auth();
 
     if (!userId) {
         return NextResponse.json(
