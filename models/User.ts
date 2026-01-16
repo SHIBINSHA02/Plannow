@@ -27,10 +27,22 @@ const userSchema = new mongoose.Schema({
         default: "STAFF"
     },
 
-    organisationId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Organisation"
-    },
+    pinnedOrganisations: [
+        {
+            organisationId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Organisation",
+                required: true
+            },
+            pinnedAt: {
+                type: Date,
+                default: Date.now
+            },
+            order: {
+                type: Number
+            }
+        }
+    ],
 
     createdAt: {
         type: Date,

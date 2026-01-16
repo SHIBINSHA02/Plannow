@@ -27,7 +27,7 @@ export default function OrganisationGrid() {
         return (
             <div className="space-y-4">
                 <h2 className="text-xl font-semibold text-gray-300 animate-pulse">
-                    Organisations (Edit Access)
+                    Your Organisations
                 </h2>
 
                 <div className="grid md:grid-cols-2 gap-5">
@@ -52,7 +52,7 @@ export default function OrganisationGrid() {
     if (error) return <p className="text-red-500">{error}</p>;
 
     return (
-        <div className="space-y-4 bg-white border rounded-3xl p-5">
+        <div className="space-y-4 bg-white border border-gray-300 rounded-3xl p-5">
             {/* Heading */}
             <h2 className="text-xl font-semibold text-gray-800">
                 Your Organisations

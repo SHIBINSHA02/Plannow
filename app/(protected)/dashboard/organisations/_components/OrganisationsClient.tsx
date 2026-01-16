@@ -3,6 +3,7 @@
 import { useState } from "react";
 import OrganisationGrid from "./OrganisationGrid";
 import CreateOrganisationModal from "./CreateOrganisationModal";
+import GetOrganisation from "./GetOrganisation";
 
 export default function OrganisationsClient() {
     const [open, setOpen] = useState(false);
@@ -10,8 +11,8 @@ export default function OrganisationsClient() {
     return (
         <div className="min-h-screen">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-3xl font-medium">Organisations</h1>
+            <div className="flex items-center justify-end mb-6">
+             
 
                 <button
                     onClick={() => setOpen(true)}
@@ -22,6 +23,7 @@ export default function OrganisationsClient() {
             </div>
 
             {/* Grid */}
+            <div className="flex flex-col gap-5">
             <OrganisationGrid />
 
             {/* Modal */}
@@ -29,6 +31,8 @@ export default function OrganisationsClient() {
                 open={open}
                 onClose={() => setOpen(false)}
             />
+            <GetOrganisation/>
+            </div>
         </div>
     );
 }
