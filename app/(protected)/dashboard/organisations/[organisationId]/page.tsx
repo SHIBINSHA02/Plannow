@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ClassroomSection from "./_components/ClassroomSection";
 import TeachersSection from "./_components/Teachers/TeachersSection";
+import { Edit } from "lucide-react";
 
 /* ---------- Types ---------- */
 
@@ -68,7 +69,7 @@ export default function OrganisationPage() {
     return (
         <div className="space-y-8">
             {/* ---------- Organisation Header ---------- */}
-            <div className="relative rounded-lg overflow-hidden border">
+            <div className="flex flex-col rounded-4xl overflow-hidden border">
                 {/* Background */}
                 {organisation?.backgroundImageUrl ? (
                     <div
@@ -82,7 +83,7 @@ export default function OrganisationPage() {
                 )}
 
                 {/* Content */}
-                <div className="relative px-6 pb-6 -mt-12 flex items-end gap-4">
+                <div className="flex flex-col px-6 pb-6 -mt-12 flex items-start gap-4">
                     {/* Profile */}
                     {organisation?.profileImageUrl ? (
                         <img
@@ -104,19 +105,23 @@ export default function OrganisationPage() {
                             </p>
                         ) : (
                             <>
-                                <h1 className="text-3xl font-bold text-gray-900">
+                                <div className="flex items-center justify-between w-full">
+                            <div>
+                                <h1 className="text-3xl font-bold text-blue-600">
                                     {organisation?.organisationName}
                                 </h1>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-700">
                                     Organisation ID: {organisationId}
                                 </p>
+                                    </div>
 
                                 <button
                                     onClick={() => setShowEdit(true)}
-                                    className="mt-2 text-sm text-blue-600 hover:underline"
+                                    className="mt-2 text-sm text-gray-400 p-2 rounded-xl"
                                 >
-                                    Edit organisation images
+                                    <Edit/>
                                 </button>
+                                    </div>
                             </>
                         )}
                     </div>
