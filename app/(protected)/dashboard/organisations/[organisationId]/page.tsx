@@ -100,9 +100,13 @@ export default function OrganisationPage() {
                     {/* Text */}
                     <div>
                         {loading ? (
-                            <p className="text-gray-400">
-                                Loading organisation…
-                            </p>
+                            <div className="flex items-center justify-between w-full animate-pulse">
+                                <div className="space-y-2">
+                                    <div className="h-8 w-64 bg-gray-200 rounded-lg" />
+                                    <div className="h-4 w-40 bg-gray-200 rounded-md" />
+                                </div>
+                                <div className="h-9 w-9 bg-gray-200 rounded-xl" />
+                            </div>
                         ) : (
                             <>
                                 <div className="flex items-center justify-between w-full">

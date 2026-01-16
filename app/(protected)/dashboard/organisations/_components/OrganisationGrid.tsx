@@ -22,48 +22,83 @@ export default function OrganisationGrid() {
             .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <p>Loading organisations…</p>;
+    /* ---------- Loading Skeleton ---------- */
+    if (loading)
+        return (
+            <div className="space-y-4">
+                <h2 className="text-xl font-semibold text-gray-300 animate-pulse">
+                    Organisations (Edit Access)
+                </h2>
+
+                <div className="grid md:grid-cols-2 gap-5">
+                    {[...Array(4)].map((_, i) => (
+                        <div
+                            key={i}
+                            className="flex items-center gap-4 p-5 bg-white rounded-xl
+                                       shadow animate-pulse"
+                        >
+                            <div className="w-14 h-14 rounded-lg bg-gray-200" />
+
+                            <div className="space-y-2">
+                                <div className="h-4 w-40 bg-gray-200 rounded" />
+                                <div className="h-3 w-28 bg-gray-200 rounded" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+
     if (error) return <p className="text-red-500">{error}</p>;
 
     return (
-        <div className="grid md:grid-cols-2 gap-5">
-            {organisations.map(org => (
-                <div
-                    key={org.organisationId}
-                    onClick={() =>
-                        router.push(
-                            `/dashboard/organisations/${org.organisationId}`
-                        )
-                    }
-                    className="flex items-center gap-4 p-5 bg-white rounded-xl shadow
-                               cursor-pointer hover:shadow-lg transition"
-                >
-                    {/* Square Profile Area */}
-                    <div className="w-14 h-14 rounded-lg overflow-hidden bg-blue-600
-                                    flex items-center justify-center text-white
-                                    font-semibold text-lg shrink-0">
-                        {org.profileImageUrl ? (
-                            <img
-                                src={org.profileImageUrl}
-                                alt={org.organisationName}
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            org.organisationName.charAt(0)
-                        )}
-                    </div>
+        <div className="space-y-4 bg-white border rounded-3xl p-5">
+            {/* Heading */}
+            <h2 className="text-xl font-semibold text-gray-800">
+                Your Organisations
+                <span className="ml-2 text-sm text-gray-400">You have edit access</span>
+            </h2>
 
-                    {/* Text */}
-                    <div>
-                        <h3 className="font-semibold">
-                            {org.organisationName}
-                        </h3>
-                        <p className="text-sm text-gray-400">
-                            Admin: {org.adminName}
-                        </p>
+
+            <div className="grid md:grid-cols-2 gap-5">
+                {organisations.map(org => (
+                    <div
+                        key={org.organisationId}
+                        onClick={() =>
+                            router.push(
+                                `/dashboard/organisations/${org.organisationId}`
+                            )
+                        }
+                        className="flex items-center gap-4 p-5 bg-white rounded-xl shadow
+                                   cursor-pointer hover:shadow-lg transition"
+                    >
+                        {/* Profile */}
+                        <div className="w-14 h-14 rounded-lg overflow-hidden bg-blue-600
+                                        flex items-center justify-center text-white
+                                        font-semibold text-lg shrink-0">
+                            {org.profileImageUrl ? (
+                                <img
+                                    src={org.profileImageUrl}
+                                    alt={org.organisationName}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                org.organisationName.charAt(0)
+                            )}
+                        </div>
+
+                        {/* Text */}
+                        <div>
+                            <h3 className="font-semibold">
+                                {org.organisationName}
+                            </h3>
+                            <p className="text-sm text-gray-400">
+                                Admin: {org.adminName}
+                            </p>
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 }
