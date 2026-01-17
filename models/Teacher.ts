@@ -18,7 +18,7 @@ const TeacherSchema = new Schema(
             type: String,
             required: true,
             lowercase: true,
-            unique: true, // 🔥 GLOBAL UNIQUE
+            unique: true, 
             trim: true,
             index: true  
         },

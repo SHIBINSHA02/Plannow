@@ -90,13 +90,12 @@ async function seed() {
         console.log("🏫 Organisations created");
 
         /* ================= TEACHERS ================= */
-
         await Teacher.insertMany(
             [
                 {
                     teacherId: "T-1",
                     teacherName: "Alice Johnson",
-                    email: "alice@college.com",
+                    email: ADMIN_EMAIL, // ✅ matches Clerk user
                     subjects: ["Maths", "Physics"],
                     organisations: ["ORG1"],
                 },
@@ -114,12 +113,10 @@ async function seed() {
                     subjects: ["CS"],
                     organisations: ["ORG2"],
                 },
-
-                // ✅ SAME EMAIL — NOW VALID
                 {
                     teacherId: "T-4",
                     teacherName: "David Park",
-                    email: "alice@college.com",
+                    email: ADMIN_EMAIL, // ✅ same email, different org
                     subjects: ["Physics"],
                     organisations: ["ORG2"],
                 },
