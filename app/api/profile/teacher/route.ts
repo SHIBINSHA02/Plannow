@@ -18,29 +18,50 @@ export async function GET() {
         /* ---------- DB ---------- */
         await connectDB();
 
-        /* ---------- Clerk (App Router SAFE) ---------- */
+        /* ---------- Clerk ---------- */
         const { clerkClient } = await import("@clerk/nextjs/server");
         const clerk = await clerkClient();
         const user = await clerk.users.getUser(userId);
 
-        /* ---------- Collect ALL user emails ---------- */
-        const emails = user.emailAddresses
-            .map(e => e.emailAddress.toLowerCase());
-
-        console.log("Clerk emails:", emails);
-
-        /* ---------- Find teachers ---------- */
-        const teachers = await Teacher.find({
-            email: { $in: emails }
-        });
-
-        console.log(
-            "Matched teachers:",
-            teachers.map(t => ({
-                teacherId: t.teacherId,
-                email: t.email
-            }))
+        const emails = user.emailAddresses.map(e =>
+            e.emailAddress.toLowerCase()
         );
+
+        /* ---------- Aggregation ---------- */
+        const teachers = await Teacher.aggregate([
+            {
+                $match: {
+                    email: { $in: emails }
+                }
+            },
+            {
+                $lookup: {
+                    from: "organisations",          // Mongo collection name
+                    localField: "organisations",    // ["ORG1"]
+                    foreignField: "organisationId", // "ORG1"
+                    as: "organisationDetails"
+                }
+            },
+            {
+                $addFields: {
+                    organisations: {
+                        $map: {
+                            input: "$organisationDetails",
+                            as: "org",
+                            in: {
+                                id: "$$org.organisationId",
+                                name: "$$org.organisationName"
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    organisationDetails: 0
+                }
+            }
+        ]);
 
         return NextResponse.json({ teachers });
 

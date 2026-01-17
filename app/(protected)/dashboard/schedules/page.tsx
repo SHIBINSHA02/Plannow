@@ -4,13 +4,18 @@ import { useEffect, useState } from "react";
 
 /* ---------- Types ---------- */
 
+type Organisation = {
+    id: string;
+    name: string;
+};
+
 type Teacher = {
     _id: string;
     teacherId: string;
     teacherName: string;
     email: string;
     subjects: string[];
-    organisations: string[];
+    organisations: Organisation[];
 };
 
 type ScheduleSlot = {
@@ -27,6 +32,8 @@ type ScheduleSlot = {
 export default function TeacherSchedulePage() {
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
+    const [selectedOrganisationId, setSelectedOrganisationId] = useState<string | null>(null);
+
     const [schedule, setSchedule] = useState<ScheduleSlot[]>([]);
     const [loadingTeachers, setLoadingTeachers] = useState(true);
     const [loadingSchedule, setLoadingSchedule] = useState(false);
@@ -46,7 +53,6 @@ export default function TeacherSchedulePage() {
 
                 const data = await res.json();
 
-                // 🔍 SHOW REAL SERVER ERROR
                 if (!res.ok) {
                     throw new Error(data?.message || "Teacher fetch failed");
                 }
@@ -54,13 +60,15 @@ export default function TeacherSchedulePage() {
                 if (Array.isArray(data.teachers)) {
                     setTeachers(data.teachers);
 
+                    // Auto-select if only one teacher
                     if (data.teachers.length === 1) {
-                        setSelectedTeacherId(data.teachers[0].teacherId);
+                        const t = data.teachers[0];
+                        setSelectedTeacherId(t.teacherId);
+                        setSelectedOrganisationId(t.organisations[0]?.id ?? null);
                     }
                 } else {
                     setTeachers([]);
                 }
-
             } catch (err: any) {
                 console.error("Teacher fetch error:", err);
                 setError(err.message);
@@ -76,21 +84,21 @@ export default function TeacherSchedulePage() {
     /* ---------- Fetch Schedule ---------- */
 
     useEffect(() => {
-        if (!selectedTeacherId) return;
+        if (!selectedTeacherId || !selectedOrganisationId) return;
 
         const fetchSchedule = async () => {
             try {
                 setLoadingSchedule(true);
 
                 const res = await fetch(
-                    `/api/schedule/teacher/${selectedTeacherId}`,
+                    `/api/schedule/teacher/${selectedTeacherId}?organisationId=${selectedOrganisationId}`,
                     { cache: "no-store" }
                 );
 
                 const data = await res.json();
 
                 if (!res.ok) {
-                    throw new Error("Failed to fetch schedule");
+                    throw new Error(data?.message || "Failed to fetch schedule");
                 }
 
                 setSchedule(Array.isArray(data) ? data : []);
@@ -103,7 +111,7 @@ export default function TeacherSchedulePage() {
         };
 
         fetchSchedule();
-    }, [selectedTeacherId]);
+    }, [selectedTeacherId, selectedOrganisationId]);
 
     /* ---------- States ---------- */
 
@@ -114,9 +122,7 @@ export default function TeacherSchedulePage() {
     if (error) {
         return (
             <div className="p-6">
-                <p className="text-sm text-red-500">
-                    {error}
-                </p>
+                <p className="text-sm text-red-500">{error}</p>
             </div>
         );
     }
@@ -144,7 +150,16 @@ export default function TeacherSchedulePage() {
 
                     <select
                         value={selectedTeacherId ?? ""}
-                        onChange={e => setSelectedTeacherId(e.target.value)}
+                        onChange={e => {
+                            const teacher = teachers.find(
+                                t => t.teacherId === e.target.value
+                            );
+
+                            setSelectedTeacherId(e.target.value);
+                            setSelectedOrganisationId(
+                                teacher?.organisations[0]?.id ?? null
+                            );
+                        }}
                         className="border rounded-lg px-3 py-2 w-full max-w-sm"
                     >
                         <option value="" disabled>
@@ -153,7 +168,8 @@ export default function TeacherSchedulePage() {
 
                         {teachers.map(t => (
                             <option key={t.teacherId} value={t.teacherId}>
-                                {t.teacherName} ({t.organisations.join(", ")})
+                                {t.teacherName} —{" "}
+                                {t.organisations.map(o => o.name).join(", ")}
                             </option>
                         ))}
                     </select>
