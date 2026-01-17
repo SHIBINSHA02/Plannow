@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import TeacherScheduleGrid from "./_components/TeacherScheduleGrid";
 
 /* ---------- Types ---------- */
 
@@ -168,7 +169,7 @@ export default function TeacherSchedulePage() {
 
                         {teachers.map(t => (
                             <option key={t.teacherId} value={t.teacherId}>
-                                {t.teacherName} —{" "}
+                                
                                 {t.organisations.map(o => o.name).join(", ")}
                             </option>
                         ))}
@@ -182,32 +183,12 @@ export default function TeacherSchedulePage() {
                         Teaching Schedule
                     </h2>
 
-                    {loadingSchedule ? (
-                        <p className="text-gray-400">Loading schedule…</p>
-                    ) : schedule.length === 0 ? (
-                        <p className="text-sm text-gray-500">
-                            No schedule assigned.
-                        </p>
-                    ) : (
-                        <div className="space-y-3">
-                            {schedule.map(slot => (
-                                <div
-                                    key={slot._id}
-                                    className="flex justify-between border rounded px-4 py-3"
-                                >
-                                    <div>
-                                        <p className="font-medium">{slot.subject}</p>
-                                        <p className="text-xs text-gray-500">
-                                            Day {slot.day} · Period {slot.period}
-                                        </p>
-                                    </div>
-                                    <span className="text-sm text-gray-600">
-                                        {slot.classroomId}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+    
+                    <TeacherScheduleGrid
+                        schedule={schedule}
+                        loading={loadingSchedule}
+                    />
+                       
                 </div>
             )}
         </div>
