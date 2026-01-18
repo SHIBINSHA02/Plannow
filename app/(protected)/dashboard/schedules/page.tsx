@@ -26,6 +26,7 @@ type ScheduleSlot = {
     day: number;
     period: number;
     subject: string;
+    className: string;
     classroomId: string;
     organisationId: string;
 };

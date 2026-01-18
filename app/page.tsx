@@ -168,6 +168,7 @@ export default function Home() {
 
 
             <Connect />
+            <Footer/>
         
         </div>
     );

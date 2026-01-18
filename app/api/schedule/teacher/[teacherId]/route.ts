@@ -6,25 +6,71 @@ export async function GET(
     req: Request,
     context: { params: Promise<{ teacherId: string }> }
 ) {
-    await connectDB();
+    try {
+        /* ---------- DB ---------- */
+        await connectDB();
 
-    // ✅ FIX: await params
-    const { teacherId } = await context.params;
+        /* ---------- Params ---------- */
+        const { teacherId } = await context.params;
+        const { searchParams } = new URL(req.url);
+        const organisationId = searchParams.get("organisationId");
 
-    const { searchParams } = new URL(req.url);
-    const organisationId = searchParams.get("organisationId");
+        if (!organisationId) {
+            return NextResponse.json(
+                { message: "organisationId is required" },
+                { status: 400 }
+            );
+        }
 
-    if (!organisationId) {
+        /* ---------- Aggregation ---------- */
+        const slots = await ScheduleSlot.aggregate([
+            {
+                $match: {
+                    teacherId,
+                    organisationId
+                }
+            },
+            {
+                $lookup: {
+                    from: "classrooms",          // mongoose auto-plural
+                    localField: "classroomId",
+                    foreignField: "classroomId",
+                    as: "classroom"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$classroom",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $addFields: {
+                    className: {
+                        $ifNull: ["$classroom.className", "Unknown Class"]
+                    }
+                }
+            },
+            {
+                $project: {
+                    classroom: 0,
+                    __v: 0
+                }
+            },
+            {
+                $sort: { day: 1, period: 1 }
+            }
+        ]);
+
+        /* ---------- Response ---------- */
+        return NextResponse.json(slots);
+
+    } catch (error) {
+        console.error("Teacher schedule fetch error:", error);
+
         return NextResponse.json(
-            { message: "organisationId is required" },
-            { status: 400 }
+            { message: "Failed to fetch teacher schedule" },
+            { status: 500 }
         );
     }
-
-    const slots = await ScheduleSlot.find({
-        teacherId,
-        organisationId
-    }).sort({ day: 1, period: 1 });
-
-    return NextResponse.json(slots);
 }

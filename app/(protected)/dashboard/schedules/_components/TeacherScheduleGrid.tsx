@@ -7,7 +7,7 @@ type ScheduleSlot = {
     day: number;        // 1–5
     period: number;     // 1–6
     subject: string;
-    classroomId: string;
+    className: string;
     organisationId: string;
 };
 
@@ -89,11 +89,11 @@ export default function TeacherScheduleGrid({
                                             <div className="space-y-1">
                                                 {slots.map((s, index) => (
                                                     <div
-                                                        key={`${s.classroomId}-${s.subject}-${index}`}
+                                                        key={`${s.className}-${s.subject}-${index}`}
                                                         className="bg-indigo-100 p-2 rounded text-xs text-left"
                                                     >
                                                         <div className="font-semibold text-indigo-800">
-                                                            {s.classroomId}
+                                                            {s.className}
                                                         </div>
                                                         <div className="text-indigo-600">
                                                             {s.subject}

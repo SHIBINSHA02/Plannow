@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Calendar } from "lucide-react";
+import { Calendar, Heart } from "lucide-react";
 
 const Footer: React.FC = () => {
     return (
@@ -20,6 +20,11 @@ const Footer: React.FC = () => {
                         <p className="text-gray-400">
                             Empowering educational institutions with intelligent scheduling solutions.
                         </p>
+                        <p className="mt-2 flex items-center gap-1 text-sm text-gray-500 italic">
+                            Built at Marian Engineering College (TVM).
+                            <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+                        </p>
+
                     </div>
 
                     {/* Product */}
