@@ -10,6 +10,13 @@ type ScheduleSlot = {
 };
 
 const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+const pieColors = [
+    "#1E3A8A", // dark blue
+    "#1D4ED8", // blue
+    "#2563EB", // primary blue
+    "#3B82F6", // light blue
+    "#60A5FA", // very light blue
+];
 
 export default function WeeklyWorkloadChart({
     schedule,
@@ -27,8 +34,9 @@ export default function WeeklyWorkloadChart({
     });
 
     const maxLoad = Math.max(...workload, 1);
+    const totalLoad = workload.reduce((a, b) => a + b, 0) || 1;
 
-    /* ---------- SVG sizing ---------- */
+    /* ---------- Line Graph sizing ---------- */
     const width = 520;
     const height = 220;
     const padding = 40;
@@ -43,7 +51,7 @@ export default function WeeklyWorkloadChart({
         return { x, y, value };
     });
 
-    /* ---------- Freehand smooth curve ---------- */
+    /* ---------- Freehand curve ---------- */
     const buildSmoothPath = (pts: typeof points) => {
         let d = `M ${pts[0].x} ${pts[0].y}`;
 
@@ -60,70 +68,144 @@ export default function WeeklyWorkloadChart({
 
     const pathD = buildSmoothPath(points);
 
+    /* ---------- Pie chart math ---------- */
+    let cumulativeAngle = 0;
+    const radius = 70;
+    const centerX = 80;
+    const centerY = 110;
+
+    const polarToCartesian = (cx: number, cy: number, r: number, angle: number) => {
+        const rad = ((angle - 90) * Math.PI) / 180;
+        return {
+            x: cx + r * Math.cos(rad),
+            y: cy + r * Math.sin(rad),
+        };
+    };
+
+    const describeArc = (startAngle: number, endAngle: number) => {
+        const start = polarToCartesian(centerX, centerY, radius, endAngle);
+        const end = polarToCartesian(centerX, centerY, radius, startAngle);
+        const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+        return `
+            M ${centerX} ${centerY}
+            L ${start.x} ${start.y}
+            A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}
+            Z
+        `;
+    };
+
     return (
         <div className="mt-8 bg-white rounded-xl shadow-md p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Weekly Workload (Freehand Graph)
+                Weekly Workload
             </h3>
-            <div>
 
-            <svg  className="w-full h-60">
-              
-                <line
-                    x1={padding}
-                    y1={padding}
-                    x2={padding}
-                    y2={height - padding}
-                    stroke="#CBD5E1"
-                />
-                <line
-                    x1={padding}
-                    y1={height - padding}
-                    x2={width - padding}
-                    y2={height - padding}
-                    stroke="#CBD5E1"
-                />
-
-                {/* Freehand curved line */}
-                <path
-                    d={pathD}
-                    fill="none"
-                    stroke="#2563EB"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
-
-                {/* Points */}
-                {points.map((p, i) => (
-                    <g key={i}>
-                        <circle cx={p.x} cy={p.y} r="4" fill="#2563EB" />
-                        <text
-                            x={p.x}
-                            y={p.y - 10}
-                            fontSize="10"
-                            textAnchor="middle"
-                            fill="#374151"
-                        >
-                            {p.value}
-                        </text>
-                    </g>
-                ))}
-
-                {/* X-axis labels */}
-                {dayLabels.map((label, i) => (
-                    <text
-                        key={label}
-                        x={padding + i * stepX}
-                        y={height - 10}
-                        fontSize="11"
-                        textAnchor="middle"
-                        fill="#6B7280"
+            {/* Responsive container */}
+            <div className="flex flex-col md:flex-row gap-6">
+                {/* ---------- Line Graph ---------- */}
+                <div className="w-full overflow-x-auto">
+                    <svg
+                        viewBox="0 0 520 220"
+                        className="w-full h-60 min-w-[520px]"
+                        preserveAspectRatio="xMidYMid meet"
                     >
-                        {label}
-                    </text>
-                ))}
-            </svg>
+                        {/* Axes */}
+                        <line
+                            x1={padding}
+                            y1={padding}
+                            x2={padding}
+                            y2={height - padding}
+                            stroke="#CBD5E1"
+                        />
+                        <line
+                            x1={padding}
+                            y1={height - padding}
+                            x2={width - padding}
+                            y2={height - padding}
+                            stroke="#CBD5E1"
+                        />
+
+                        {/* Freehand line */}
+                        <path
+                            d={pathD}
+                            fill="none"
+                            stroke="#2563EB"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+
+                        {/* Points */}
+                        {points.map((p, i) => (
+                            <g key={i}>
+                                <circle cx={p.x} cy={p.y} r="4" fill="#2563EB" />
+                                <text
+                                    x={p.x}
+                                    y={p.y - 10}
+                                    fontSize="10"
+                                    textAnchor="middle"
+                                    fill="#374151"
+                                >
+                                    {p.value}
+                                </text>
+                            </g>
+                        ))}
+
+                        {/* X labels */}
+                        {dayLabels.map((label, i) => (
+                            <text
+                                key={label}
+                                x={padding + i * stepX}
+                                y={height - 10}
+                                fontSize="11"
+                                textAnchor="middle"
+                                fill="#6B7280"
+                            >
+                                {label}
+                            </text>
+                        ))}
+                    </svg>
+                </div>
+
+                {/* ---------- Pie Chart ---------- */}
+                <div className="w-full md:w-64 flex flex-col items-center">
+                    <svg
+                        viewBox="0 0 160 220"
+                        className="w-full max-w-[160px]"
+                        preserveAspectRatio="xMidYMid meet"
+                    >
+                        {workload.map((value, index) => {
+                            const sliceAngle = (value / totalLoad) * 360;
+                            const startAngle = cumulativeAngle;
+                            const endAngle = cumulativeAngle + sliceAngle;
+                            cumulativeAngle += sliceAngle;
+
+                            return (
+                                <path
+                                    key={index}
+                                    d={describeArc(startAngle, endAngle)}
+                                    fill={pieColors[index]}
+                                />
+                            );
+                        })}
+                    </svg>
+
+                    {/* Legend */}
+                    <div className="mt-2 space-y-1 text-xs">
+                        {workload.map((value, i) => (
+                            <div key={i} className="flex items-center gap-2">
+                                <span
+                                    className="w-3 h-3 rounded-sm"
+                                    style={{ backgroundColor: pieColors[i] }}
+                                />
+                                <span className="text-gray-700">
+                                    {dayLabels[i]} ({value})
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -143,7 +143,7 @@ export default function TeacherSchedulePage() {
     /* ---------- UI ---------- */
 
     return (
-        <div className="space-y-6 max-w-6xl mx-auto p-6">
+        <div className="space-y-6 max-w-6xl lg:mx-auto lg:p-6">
 
             {teachers.length > 1 && (
                 <div>
@@ -180,7 +180,7 @@ export default function TeacherSchedulePage() {
             )}
 
             {selectedTeacherId && (
-                <div className="bg-white border  border-blue-200 rounded-xl p-5 shadow-lg shadow-blue-50">
+                <div className="bg-white lg:border  lg:border-blue-200 lg:rounded-xl lg:p-5 lg:shadow-lg lg:shadow-blue-50">
                     <h2 className="text-lg font-semibold mb-4">
                         Teaching Schedule
                     </h2>
