@@ -42,16 +42,16 @@ export default function TeacherScheduleGrid({
 
     return (
         <div className="overflow-x-auto shadow-lg rounded-lg">
-            <table className="min-w-full border-collapse border border-gray-300 text-sm ">
+            <table className="min-w-full border-collapse border border-gray-300 text-sm rounded-3xl ">
                 <thead>
                     <tr className="bg-white">
-                        <th className="border px-4 py-2 text-left font-semibold">
+                        <th className="border border-gray-300 px-4 py-2 text-left font-semibold">
                             Day / Period
                         </th>
                         {periods.map(p => (
                             <th
                                 key={p}
-                                className="border px-4 py-2 text-center font-semibold"
+                                className="border border-gray-300 px-4 py-2 text-center font-semibold"
                             >
                                 Period {p}
                             </th>
@@ -62,7 +62,7 @@ export default function TeacherScheduleGrid({
                 <tbody>
                     {days.map(day => (
                         <tr key={day} className="odd:bg-white even:bg-gray-50">
-                            <td className="border px-4 py-2 font-semibold bg-gray-100">
+                            <td className="border border-gray-300 px-4 py-2 font-semibold bg-gray-100">
                                 Day {day}
                             </td>
 
@@ -72,7 +72,7 @@ export default function TeacherScheduleGrid({
                                 return (
                                     <td
                                         key={period}
-                                        className="border p-2 align-top text-center"
+                                        className="border  border-gray-300 p-2 align-top text-center"
                                     >
                                         {slots.length > 0 ? (
                                             <div className="space-y-1">
@@ -91,9 +91,11 @@ export default function TeacherScheduleGrid({
                                                 ))}
                                             </div>
                                         ) : (
-                                            <div className="rounded bg-green-100 px-3 py-1 text-xs text-black border border-green-500 flex items-center justify-center">
+                                                <div className="space-y-1  ">
+                                                <div className="rounded bg-green-100 px-3 py-1 text-xs text-black border border-green-500 flex items-center justify-center ">
                                                 Free
                                             </div>
+                                                </div>
                                         )}
                                     </td>
                                 );

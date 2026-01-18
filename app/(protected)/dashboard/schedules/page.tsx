@@ -62,7 +62,7 @@ export default function TeacherSchedulePage() {
                     setTeachers(data.teachers);
 
                     // Auto-select if only one teacher
-                    if (data.teachers.length === 1) {
+                    if (data.teachers.length > 0) {
                         const t = data.teachers[0];
                         setSelectedTeacherId(t.teacherId);
                         setSelectedOrganisationId(t.organisations[0]?.id ?? null);
@@ -161,7 +161,7 @@ export default function TeacherSchedulePage() {
                                 teacher?.organisations[0]?.id ?? null
                             );
                         }}
-                        className="border rounded-lg px-3 py-2 w-full max-w-sm"
+                        className="border border-gray-300 rounded-lg px-3 py-2 w-full max-w-sm"
                     >
                         <option value="" disabled>
                             Choose teacher
@@ -178,7 +178,7 @@ export default function TeacherSchedulePage() {
             )}
 
             {selectedTeacherId && (
-                <div className="bg-white border rounded-xl p-5 shadow-sm">
+                <div className="bg-white border  border-blue-200 rounded-xl p-5 shadow-lg shadow-blue-50">
                     <h2 className="text-lg font-semibold mb-4">
                         Teaching Schedule
                     </h2>
