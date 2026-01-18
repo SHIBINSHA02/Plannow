@@ -22,7 +22,7 @@ export default function PinnedOrganisationManager() {
 
         const [pinnedRes, allRes] = await Promise.all([
             fetch("/api/organisation/pin-organisation"),
-            fetch("/api/organisation/my-organisations"),
+            fetch("/api/organisation"),
         ]);
 
         const pinnedData = await pinnedRes.json();
