@@ -28,7 +28,7 @@ export default function TeacherScheduleGrid({
         return <p className="text-sm text-gray-500">No schedule assigned.</p>;
     }
 
-    /* ---------- Build grid map (same logic, just structured) ---------- */
+    /* ---------- Build grid map ---------- */
     const grid: Record<string, ScheduleSlot[]> = {};
 
     schedule.forEach(slot => {
@@ -40,18 +40,27 @@ export default function TeacherScheduleGrid({
     const days = [1, 2, 3, 4, 5];
     const periods = [1, 2, 3, 4, 5, 6];
 
+    /* ---------- Day labels (display only) ---------- */
+    const dayLabels: Record<number, string> = {
+        1: "Monday",
+        2: "Tuesday",
+        3: "Wednesday",
+        4: "Thursday",
+        5: "Friday",
+    };
+
     return (
         <div className="overflow-x-auto shadow-lg rounded-lg">
-            <table className="min-w-full border-collapse border border-gray-300 text-sm rounded-3xl ">
+            <table className="min-w-full border-collapse border border-gray-300 text-sm rounded-3xl">
                 <thead>
                     <tr className="bg-white">
-                        <th className="border border-gray-300 px-4 py-2 text-left font-semibold">
+                        <th className="border border-gray-300 px-4 py-2 text-left font-medium bg-blue-800 text-white">
                             Day / Period
                         </th>
                         {periods.map(p => (
                             <th
                                 key={p}
-                                className="border border-gray-300 px-4 py-2 text-center font-semibold"
+                                className="border border-gray-300 px-4 py-2 text-center font-medium bg-blue-700 text-white"
                             >
                                 Period {p}
                             </th>
@@ -62,8 +71,10 @@ export default function TeacherScheduleGrid({
                 <tbody>
                     {days.map(day => (
                         <tr key={day} className="odd:bg-white even:bg-gray-50">
-                            <td className="border border-gray-300 px-4 py-2 font-semibold bg-gray-100">
-                                Day {day}
+                            <td className="border border-gray-300 px-4 py-2 font-semibold bg-blue-700">
+                                <div className="b p-2 rounded-lg text-white">
+                                {dayLabels[day]}
+                                </div>
                             </td>
 
                             {periods.map(period => {
@@ -72,7 +83,7 @@ export default function TeacherScheduleGrid({
                                 return (
                                     <td
                                         key={period}
-                                        className="border  border-gray-300 p-2 align-top text-center"
+                                        className="border border-gray-300 p-2 align-top text-center"
                                     >
                                         {slots.length > 0 ? (
                                             <div className="space-y-1">
@@ -91,11 +102,11 @@ export default function TeacherScheduleGrid({
                                                 ))}
                                             </div>
                                         ) : (
-                                                <div className="space-y-1  ">
-                                                <div className="rounded bg-green-100 px-3 py-1 text-xs text-black border border-green-500 flex items-center justify-center ">
-                                                Free
-                                            </div>
+                                            <div className="space-y-1">
+                                                <div className="rounded bg-green-100 px-3 py-1 text-xs text-green-700 flex items-center justify-center">
+                                                    Free
                                                 </div>
+                                            </div>
                                         )}
                                     </td>
                                 );
