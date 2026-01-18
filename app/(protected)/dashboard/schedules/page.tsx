@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import TeacherScheduleGrid from "./_components/TeacherScheduleGrid";
 import WorkloadAnalysis from "./_components/WorkloadAnalysis";
+import WeeklyWorkloadChart from "./_components/WeeklyWorkloadChart";
 
 /* ---------- Types ---------- */
 
@@ -192,6 +193,7 @@ export default function TeacherSchedulePage() {
                   
 
                     <WorkloadAnalysis schedule={schedule} />
+                    <WeeklyWorkloadChart schedule={schedule} />
                        
                 </div>
             )}
