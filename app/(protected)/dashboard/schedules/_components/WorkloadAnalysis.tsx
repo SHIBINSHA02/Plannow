@@ -46,14 +46,14 @@ export default function WorkloadAnalysis({ schedule }: Props) {
     const maxLoad = Math.max(...Object.values(workloadByDay), 1);
 
     /* ---------- Today workload (FOR TESTING: FORCE MONDAY) ---------- */
-    const today = 1; // Monday (testing only)
-    const todayLoad = workloadByDay[today] ?? 0;
+    // const today = 1; // Monday (testing only)
+    // const todayLoad = workloadByDay[today] ?? 0;
 
     
     
-    //    const jsDay = new Date().getDay(); // Sun=0, Mon=1
-    //    const today = jsDay >= 1 && jsDay <= 5 ? jsDay : null;
-    //    const todayLoad = today ? workloadByDay[today] : 0;
+       const jsDay = new Date().getDay(); // Sun=0, Mon=1
+       const today = jsDay >= 1 && jsDay <= 5 ? jsDay : null;
+       const todayLoad = today ? workloadByDay[today] : 0;
   
 
     return (

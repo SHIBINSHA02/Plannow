@@ -62,14 +62,14 @@ export default function Home() {
                                 <>
                                     <Link
                                         href="/profile"
-                                        className="flex items-center justify-center px-8 py-4 text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700"
+                                        className="flex items-center justify-center px-8 py-4 text-white bg-indigo-600 rounded-xl hover:bg-indigo-700"
                                     >
                                         Visit Profile <ArrowRight className="w-5 h-5 ml-2" />
                                     </Link>
 
                                     <Link
                                         href="/dashboard"
-                                        className="flex items-center justify-center px-8 py-4 text-indigo-600 border-2 border-indigo-600 rounded-3xl hover:bg-indigo-50"
+                                        className="flex items-center justify-center px-8 py-4 text-indigo-600 border-2 border-indigo-600 rounded-xl hover:bg-indigo-50"
                                     >
                                         Manage Organization
                                     </Link>
@@ -77,7 +77,7 @@ export default function Home() {
                             ) : (
                                 <Link
                                     href="/sign-up"
-                                    className="flex items-center justify-center px-8 py-4 text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700"
+                                    className="flex items-center justify-center px-8 py-4 text-white bg-indigo-600 rounded-xl hover:bg-indigo-700"
                                 >
                                     Get Started Free <ArrowRight className="w-5 h-5 ml-2" />
                                 </Link>
