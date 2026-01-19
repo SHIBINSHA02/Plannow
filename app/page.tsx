@@ -61,7 +61,7 @@ export default function Home() {
                             {isSignedIn ? (
                                 <>
                                     <Link
-                                        href="/profile"
+                                        href="/dashboard/profile"
                                         className="flex items-center justify-center px-8 py-4 text-white bg-indigo-600 rounded-xl hover:bg-indigo-700"
                                     >
                                         Visit Profile <ArrowRight className="w-5 h-5 ml-2" />

@@ -1,17 +1,27 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { connectDB } from "@/lib/db";
 import Organisation from "@/models/Organisation";
 
 /* -------------------------------------------------------
-   GET: Fetch ALL organisations (global)
+   GET: Fetch organisations user has access to
 ------------------------------------------------------- */
 export async function GET() {
     try {
         /* ---------- Auth ---------- */
-        const { userId } = await auth();
+        const clerkUser = await currentUser();
 
-        if (!userId) {
+        if (!clerkUser) {
+            return NextResponse.json(
+                { message: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+
+        const email =
+            clerkUser.emailAddresses?.[0]?.emailAddress ?? null;
+
+        if (!email) {
             return NextResponse.json(
                 { message: "Unauthorized" },
                 { status: 401 }
@@ -21,8 +31,13 @@ export async function GET() {
         /* ---------- DB ---------- */
         await connectDB();
 
-        /* ---------- Fetch all organisations ---------- */
-        const organisations = await Organisation.find({})
+        /* ---------- Fetch ONLY accessible organisations ---------- */
+        const organisations = await Organisation.find({
+            $or: [
+                { adminName: email },
+                { editors: email },
+            ],
+        })
             .select("_id organisationName adminName organisationId")
             .sort({ organisationName: 1 })
             .lean();
