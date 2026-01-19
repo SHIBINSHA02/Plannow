@@ -1,24 +1,28 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import { useState } from "react";
+
+/* ---------- Types ---------- */
 
 type SubjectInput = {
     subject: string;
     weeklyHours: number;
 };
 
-export default function ClassOnboarding({
-    onSuccess,
-}: {
+type Props = {
+    organisationId: string;
     onSuccess?: () => void;
-}) {
-    const params = useParams();
-    const organisationId = params?.organisationId as string;
+};
 
+/* ---------- Component ---------- */
+
+export default function ClassOnboarding({
+    organisationId,
+    onSuccess,
+}: Props) {
     const [className, setClassName] = useState("");
     const [department, setDepartment] = useState("");
-    const [adminEmail, setAdminEmail] = useState(""); 
+    const [adminEmail, setAdminEmail] = useState("");
     const [subjects, setSubjects] = useState<SubjectInput[]>([]);
 
     const [subjectName, setSubjectName] = useState("");
@@ -26,6 +30,8 @@ export default function ClassOnboarding({
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    /* ---------- Subject helpers ---------- */
 
     const addSubject = () => {
         if (!subjectName || !weeklyHours) return;
@@ -43,12 +49,16 @@ export default function ClassOnboarding({
         setSubjects(prev => prev.filter((_, i) => i !== index));
     };
 
+    /* ---------- Submit ---------- */
+
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
 
         if (!className || !adminEmail || subjects.length === 0) {
-            setError("Class name, admin email & at least one subject required");
+            setError(
+                "Class name, admin email & at least one subject required"
+            );
             return;
         }
 
@@ -68,7 +78,7 @@ export default function ClassOnboarding({
                     classroomId,
                     className,
                     department,
-                    adminEmail, 
+                    adminEmail,
                     subjects,
                 }),
             });
@@ -93,6 +103,8 @@ export default function ClassOnboarding({
             setLoading(false);
         }
     };
+
+    /* ---------- UI ---------- */
 
     return (
         <form onSubmit={submit} className="space-y-5 text-gray-700">

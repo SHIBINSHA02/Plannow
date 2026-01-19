@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import TeacherOnboardingModal from "./TeacherOnboardingModal";
+
+/* ---------- Types ---------- */
 
 type Teacher = {
     _id: string;
@@ -12,23 +13,30 @@ type Teacher = {
     subjects: string[];
 };
 
-export default function TeachersSection() {
-    const params = useParams();
-    const organisationId = params.organisationId as string;
+type Props = {
+    organisationId: string;
+};
+
+/* ---------- Component ---------- */
+
+export default function TeachersSection({ organisationId }: Props) {
     const [open, setOpen] = useState(false);
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
+
     const fetchTeachers = async () => {
         if (!organisationId) return;
 
         setLoading(true);
+
         const res = await fetch(
             `/api/teachers?organisationId=${organisationId}`,
             { cache: "no-store" }
         );
+
         const data = await res.json();
-        setTeachers(data);
+        setTeachers(data.teachers ?? data);
         setLoading(false);
     };
 
@@ -48,13 +56,14 @@ export default function TeachersSection() {
                 >
                     + Create Teacher
                 </button>
+
                 <TeacherOnboardingModal
+                    organisationId={organisationId}
                     open={open}
                     onClose={() => {
                         setOpen(false);
-                         fetchTeachers();
-                        }
-                    }
+                        fetchTeachers();
+                    }}
                 />
             </div>
 
@@ -70,19 +79,26 @@ export default function TeachersSection() {
             {/* Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {loading && (
-                    <p className="text-sm text-gray-500">Loading teachers...</p>
+                    <p className="text-sm text-gray-500">
+                        Loading teachers...
+                    </p>
                 )}
 
                 {!loading &&
                     teachers
-                        .filter(t =>
-                            t.teacherName.toLowerCase().includes(search.toLowerCase()) ||
-                            t.email.toLowerCase().includes(search.toLowerCase())
+                        .filter(
+                            t =>
+                                t.teacherName
+                                    .toLowerCase()
+                                    .includes(search.toLowerCase()) ||
+                                t.email
+                                    .toLowerCase()
+                                    .includes(search.toLowerCase())
                         )
                         .map(t => (
                             <div
                                 key={t._id}
-                                className="rounded-xl border border-blue-100  shadow-xl shadow-blue-50 p-4 space-y-3 hover:shadow-sm"
+                                className="rounded-xl border border-blue-100 shadow-xl shadow-blue-50 p-4 space-y-3 hover:shadow-sm"
                             >
                                 <div>
                                     <p className="font-semibold text-lg">

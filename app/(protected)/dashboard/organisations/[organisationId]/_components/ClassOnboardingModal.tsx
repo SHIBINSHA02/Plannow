@@ -3,11 +3,19 @@
 import { useState } from "react";
 import ClassOnboarding from "./ClassOnboarding";
 
-export default function ClassOnboardingModal({
-    onClose,
-}: {
+/* ---------- Props ---------- */
+
+type Props = {
+    organisationId: string;
     onClose?: () => void;
-}) {
+};
+
+/* ---------- Component ---------- */
+
+export default function ClassOnboardingModal({
+    organisationId,
+    onClose,
+}: Props) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -22,6 +30,7 @@ export default function ClassOnboardingModal({
             {open && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
                     <div className="relative w-full max-w-2xl p-6 bg-white rounded-xl">
+                        {/* Close */}
                         <button
                             onClick={() => {
                                 setOpen(false);
@@ -37,9 +46,10 @@ export default function ClassOnboardingModal({
                         </h2>
 
                         <ClassOnboarding
+                            organisationId={organisationId}
                             onSuccess={() => {
                                 setOpen(false);
-                                onClose?.(); // ✅ refresh classrooms
+                                onClose?.(); // refresh classrooms
                             }}
                         />
                     </div>

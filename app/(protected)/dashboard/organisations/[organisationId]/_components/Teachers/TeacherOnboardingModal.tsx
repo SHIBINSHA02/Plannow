@@ -1,19 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import Papa from 'papaparse';
-import { useParams } from "next/navigation";
+import Papa from "papaparse";
 
-export default function TeacherOnboardingModal({
-    open,
-    onClose,
-}: {
+/* ---------- Props ---------- */
+
+type Props = {
+    organisationId: string;
     open: boolean;
     onClose: () => void;
-}) {
-    const params = useParams();
-    const organisationId = params.organisationId as string;
+};
 
+/* ---------- Component ---------- */
+
+export default function TeacherOnboardingModal({
+    organisationId,
+    open,
+    onClose,
+}: Props) {
     const [teacherName, setTeacherName] = useState("");
     const [teacherEmail, setTeacherEmail] = useState("");
     const [subjectInput, setSubjectInput] = useState("");
@@ -23,11 +27,18 @@ export default function TeacherOnboardingModal({
 
     if (!open) return null;
 
+    /* ---------- Helpers ---------- */
+
     const addSubject = () => {
         if (!subjectInput.trim()) return;
-        setSubjects([...new Set([...subjects, subjectInput.trim()])]);
+
+        setSubjects(prev =>
+            [...new Set([...prev, subjectInput.trim()])]
+        );
         setSubjectInput("");
     };
+
+    /* ---------- Create single teacher ---------- */
 
     const submitTeacher = async () => {
         if (!teacherName || !teacherEmail || subjects.length === 0) return;
@@ -46,6 +57,8 @@ export default function TeacherOnboardingModal({
         onClose();
     };
 
+    /* ---------- CSV upload ---------- */
+
     const handleCSV = () => {
         if (!csvFile) return;
 
@@ -62,8 +75,8 @@ export default function TeacherOnboardingModal({
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             organisationId,
-                            teachername: row.teachername,
-                            mailid: row.mailid,
+                            teacherName: row.teachername,
+                            email: row.mailid,
                             subjects: row.subjects?.split(",") || [],
                         }),
                     });
@@ -75,22 +88,26 @@ export default function TeacherOnboardingModal({
         });
     };
 
+    /* ---------- UI ---------- */
+
     return (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
             <div className="w-full max-w-lg rounded-xl bg-white p-6 space-y-6">
-                <h2 className="text-xl font-semibold">Create Teacher Profile</h2>
+                <h2 className="text-xl font-semibold">
+                    Create Teacher Profile
+                </h2>
 
                 <input
                     placeholder="Teacher name"
                     value={teacherName}
-                    onChange={(e) => setTeacherName(e.target.value)}
+                    onChange={e => setTeacherName(e.target.value)}
                     className="w-full border px-3 py-2 rounded-md"
                 />
 
                 <input
                     placeholder="Teacher email"
                     value={teacherEmail}
-                    onChange={(e) => setTeacherEmail(e.target.value)}
+                    onChange={e => setTeacherEmail(e.target.value)}
                     className="w-full border px-3 py-2 rounded-md"
                 />
 
@@ -98,17 +115,23 @@ export default function TeacherOnboardingModal({
                     <input
                         placeholder="Add subject"
                         value={subjectInput}
-                        onChange={(e) => setSubjectInput(e.target.value)}
+                        onChange={e => setSubjectInput(e.target.value)}
                         className="flex-1 border px-3 py-2 rounded-md"
                     />
-                    <button onClick={addSubject} className="px-3 bg-black text-white rounded-md">
+                    <button
+                        onClick={addSubject}
+                        className="px-3 bg-black text-white rounded-md"
+                    >
                         Add
                     </button>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
                     {subjects.map(s => (
-                        <span key={s} className="bg-gray-100 px-2 py-1 text-xs rounded-md">
+                        <span
+                            key={s}
+                            className="bg-gray-100 px-2 py-1 text-xs rounded-md"
+                        >
                             {s}
                         </span>
                     ))}
@@ -123,7 +146,13 @@ export default function TeacherOnboardingModal({
 
                 <hr />
 
-                <input type="file" accept=".csv" onChange={e => setCsvFile(e.target.files?.[0] || null)} />
+                <input
+                    type="file"
+                    accept=".csv"
+                    onChange={e =>
+                        setCsvFile(e.target.files?.[0] || null)
+                    }
+                />
 
                 <button
                     onClick={handleCSV}
@@ -133,7 +162,10 @@ export default function TeacherOnboardingModal({
                     {uploading ? "Uploading..." : "Upload CSV"}
                 </button>
 
-                <button onClick={onClose} className="w-full text-sm text-gray-500">
+                <button
+                    onClick={onClose}
+                    className="w-full text-sm text-gray-500"
+                >
                     Cancel
                 </button>
             </div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ClassroomSection from "./_components/ClassroomSection";
 import TeachersSection from "./_components/Teachers/TeachersSection";
+
 import { Edit } from "lucide-react";
 
 /* ---------- Types ---------- */
@@ -48,11 +49,9 @@ export default function OrganisationPage() {
                 );
 
                 if (!res.ok) {
-                    if (res.status === 401 || res.status === 403) {
-                        router.replace("/unauthorized");
-                        return;
-                    }
-                    throw new Error("Failed to fetch organisation");
+                    // layout already protects, this is fallback
+                    router.replace("/unauthorized");
+                    return;
                 }
 
                 const data: OrganisationResponse = await res.json();
@@ -88,11 +87,8 @@ export default function OrganisationPage() {
             });
 
             if (!res.ok) {
-                if (res.status === 401 || res.status === 403) {
-                    router.replace("/unauthorized");
-                    return;
-                }
-                throw new Error("Failed to save images");
+                router.replace("/unauthorized");
+                return;
             }
 
             const data = await res.json();
@@ -117,12 +113,11 @@ export default function OrganisationPage() {
         );
     }
 
-    // If organisation failed to load, render NOTHING
     if (!organisation) {
         return null;
     }
 
-    /* ---------- FULL CONTENT (SAFE) ---------- */
+    /* ---------- FULL CONTENT ---------- */
 
     return (
         <div className="space-y-8">
@@ -178,9 +173,9 @@ export default function OrganisationPage() {
                 </div>
             </div>
 
-            {/* ---------- Other Sections (NOW SAFE) ---------- */}
-            <ClassroomSection />
-            <TeachersSection />
+            {/* ---------- Sections ---------- */}
+            <ClassroomSection organisationId={organisationId} />
+            <TeachersSection organisationId={organisationId} />
 
             {/* ---------- Edit Modal ---------- */}
             {showEdit && canEdit && (
