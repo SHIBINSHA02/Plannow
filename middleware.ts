@@ -5,7 +5,15 @@ const isProtectedRoute = createRouteMatcher([
     "/profile(.*)",
 ]);
 
+const isPublicRoute = createRouteMatcher([
+    "/",
+    "/unauthorized"
+])
+
 export default clerkMiddleware(async (auth, req) => {
+    if (isPublicRoute(req)){
+        return;
+    }
     const session = await auth(); 
 
     if (isProtectedRoute(req) && !session.userId) {
