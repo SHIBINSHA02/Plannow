@@ -3,7 +3,7 @@
 import { Calendar, Clock, Users, BookOpen, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useUser } from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignUpButton, useUser } from "@clerk/nextjs";
 import Connect from "./_components/Landing/Connect";
 import Footer from "./_components/Footer";
 import Navbar from "./_components/Navbar";
@@ -15,25 +15,25 @@ export default function Home() {
 
     const features = [
         {
-            icon: <Calendar className="w-8 h-8 text-indigo-600" />,
+            icon: <Calendar className="w-8 h-8 text-blue-600 group-hover:text-white" />,
             title: "Smart Scheduling",
             description:
                 "AI-powered schedule optimization that considers teacher preferences, room availability, and student needs.",
         },
         {
-            icon: <Clock className="w-8 h-8 text-indigo-600" />,
+            icon: <Clock className="w-8 h-8 text-blue-600 group-hover:text-white" />,
             title: "Time Management",
             description:
                 "Effortlessly manage class timings, break schedules, and substitutes.",
         },
         {
-            icon: <Users className="w-8 h-8 text-indigo-600" />,
+            icon: <Users className="w-8 h-8 text-blue-600 group-hover:text-white" />,
             title: "Team Collaboration",
             description:
                 "Seamless coordination between teachers and administrators.",
         },
         {
-            icon: <BookOpen className="w-8 h-8 text-indigo-600" />,
+            icon: <BookOpen className="w-8 h-8 text-blue-600 group-hover:text-white" />,
             title: "Resource Planning",
             description:
                 "Optimize classroom and resource allocation with zero conflicts.",
@@ -50,45 +50,48 @@ export default function Home() {
                     <div>
                         <h1 className="text-4xl font-semibold md:text-6xl">
                             Revolutionize Your{" "}
-                            <span className="text-indigo-600">School Scheduling</span>
+                            <span className="text-blue-600">School Scheduling</span>
                         </h1>
 
                         <p className="mt-6 text-xl text-gray-600">
                             Streamline teacher schedules and optimize resources with intelligent automation.
                         </p>
 
-                        <div className="flex flex-col gap-4 mt-8 sm:flex-row">
-                            {isSignedIn ? (
-                                <>
-                                    <Link
-                                        href="/dashboard/profile"
-                                        className="flex items-center justify-center px-8 py-4 text-white bg-indigo-600 rounded-xl hover:bg-indigo-700"
-                                    >
-                                        Visit Profile <ArrowRight className="w-5 h-5 ml-2" />
-                                    </Link>
+                        <div className="flex gap-4 pt-3">
+                            {/* User NOT signed in */}
+                            <SignedOut>
+                                <SignUpButton mode="modal">
+                                    <button className="flex items-center justify-center px-8 py-4
+                           text-white bg-indigo-600 rounded-xl
+                           hover:bg-indigo-700 transition">
+                                        Get Started Free <ArrowRight className="w-5 h-5 ml-2" />
+                                    </button>
+                                </SignUpButton>
+                            </SignedOut>
 
-                                    <Link
-                                        href="/dashboard"
-                                        className="flex items-center justify-center px-8 py-4 text-indigo-600 border-2 border-indigo-600 rounded-xl hover:bg-indigo-50"
-                                    >
-                                        Manage Organization
-                                    </Link>
-                                </>
-                            ) : (
+                            {/* User IS signed in */}
+                            <SignedIn>
                                 <Link
-                                    href="/sign-up"
-                                    className="flex items-center justify-center px-8 py-4 text-white bg-indigo-600 rounded-xl hover:bg-indigo-700"
+                                    href="/dashboard/profile"
+                                    className="flex items-center justify-center px-8 py-4 text-white bg-blue-600 rounded-xl hover:bg-blue-700"
                                 >
-                                    Get Started Free <ArrowRight className="w-5 h-5 ml-2" />
+                                    Visit Profile <ArrowRight className="w-5 h-5 ml-2" />
                                 </Link>
-                            )}
+
+                                <Link
+                                    href="/dashboard"
+                                    className="flex items-center justify-center px-8 py-4 text-blue-600 border-2 border-indigo-600 rounded-xl hover:bg-blue-50"
+                                >
+                                    Manage Organization
+                                </Link>
+                            </SignedIn>
                         </div>
                     </div>
 
                     {/* RIGHT */}
                     <div className="relative">
                         <div className="p-6 bg-white shadow-2xl rounded-3xl rotate-3">
-                            <div className="p-4 mb-4 bg-indigo-600 rounded-xl">
+                            <div className="p-4 mb-4 bg-blue-600 rounded-xl">
                                 <Calendar className="w-8 h-8 mx-auto text-white" />
                             </div>
 
@@ -142,8 +145,8 @@ export default function Home() {
                                 {/* Icon */}
                                 <div
                                     className="flex items-center justify-center w-14 h-14 mb-6
-                       rounded-2xl bg-indigo-50 text-indigo-600
-                       group-hover:bg-indigo-600 group-hover:text-white
+                       rounded-2xl bg-blue-50 text-white
+                       group-hover:bg-blue-600 group-hover:text-white
                        transition-colors duration-300"
                                 >
                                     {feature.icon}

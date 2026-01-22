@@ -137,7 +137,7 @@ const Connect = () => {
               <div className="md:col-span-2">
                 <button
                   type="submit"
-                  className="w-full py-4 text-white transition-all duration-300 bg-indigo-600 rounded-2xl hover:bg-indigo-700 hover:scale-[1.01]"
+                  className="w-full py-4 text-white transition-all duration-300 bg-blue-600 rounded-2xl hover:bg-blue-700 hover:scale-[1.01]"
                 >
                   Send Enquiry
                 </button>

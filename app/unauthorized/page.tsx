@@ -1,48 +1,59 @@
+// app/unauthorized/page.tsx   (or wherever you want to place it)
+
 "use client";
 
 import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react"; // ← optional: install lucide-react if you want the icon
 
-export default function UnauthorizedPage() {
+export default function Unauthorized() {
     const router = useRouter();
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-tl from-blue-300 via-white to-blue-200 px-4">
-            <div className="w-full max-w-md bg-white/80 backdrop-blur rounded-2xl shadow-lg border border-gray-100 px-8 py-10 text-center">
-
-                {/* Logo */}
-                <div className="flex justify-center mb-6">
-                    <img
-                        src="/logo.svg"
-                        alt="Company Logo"
-                        className="h-12 object-contain"
-                    />
-                </div>
-
-                {/* Title */}
-                <h1 className="text-3xl font-semibold text-blue-600 tracking-tight">
-                    Access Denied
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+            <div className="max-w-lg w-full text-center space-y-8">
+                {/* Status code - big & subtle */}
+                <h1 className="text-8xl sm:text-9xl font-bold text-blue-600/20 tracking-tight select-none">
+                    403
                 </h1>
 
-                {/* Subtitle */}
-                <p className="mt-3 text-gray-600 text-sm leading-relaxed">
-                    You don’t have permission to access this page.
+                {/* Main message */}
+                <div className="space-y-3">
+                    <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900">
+                        Access Denied
+                    </h2>
+                    <p className="text-lg text-gray-600">
+                        You don’t have permission to view this page.
+                    </p>
+                </div>
+
+                {/* Secondary explanation */}
+                <p className="text-gray-500">
+                    If you believe this is an error, please contact your administrator or
+                    support team.
                 </p>
 
-                <p className="mt-1 text-gray-400 text-sm">
-                    Please contact your organization administrator if you think
-                    this is a mistake.
+                {/* Actions */}
+                <div className="pt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                    <button
+                        onClick={() => router.back()}
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                        <ArrowLeft className="h-5 w-5" />
+                        Go Back
+                    </button>
+
+                    <button
+                        onClick={() => router.replace("/")}
+                        className="inline-flex items-center justify-center px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                    >
+                        Return to Home
+                    </button>
+                </div>
+
+                {/* Optional subtle footer / branding */}
+                <p className="pt-8 text-sm text-gray-400">
+                    © {new Date().getFullYear()} Plannow.in
                 </p>
-
-                {/* Divider */}
-                <div className="my-6 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-
-                {/* Action */}
-                <button
-                    onClick={() => router.replace("/")}
-                    className="w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 active:scale-[0.98] transition-all"
-                >
-                    Go to Home
-                </button>
             </div>
         </div>
     );
