@@ -28,8 +28,8 @@ export default function ClassOnboardingModal({
             </button>
 
             {open && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="relative w-full max-w-2xl p-6 bg-white rounded-xl">
+                <div className="fixed overflow-visible inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="relative overflow-visible w-full max-w-2xl p-6 bg-white rounded-xl">
                         {/* Close */}
                         <button
                             onClick={() => {

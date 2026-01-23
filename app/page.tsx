@@ -80,7 +80,7 @@ export default function Home() {
 
                                 <Link
                                     href="/dashboard"
-                                    className="flex items-center justify-center px-8 py-4 text-blue-600 border-2 border-indigo-600 rounded-xl hover:bg-blue-50"
+                                    className="flex items-center justify-center px-8 py-4 text-blue-600 border-2 border-blue-600 rounded-xl hover:bg-blue-50"
                                 >
                                     Manage Organization
                                 </Link>
