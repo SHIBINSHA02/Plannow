@@ -16,7 +16,7 @@ export default function OrganisationsClient() {
 
                 <button
                     onClick={() => setOpen(true)}
-                    className="px-5 py-2 text-white bg-indigo-600 rounded-lg shadow hover:bg-indigo-700"
+                    className="px-5 py-2 text-white bg-blue-700 rounded-lg shadow hover:bg-blue-800"
                 >
                     + Create Organisation
                 </button>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import TeacherOnboardingModal from "./TeacherOnboardingModal";
+import { useRouter } from "next/navigation";
 
 /* ---------- Types ---------- */
 
@@ -24,6 +25,9 @@ export default function TeachersSection({ organisationId }: Props) {
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
+
+    const router = useRouter();
+
 
     const fetchTeachers = async () => {
         if (!organisationId) return;
@@ -98,6 +102,9 @@ export default function TeachersSection({ organisationId }: Props) {
                         .map(t => (
                             <div
                                 key={t._id}
+                                onClick={() => router.push(
+                                    `/dashboard/organisations/${organisationId}/teachers/${t.teacherId}/profile`
+                                )}
                                 className="rounded-xl border border-blue-100 shadow-xl shadow-blue-50 p-4 space-y-3 hover:shadow-sm"
                             >
                                 <div>

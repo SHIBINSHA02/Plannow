@@ -122,7 +122,7 @@ export default function OrganisationPage() {
     return (
         <div className="space-y-8">
             {/* ---------- Organisation Header ---------- */}
-            <div className="flex flex-col rounded-4xl overflow-hidden border">
+            <div className="flex flex-col rounded-4xl overflow-hidden border border-gray-300">
                 {/* Background */}
                 {organisation.backgroundImageUrl ? (
                     <div
