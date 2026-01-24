@@ -83,10 +83,14 @@ export async function PUT(req: Request, { params }: Params) {
     }
 }
 
-// DELETE classroom
-export async function DELETE(req: Request, { params }: Params) {
+export async function DELETE(
+    req: Request,
+    context: { params: Promise<{ classroomId: string }> }
+) {
     try {
         await connectDB();
+
+        const { classroomId } = await context.params;
 
         const { searchParams } = new URL(req.url);
         const organisationId = searchParams.get("organisationId");
@@ -98,15 +102,26 @@ export async function DELETE(req: Request, { params }: Params) {
             );
         }
 
-        await Classroom.findOneAndDelete({
-            classroomId: params.classroomId,
-            organisationId
+        const deleted = await Classroom.findOneAndDelete({
+            classroomId,
+            organisationId,
         });
 
-        return NextResponse.json({ message: "Classroom deleted" });
+        if (!deleted) {
+            return NextResponse.json(
+                { message: "Classroom not found" },
+                { status: 404 }
+            );
+        }
+
+        return NextResponse.json({
+            message: "Classroom deleted successfully",
+        });
     } catch (error: any) {
+        console.error("DELETE classroom error:", error);
+
         return NextResponse.json(
-            { message: error.message },
+            { message: error.message || "Internal Server Error" },
             { status: 500 }
         );
     }

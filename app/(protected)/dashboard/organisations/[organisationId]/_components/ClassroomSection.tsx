@@ -122,11 +122,47 @@ export default function ClassroomSection({ organisationId }: Props) {
                                     )
                                 }
                                 className="
-                                    p-5 bg-white rounded-xl border border-blue-100
-                                    shadow-sm hover:shadow-md cursor-pointer
-                                    transition-all
-                                "
+        relative p-5 bg-white rounded-xl border border-blue-100
+        shadow-sm hover:shadow-md cursor-pointer
+        transition-all
+    "
                             >
+                                {/* ---------- DELETE BUTTON ---------- */}
+                                <button
+                                    onClick={async (e) => {
+                                        e.stopPropagation(); // 🚫 prevent card click
+
+                                        const ok = confirm(
+                                            `Delete classroom "${cls.className}"?`
+                                        );
+                                        if (!ok) return;
+
+                                        try {
+                                            await fetch(
+                                                `/api/classrooms/classroom/${cls.classroomId}?organisationId=${organisationId}`,
+                                                { method: "DELETE" }
+                                            );
+
+                                            // 🔁 refresh list (choose one)
+                                            await fetchClassrooms();
+
+                                            // OR: setState(prev => prev.filter(c => c._id !== cls._id))
+                                        } catch {
+                                            alert("Failed to delete classroom");
+                                        }
+                                    }}
+                                    className="
+            absolute top-3 right-3
+            text-gray-400 hover:text-red-600
+            text-xl leading-none
+        "
+                                    title="Delete classroom"
+                                >
+                                    ×
+                                </button>
+
+                                {/* ---------- CONTENT ---------- */}
+
                                 <h3 className="font-semibold text-lg text-gray-800">
                                     {cls.className}
                                 </h3>

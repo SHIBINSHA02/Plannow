@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Classroom from "@/models/Classroom";
 import User from "@/models/User";
+import { nanoid } from "nanoid";
+
+
 
 /**
  * CREATE CLASSROOM
  */
+
+
 export async function POST(req: Request) {
     try {
         await connectDB();
@@ -18,37 +23,61 @@ export async function POST(req: Request) {
             department,
             adminEmail,
             editorEmails = [],
-            subjects,
+            subjects = [],
         } = body;
 
-        if (!organisationId || !classroomId || !className || !adminEmail) {
+        /* ---------- Required Fields ---------- */
+
+        if (!organisationId || !className || !adminEmail) {
             return NextResponse.json(
                 {
                     message:
-                        "organisationId, classroomId, className, adminEmail are required",
+                        "organisationId, className, adminEmail are required",
                 },
                 { status: 400 }
             );
         }
 
+        /* ---------- Validate Subjects ---------- */
+
+        if (!Array.isArray(subjects) || subjects.length === 0) {
+            return NextResponse.json(
+                { message: "At least one subject is required" },
+                { status: 400 }
+            );
+        }
+
+        /* ---------- Normalize Subjects ---------- */
+        const normalizedSubjects = subjects.map((s: any) => ({
+            subject: s.subject,
+            weeklyHours: Number(s.weeklyHours),
+            defaultTeacherId: s.defaultTeacherId || null,
+        }));
+
+        /* ---------- Create Classroom ---------- */
+
         const classroom = await Classroom.create({
             organisationId,
-            classroomId,
+            classroomId: classroomId || `C-${nanoid(6)}`,
             className,
             department,
             adminEmail,
             editorEmails,
-            subjects,
+            subjects: normalizedSubjects,
         });
 
         return NextResponse.json(classroom, { status: 201 });
+
     } catch (error: any) {
+        console.error("Create classroom error:", error);
+
         return NextResponse.json(
-            { message: error.message },
+            { message: error.message || "Internal Server Error" },
             { status: 500 }
         );
     }
 }
+
 
 /**
  * GET CLASSROOMS (with admin profile image)

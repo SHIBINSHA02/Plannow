@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /* ---------- Types ---------- */
 
@@ -10,8 +10,9 @@ type SubjectInput = {
 };
 
 type Teacher = {
-    id: string;
-    name: string;
+    _id: string;
+    teacherId: string;
+    teacherName: string;
     subjects: string[];
 };
 
@@ -20,39 +21,29 @@ type Props = {
     onSuccess?: () => void;
 };
 
-/* ---------- Mock data (replace later) ---------- */
-
-const getTeachersForOrganisation = (
-    organisationId: string
-): Teacher[] => {
-    return [
-        { id: "T1", name: "Alice Johnson", subjects: ["Maths", "Physics"] },
-        { id: "T2", name: "Bob Smith", subjects: ["Chemistry", "Biology"] },
-        { id: "T3", name: "Carol Davis", subjects: ["Computer Science", "Maths","English","Social"] },
-        { id: "T4", name: "David Lee", subjects: ["English", "History"] },
-    ];
-};
-
 /* ---------- Component ---------- */
 
 export default function ClassOnboarding({
     organisationId,
     onSuccess,
 }: Props) {
+
     /* ---------- Classroom ---------- */
 
     const [className, setClassName] = useState("");
     const [department, setDepartment] = useState("");
     const [adminEmail, setAdminEmail] = useState("");
 
-    /* ---------- Teachers & Subjects ---------- */
+    /* ---------- Teachers ---------- */
 
-    const teachers = getTeachersForOrganisation(organisationId);
+    const [teachers, setTeachers] = useState<Teacher[]>([]);
+    const [teachersLoading, setTeachersLoading] = useState(false);
 
     const [teacherSearch, setTeacherSearch] = useState("");
-    const [selectedTeacher, setSelectedTeacher] =
-        useState<Teacher | null>(null);
+    const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
     const [showTeacherList, setShowTeacherList] = useState(false);
+
+    /* ---------- Subjects ---------- */
 
     const [selectedSubject, setSelectedSubject] = useState("");
     const [weeklyHours, setWeeklyHours] = useState("");
@@ -63,23 +54,53 @@ export default function ClassOnboarding({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    /* ---------- Filtered shortlist ---------- */
+    /* ---------- Fetch Teachers ---------- */
+
+    useEffect(() => {
+        if (!organisationId) return;
+
+        const fetchTeachers = async () => {
+            try {
+                setTeachersLoading(true);
+                const res = await fetch(
+                    `/api/teachers?organisationId=${organisationId}`
+                );
+
+                if (!res.ok) throw new Error("Failed to fetch teachers");
+
+                const data = await res.json();
+                setTeachers(data);
+            } catch (err) {
+                console.error(err);
+                setTeachers([]);
+            } finally {
+                setTeachersLoading(false);
+            }
+        };
+
+        fetchTeachers();
+    }, [organisationId]);
+
+    /* ---------- Filtered Teachers ---------- */
 
     const filteredTeachers = teachers.filter(t =>
-        t.name.toLowerCase().includes(teacherSearch.toLowerCase())
+        t.teacherName.toLowerCase().includes(teacherSearch.toLowerCase())
     );
 
     /* ---------- Handlers ---------- */
 
     const selectTeacher = (teacher: Teacher) => {
         setSelectedTeacher(teacher);
-        setTeacherSearch(teacher.name);
+        setTeacherSearch(teacher.teacherName);
         setSelectedSubject("");
         setShowTeacherList(false);
     };
 
     const addSubject = () => {
         if (!selectedTeacher || !selectedSubject || !weeklyHours) return;
+
+        // prevent duplicate subject
+        if (subjects.some(s => s.subject === selectedSubject)) return;
 
         setSubjects(prev => [
             ...prev,
@@ -135,33 +156,37 @@ export default function ClassOnboarding({
 
     return (
         <form onSubmit={submit} className="space-y-5 text-gray-700">
+
             {error && (
-                <p className="p-2 bg-red-100 text-red-700 rounded">{error}</p>
+                <p className="p-2 bg-red-100 text-red-700 rounded">
+                    {error}
+                </p>
             )}
 
-            {/* Classroom */}
+            {/* Classroom Info */}
+
             <input
                 placeholder="Classroom Name"
                 value={className}
                 onChange={e => setClassName(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-xl"
+                className="w-full p-2 border rounded-xl"
             />
 
             <input
                 placeholder="Admin Email"
                 value={adminEmail}
                 onChange={e => setAdminEmail(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-xl"
+                className="w-full p-2 border rounded-xl"
             />
 
             <input
                 placeholder="Department"
                 value={department}
                 onChange={e => setDepartment(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-xl"
+                className="w-full p-2 border rounded-xl"
             />
 
-            {/* ---------- Teacher Search + Shortlist ---------- */}
+            {/* ---------- Teacher Search ---------- */}
 
             <div className="relative">
                 <label className="text-sm font-medium">
@@ -177,17 +202,19 @@ export default function ClassOnboarding({
                     }}
                     onFocus={() => setShowTeacherList(true)}
                     placeholder="Type teacher name..."
-                    className="w-full p-2 border border-gray-300 rounded-xl"
+                    className="w-full p-2 border rounded-xl"
                 />
 
                 {showTeacherList && teacherSearch && (
-                    <div
-                        className="absolute left-0 right-0 mt-1 
-                   bg-white border border-gray-300 rounded shadow-lg
-                   max-h-52 overflow-y-auto
-                   z-[9999]"
-                    >
-                        {filteredTeachers.length === 0 && (
+                    <div className="absolute left-0 right-0 mt-1 bg-white border rounded shadow-lg max-h-52 overflow-y-auto z-50">
+
+                        {teachersLoading && (
+                            <div className="p-2 text-sm text-gray-400">
+                                Loading teachers...
+                            </div>
+                        )}
+
+                        {!teachersLoading && filteredTeachers.length === 0 && (
                             <div className="p-2 text-sm text-gray-400">
                                 No teachers found
                             </div>
@@ -195,28 +222,27 @@ export default function ClassOnboarding({
 
                         {filteredTeachers.map(t => (
                             <div
-                                key={t.id}
+                                key={t._id}
                                 onClick={() => selectTeacher(t)}
                                 className="p-2 cursor-pointer hover:bg-blue-100"
                             >
-                                {t.name}
+                                {t.teacherName}
                             </div>
                         ))}
                     </div>
                 )}
-
             </div>
 
-            {/* ---------- Subject ---------- */}
+            {/* ---------- Subject + Hours ---------- */}
 
             <div className="flex gap-2">
                 <select
                     value={selectedSubject}
                     onChange={e => setSelectedSubject(e.target.value)}
                     disabled={!selectedTeacher}
-                    className="flex-1 p-2 border border-gray-300 rounded-xl"
+                    className="flex-1 p-2 border rounded-xl"
                 >
-                    <option value="" className="rounded-xl">Select Subject</option>
+                    <option value="">Select Subject</option>
                     {selectedTeacher?.subjects.map(sub => (
                         <option key={sub} value={sub}>
                             {sub}
@@ -229,7 +255,7 @@ export default function ClassOnboarding({
                     placeholder="Hours"
                     value={weeklyHours}
                     onChange={e => setWeeklyHours(e.target.value)}
-                    className="w-24 p-2 border border-gray-300 rounded-xl"
+                    className="w-24 p-2 border rounded-xl"
                 />
 
                 <button
@@ -246,7 +272,7 @@ export default function ClassOnboarding({
             {subjects.map((s, i) => (
                 <div
                     key={i}
-                    className="flex  overflow-visible justify-between items-center border p-2 rounded"
+                    className="flex justify-between items-center border p-2 rounded"
                 >
                     <span>
                         {s.subject} ({s.weeklyHours}h)
@@ -263,6 +289,7 @@ export default function ClassOnboarding({
             >
                 {loading ? "Creating..." : "Create Classroom"}
             </button>
+
         </form>
     );
 }
