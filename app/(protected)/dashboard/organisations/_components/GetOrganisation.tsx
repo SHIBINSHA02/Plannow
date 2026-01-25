@@ -62,8 +62,11 @@ export default function PinnedOrganisationManager() {
     /* ---------------- Derived Data ---------------- */
 
     const pinnedIds = new Set(
-        pinned.map(p => p.organisationId._id)
+        pinned
+            .filter(p => p.organisationId)
+            .map(p => p.organisationId._id)
     );
+
 
     const unpinnedFiltered = allOrganisations.filter(
         org =>

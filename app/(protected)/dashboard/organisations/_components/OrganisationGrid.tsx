@@ -17,7 +17,7 @@ export default function OrganisationGrid() {
                 if (!res.ok) throw new Error("Failed to load organisations");
                 return res.json();
             })
-            .then(data => setOrganisations(data.organisations))
+            .then(data => setOrganisations(data.organisations || []))
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
     }, []);
