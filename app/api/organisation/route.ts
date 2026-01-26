@@ -34,11 +34,11 @@ export async function GET() {
         /* ---------- Fetch ONLY accessible organisations ---------- */
         const organisations = await Organisation.find({
             $or: [
-                { adminName: email },
-                { editors: email },
-            ],
+                { adminName: email },     
+                { editors: { $in: [email] } }
+            ]
         })
-            .select("_id organisationName adminName organisationId")
+            .select("organisationId organisationName adminName")
             .sort({ organisationName: 1 })
             .lean();
 

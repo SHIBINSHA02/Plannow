@@ -98,9 +98,14 @@ export default function PinnedOrganisationManager() {
                             </h2>
                             <div className="grid md:grid-cols-2 gap-4">
                             
-                        {pinned.map(pin => {
-                            const org = pin.organisationId;
-                            return (
+                            {
+                                pinned
+  .filter(pin => pin.organisationId) 
+                                    .map(pin => {
+
+                                        const org = pin.organisationId;
+
+                                        return (
                                 <div
                                     key={org.organisationId}
                                     className="flex items-center justify-between
