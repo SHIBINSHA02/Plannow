@@ -5,12 +5,13 @@ import Teacher from "@/models/Teacher";
 
 export async function GET(
     req: Request,
-    context: { params: Promise<{ classroomId: string }> }
+    { params }: { params: Promise<{ classroomId: string }> }
 ) {
     try {
         await connectDB();
 
-        const { classroomId } = await context.params;
+        // ✅ unwrap params (IMPORTANT)
+        const { classroomId } = await params;
 
         const { searchParams } = new URL(req.url);
         const organisationId = searchParams.get("organisationId");
@@ -34,13 +35,16 @@ export async function GET(
             );
         }
 
-        /* ✅ DERIVE teacherIds FROM subjects */
-        const teacherIds = classroom.subjects
-            ?.map((s: any) => s.defaultTeacherId)
-            .filter(Boolean);
+        const teacherIds = Array.from(
+            new Set(
+                classroom.subjects
+                    ?.map((s: any) => s.defaultTeacherId)
+                    .filter(Boolean)
+            )
+        );
 
-        if (!teacherIds || teacherIds.length === 0) {
-            return NextResponse.json([], { status: 200 });
+        if (teacherIds.length === 0) {
+            return NextResponse.json([]);
         }
 
         const teachers = await Teacher.find({
@@ -50,13 +54,12 @@ export async function GET(
             .select("teacherId teacherName subjects")
             .lean();
 
-        return NextResponse.json(teachers, { status: 200 });
+        return NextResponse.json(teachers);
 
-    } catch (error: any) {
-        console.error("GET classroom teachers error:", error);
-
+    } catch (err: any) {
+        console.error(err);
         return NextResponse.json(
-            { message: error.message || "Internal Server Error" },
+            { message: err.message || "Server error" },
             { status: 500 }
         );
     }

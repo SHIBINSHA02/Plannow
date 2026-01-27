@@ -85,12 +85,19 @@ export function ScheduleGridProvider({
         );
 
     /* ---------- Load Teachers ---------- */
-
     useEffect(() => {
+        if (!organisationId || !classroomId) return;
+
         const loadTeachers = async () => {
             const res = await fetch(
-                `/api/teachers?organisationId=${organisationId}`
+                `/api/classrooms/classroom/${classroomId}/teachers?organisationId=${organisationId}`
             );
+
+            if (!res.ok) {
+                console.error("Failed to fetch teachers");
+                return;
+            }
+
             const data: Teacher[] = await res.json();
             setTeachers(data);
 
@@ -99,8 +106,10 @@ export function ScheduleGridProvider({
             );
         };
 
-        if (organisationId) loadTeachers();
-    }, [organisationId]);
+        loadTeachers();
+
+    }, [organisationId, classroomId])
+
 
     /* ---------- Grid Mutations ---------- */
 

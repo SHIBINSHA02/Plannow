@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 type SubjectInput = {
     subject: string;
     weeklyHours: number;
+    defaultTeacherId: string;
 };
 
 type Teacher = {
@@ -62,6 +63,7 @@ export default function ClassOnboarding({
         const fetchTeachers = async () => {
             try {
                 setTeachersLoading(true);
+
                 const res = await fetch(
                     `/api/teachers?organisationId=${organisationId}`
                 );
@@ -70,6 +72,7 @@ export default function ClassOnboarding({
 
                 const data = await res.json();
                 setTeachers(data);
+
             } catch (err) {
                 console.error(err);
                 setTeachers([]);
@@ -81,7 +84,7 @@ export default function ClassOnboarding({
         fetchTeachers();
     }, [organisationId]);
 
-    /* ---------- Filtered Teachers ---------- */
+    /* ---------- Filter Teachers ---------- */
 
     const filteredTeachers = teachers.filter(t =>
         t.teacherName.toLowerCase().includes(teacherSearch.toLowerCase())
@@ -107,6 +110,7 @@ export default function ClassOnboarding({
             {
                 subject: selectedSubject,
                 weeklyHours: Number(weeklyHours),
+                defaultTeacherId: selectedTeacher.teacherId, // ✅ FIXED
             },
         ]);
 
@@ -140,11 +144,12 @@ export default function ClassOnboarding({
                     className,
                     department,
                     adminEmail,
-                    subjects,
+                    subjects, // now includes teacherId
                 }),
             });
 
             onSuccess?.();
+
         } catch {
             setError("Network error");
         } finally {
@@ -163,7 +168,7 @@ export default function ClassOnboarding({
                 </p>
             )}
 
-            {/* Classroom Info */}
+            {/* ---------- Classroom Info ---------- */}
 
             <input
                 placeholder="Classroom Name"
@@ -222,7 +227,7 @@ export default function ClassOnboarding({
 
                         {filteredTeachers.map(t => (
                             <div
-                                key={t._id}
+                                key={t.teacherId}   // ✅ stable key
                                 onClick={() => selectTeacher(t)}
                                 className="p-2 cursor-pointer hover:bg-blue-100"
                             >
@@ -243,6 +248,7 @@ export default function ClassOnboarding({
                     className="flex-1 p-2 border rounded-xl"
                 >
                     <option value="">Select Subject</option>
+
                     {selectedTeacher?.subjects.map(sub => (
                         <option key={sub} value={sub}>
                             {sub}
@@ -269,15 +275,25 @@ export default function ClassOnboarding({
 
             {/* ---------- Added Subjects ---------- */}
 
-            {subjects.map((s, i) => (
+            {subjects.map(s => (
                 <div
-                    key={i}
+                    key={s.subject + s.defaultTeacherId}
                     className="flex justify-between items-center border p-2 rounded"
                 >
                     <span>
-                        {s.subject} ({s.weeklyHours}h)
+                        {s.subject} -{" "}
+                        {teachers.find(t => t.teacherId === s.defaultTeacherId)?.teacherName}
+                        {" "}({s.weeklyHours}h)
                     </span>
-                    <button type="button" onClick={() => removeSubject(i)}>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setSubjects(prev =>
+                                prev.filter(x => x !== s)
+                            )
+                        }
+                    >
                         ×
                     </button>
                 </div>
