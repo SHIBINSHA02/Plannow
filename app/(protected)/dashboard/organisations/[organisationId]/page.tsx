@@ -30,6 +30,8 @@ export default function OrganisationPage() {
     const [organisation, setOrganisation] = useState<Organisation | null>(null);
     const [canEdit, setCanEdit] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [deleting, setDeleting] = useState(false);
+
 
     /* Edit state */
     const [showEdit, setShowEdit] = useState(false);
@@ -69,6 +71,36 @@ export default function OrganisationPage() {
 
         fetchOrganisation();
     }, [organisationId, router]);
+
+    /* ---------- Delete Organisation ---------- */
+    const handleDeleteOrganisation = async () => {
+        const confirmed = confirm(
+            "Are you sure you want to delete this organisation?\nThis will delete all classrooms, teachers, and schedules."
+        );
+
+        if (!confirmed) return;
+
+        setDeleting(true);
+
+        try {
+            const res = await fetch(`/api/organisation/${organisationId}`, {
+                method: "DELETE",
+            });
+
+            if (!res.ok) {
+                router.replace("/unauthorized");
+                return;
+            }
+
+            // redirect after delete
+            router.push("/dashboard/organisations");
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setDeleting(false);
+        }
+    };
+
 
     /* ---------- Save Images ---------- */
     const handleSaveImages = async () => {
@@ -162,12 +194,31 @@ export default function OrganisationPage() {
                         </div>
 
                         {canEdit && (
-                            <button
-                                onClick={() => setShowEdit(true)}
-                                className="text-sm text-gray-400 p-2 rounded-xl hover:bg-gray-100"
-                            >
-                                <Edit />
-                            </button>
+                            <div className="flex items-center gap-2">
+                                {/* Edit */}
+                                <button
+                                    onClick={() => setShowEdit(true)}
+                                    className="text-gray-400 p-2 rounded-xl hover:bg-gray-100 transition"
+                                >
+                                    <Edit />
+                                </button>
+
+                                {/* Delete */}
+                                <button
+                                    onClick={handleDeleteOrganisation}
+                                    disabled={deleting}
+                                    className="
+                                    px-3 py-2 rounded-xl text-sm font-medium
+                                    bg-red-50 text-red-500 border border-red-500
+                                    hover:bg-red-600 hover:text-white
+                                    active:scale-95
+                                    transition-all
+                                    disabled:opacity-50
+                                "
+                                >
+                                    {deleting ? "Deleting..." : "Delete"}
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
