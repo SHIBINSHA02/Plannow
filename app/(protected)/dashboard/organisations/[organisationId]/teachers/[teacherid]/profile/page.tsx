@@ -24,10 +24,10 @@ export default async function TeacherProfile({
 }: {
     params: Promise<{ organisationId: string; teacherid: string }>;
 }) {
-    const teacherid = "T-1";
-    const organisationId = "ORG1";
+    // const teacherid = "T-1";
+    // const organisationId = "ORG1";
 
-    // const { organisationId, teacherid } = await params;
+    const { organisationId, teacherid } = await params;
 
     await connectDB();
 
