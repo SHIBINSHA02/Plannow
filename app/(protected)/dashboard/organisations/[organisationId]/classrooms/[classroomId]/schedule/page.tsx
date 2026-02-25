@@ -77,6 +77,7 @@ export default async function Page({
     );
 
     return (
+        <>
         <ClassroomScheduleClient
             organisationId={organisationId}
             classroomId={classroomId}
@@ -85,5 +86,6 @@ export default async function Page({
             days={days}
             periods={periods}
         />
+        </>
     );
 }

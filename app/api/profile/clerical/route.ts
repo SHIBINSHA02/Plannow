@@ -117,3 +117,15 @@ export async function POST(req: Request) {
         );
     }
 }
+
+/**
+ * API Routes for Clerical User Profiles
+ * 
+ * GET /api/profile/clerical
+ * - Fetches the clerical profile for the signed-in user.
+ * - Resolves organization names for stored teacher IDs.
+ * 
+ * POST /api/profile/clerical
+ * - Links the user to a specific teacher ID within an organization.
+ * - Enforces one teacher ID per organization per user.
+ */

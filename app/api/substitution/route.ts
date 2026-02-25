@@ -103,3 +103,14 @@ export async function POST(req: Request) {
         );
     }
 }
+
+/**
+ * API Routes for Substitution Requests
+ * 
+ * GET /api/substitution?organisationId=[id]
+ * - Lists all substitution requests created by the current user in an organization.
+ * 
+ * POST /api/substitution
+ * - Creates a new substitution request.
+ * - Requires organisationId, slotId, classroomId, teachers, and timing info.
+ */

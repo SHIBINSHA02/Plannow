@@ -224,3 +224,20 @@ export async function DELETE(
         );
     }
 }
+
+/**
+ * API Routes for a specific Organisation
+ * 
+ * PATCH /api/organisation/[organisationId]
+ * - Updates organization metadata (profile image, background image).
+ * - Requires Admin or Editor permissions.
+ * 
+ * GET /api/organisation/[organisationId]
+ * - Fetches specific organization details.
+ * - Returns whether the current user has edit permissions.
+ * 
+ * DELETE /api/organisation/[organisationId]
+ * - Performs a cascade delete of the organization.
+ * - Removes all linked classrooms, teachers, and schedule slots.
+ * - restricted to Admin only.
+ */

@@ -110,3 +110,14 @@ export async function DELETE(
         );
     }
 }
+
+/**
+ * API Routes for a individual Schedule Slot
+ * 
+ * PATCH /api/schedule/[slotId]
+ * - Updates specific fields of a schedule slot (teacher, subject).
+ * 
+ * DELETE /api/schedule/[slotId]?organisationId=[id]
+ * - Deletes a schedule slot.
+ * - Automatically decrements the assigned teacher's workload.
+ */

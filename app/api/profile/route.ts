@@ -66,3 +66,14 @@ export async function PUT(req: Request) {
 
     return NextResponse.json({ success: true });
 }
+
+/**
+ * API Routes for General User Profile
+ * 
+ * GET /api/profile
+ * - Fetches basic user info (name, email, role, imageUrl).
+ * - Lists organizations associated with the user.
+ * 
+ * PUT /api/profile
+ * - Updates the user's profile image URL.
+ */

@@ -72,3 +72,14 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ count: slots.length, data: slots });
 }
+
+/**
+ * API Routes for Bulk Schedule Operations
+ * 
+ * POST /api/schedule
+ * - Upserts a schedule slot (creates or updates).
+ * - Manages teacher workload increments and decrements based on changes.
+ * 
+ * GET /api/schedule?organisationId=[id]
+ * - Fetches all schedule slots for an organization.
+ */

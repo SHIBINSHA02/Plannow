@@ -48,3 +48,9 @@ export async function GET() {
         );
     }
 }
+
+/**
+ * GET /api/organisation/my-organisations
+ * Fetches all organizations where the current user is the administrator.
+ * Automatically syncs the user record if it doesn't exist.
+ */

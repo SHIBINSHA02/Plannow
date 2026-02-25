@@ -90,3 +90,9 @@ export async function GET(req: Request) {
         );
     }
 }
+
+/**
+ * GET /api/substitution/teachers?organisationId=[id]&classroomId=[id]
+ * Fetches teachers available for substitution.
+ * Prioritizes teachers from the same department as the classroom's subjects.
+ */

@@ -64,3 +64,9 @@ export async function GET(
         );
     }
 }
+
+/**
+ * GET /api/classrooms/classroom/[classroomId]/teachers?organisationId=[id]
+ * Fetches all teachers assigned to the specified classroom across all subjects.
+ * Useful for filtering schedules or identifying staff involved with a specific class.
+ */

@@ -74,3 +74,9 @@ export async function GET() {
         );
     }
 }
+
+/**
+ * GET /api/profile/teacher
+ * Fetches teacher profile records associated with the signed-in user's email addresses.
+ * Uses aggregation to join with organization details for a complete view of staff roles.
+ */

@@ -64,3 +64,8 @@ export async function GET(req: Request) {
         );
     }
 }
+
+/**
+ * GET /api/substitution/incoming?organisationId=[id]
+ * Fetches all pending substitution requests for the signed-in clerical user within a specific organization.
+ */

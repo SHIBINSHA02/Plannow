@@ -69,3 +69,13 @@ export async function DELETE(
         );
     }
 }
+
+/**
+ * API Routes for a specific Teacher
+ * 
+ * PUT /api/teachers/[teacherId]
+ * - Updates teacher details (name, email, subjects, etc.).
+ * 
+ * DELETE /api/teachers/[teacherId]
+ * - Removes a teacher record from the system.
+ */

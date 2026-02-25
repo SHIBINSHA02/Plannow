@@ -94,3 +94,14 @@ export async function POST(
         );
     }
 }
+
+/**
+ * API Routes for Classroom Schedule Management
+ * 
+ * GET /api/schedule/classroom/[classroomId]?organisationId=[id]
+ * - Fetches all schedule slots for a specific classroom.
+ * 
+ * POST /api/schedule/classroom/[classroomId]
+ * - Creates a new schedule slot for a classroom.
+ * - Prevents duplicates for the same day, period, and teacher/subject combo.
+ */

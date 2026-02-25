@@ -65,3 +65,9 @@ export async function PATCH(
         );
     }
 }
+
+/**
+ * PATCH /api/substitution/[id]/status
+ * Updates the status of a substitution request (accepted/rejected).
+ * Only the specific clerical user the request was sent to can perform this action.
+ */

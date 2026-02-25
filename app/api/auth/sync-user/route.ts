@@ -16,3 +16,9 @@ export async function POST() {
 
     return NextResponse.json({ success: true });
 }
+
+/**
+ * POST /api/auth/sync-user
+ * Syncs the current Clerk user with the local MongoDB database.
+ * This route is typically called after a successful clerk authentication to ensure the user exists in our records.
+ */

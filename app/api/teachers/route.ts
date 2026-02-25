@@ -75,3 +75,14 @@ export async function GET(req: Request) {
         );
     }
 }
+
+/**
+ * API Routes for Teachers
+ * 
+ * POST /api/teachers
+ * - Creates a new teacher record within an organization.
+ * - Automatically generates a teacherId.
+ * 
+ * GET /api/teachers?organisationId=[id]
+ * - Lists all teachers belonging to a specific organization.
+ */

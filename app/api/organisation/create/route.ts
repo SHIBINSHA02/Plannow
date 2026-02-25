@@ -53,3 +53,9 @@ export async function POST(req: Request) {
         );
     }
 }
+
+/**
+ * POST /api/organisation/create
+ * Creates a new organization with the current user as the administrator.
+ * Automatically generates a unique OrganisationId.
+ */

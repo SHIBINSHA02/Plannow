@@ -74,3 +74,9 @@ export async function GET(
         );
     }
 }
+
+/**
+ * GET /api/schedule/teacher/[teacherId]?organisationId=[id]
+ * Fetches the complete schedule for a specific teacher.
+ * Joins with the classrooms collection to provide human-readable class names for each slot.
+ */

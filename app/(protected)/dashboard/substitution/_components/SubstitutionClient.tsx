@@ -143,3 +143,14 @@ export default function SubstitutionClient() {
         </div>
     );
 }
+
+/**
+ * SubstitutionClient Component
+ * 
+ * Main entry point for the substitution management dashboard.
+ * 
+ * 1. fetches user profile data from /api/profile/teacher and /api/profile/clerical.
+ * 2. Merges organizations from both profiles to identify where the user has substitution-related roles.
+ * 3. Provides an OrganisationPicker to select the active workspace.
+ * 4. Renders the SubstitutionWorkspace for the selected organization to handle incoming/outgoing requests.
+ */

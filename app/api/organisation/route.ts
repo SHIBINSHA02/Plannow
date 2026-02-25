@@ -34,7 +34,7 @@ export async function GET() {
         /* ---------- Fetch ONLY accessible organisations ---------- */
         const organisations = await Organisation.find({
             $or: [
-                { adminName: email },     
+                { adminName: email },
                 { editors: { $in: [email] } }
             ]
         })
@@ -55,3 +55,9 @@ export async function GET() {
         );
     }
 }
+
+/**
+ * GET /api/organisation
+ * Fetches all organizations the current user has access to (Admin or Editor).
+ * Returns a simplified list of organization objects.
+ */

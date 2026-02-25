@@ -150,3 +150,18 @@ export async function GET() {
         );
     }
 }
+
+/**
+ * API Routes for Pinned Organisations
+ * 
+ * POST /api/organisation/pin-organisation
+ * - Pins an organization to the user's dashboard.
+ * - requires organisationId and optional order.
+ * 
+ * DELETE /api/organisation/pin-organisation
+ * - Unpins an organization from the user's dashboard.
+ * 
+ * GET /api/organisation/pin-organisation
+ * - Fetches all organizations pinned by the current user.
+ * - Populates organization details.
+ */

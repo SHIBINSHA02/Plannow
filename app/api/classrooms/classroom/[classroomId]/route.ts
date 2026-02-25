@@ -134,3 +134,17 @@ export async function DELETE(
         );
     }
 }
+
+/**
+ * API Routes for a specific Classroom
+ * 
+ * GET /api/classrooms/classroom/[classroomId]?organisationId=[id]
+ * - Fetches the complete schedule for a specific classroom.
+ * - Enriches schedule slots with teacher names.
+ * 
+ * PUT /api/classrooms/classroom/[classroomId]
+ * - Updates classroom details (name, subjects, etc.).
+ * 
+ * DELETE /api/classrooms/classroom/[classroomId]?organisationId=[id]
+ * - Deletes the classroom from the organization.
+ */

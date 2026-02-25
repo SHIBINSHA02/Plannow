@@ -143,3 +143,15 @@ export async function GET(req: Request) {
         );
     }
 }
+
+/**
+ * API Routes for Classrooms
+ * 
+ * POST /api/classrooms
+ * - Creates a new classroom within an organization.
+ * - Requires organisationId, className, adminEmail, and subjects.
+ * 
+ * GET /api/classrooms?organisationId=[id]
+ * - Lists all classrooms for a specific organization.
+ * - Enriches each classroom with administrator profile information (name, image).
+ */
