@@ -10,12 +10,24 @@ import Teacher from "./models/Teacher.js";
 import Classroom from "./models/Classroom.js";
 import ScheduleSlot from "./models/ScheduleSlot.js";
 import TeacherWorkload from "./models/TeacherWorkload.js";
+import User from "./models/User.js";
+import Clerical from "./models/Clerical.js";
 
 dotenv.config({
     path: path.resolve(process.cwd(), ".env.local"),
 });
 
 const ADMIN_EMAIL = "shibin24666@gmail.com";
+
+// Clerk IDs provided by the user
+const USER_1_CLERK_ID = "user_38QXmEPPiwpcW9LjBbcWIp0w9T1";
+const USER_1_EMAIL = "aiderived@gmail.com";
+
+const USER_2_CLERK_ID = "user_371jdIwXo5jWlgB5JZCdLaWnmSj";
+const USER_2_EMAIL = "shibin24888@gmail.com";
+
+const USER_3_CLERK_ID = "user_371bQmIztU3YWDzyotCFGIQRIRP";
+const USER_3_EMAIL = "shibin24666@gmail.com";
 
 async function seed() {
     try {
@@ -55,6 +67,18 @@ async function seed() {
             }
         }
 
+        /* ================= FIX USER INDEXES (FIX DUPLICATE EMAIL) ================= */
+
+        const userCollection = mongoose.connection.db.collection("users");
+        const userIndexes = await userCollection.indexes();
+
+        for (const index of userIndexes) {
+            if (index.name === "email_1") {
+                await userCollection.dropIndex(index.name);
+                console.log(`🧹 Dropped index: ${index.name} on users collection`);
+            }
+        }
+
         /* ================= CLEAN OTHER DATA ================= */
 
         await Promise.all([
@@ -62,9 +86,11 @@ async function seed() {
             Teacher.deleteMany({}),
             Classroom.deleteMany({}),
             TeacherWorkload.deleteMany({}),
+            User.deleteMany({}),
+            Clerical.deleteMany({}),
         ]);
 
-        console.log("🧹 Other collections cleared");
+        console.log("🧹 All collections cleared (including User & Clerical)");
 
         /* ================= ORGANISATIONS ================= */
 
@@ -95,28 +121,28 @@ async function seed() {
                 {
                     teacherId: "T-1",
                     teacherName: "Alice Johnson",
-                    email: ADMIN_EMAIL, // ✅ matches Clerk user
+                    email: USER_1_EMAIL,
                     subjects: ["Maths", "Physics"],
                     organisations: ["ORG1"],
                 },
                 {
                     teacherId: "T-2",
                     teacherName: "Bob Smith",
-                    email: "bob@college.com",
+                    email: USER_2_EMAIL,
                     subjects: ["Chemistry"],
                     organisations: ["ORG1", "ORG2"],
                 },
                 {
                     teacherId: "T-3",
                     teacherName: "Clara Lee",
-                    email: "clara@college.com",
+                    email: USER_3_EMAIL,
                     subjects: ["CS"],
                     organisations: ["ORG2"],
                 },
                 {
                     teacherId: "T-4",
                     teacherName: "David Park",
-                    email: ADMIN_EMAIL, // ✅ same email, different org
+                    email: USER_1_EMAIL,
                     subjects: ["Physics"],
                     organisations: ["ORG2"],
                 },
@@ -125,6 +151,53 @@ async function seed() {
         );
 
         console.log("👩‍🏫 Teachers created");
+
+        /* ================= USERS (CLERK) ================= */
+
+        await User.insertMany([
+            {
+                clerkUserId: USER_1_CLERK_ID,
+                name: "Alice Park",
+                email: USER_1_EMAIL,
+                role: "TEACHER",
+            },
+            {
+                clerkUserId: USER_2_CLERK_ID,
+                name: "Bob Smith",
+                email: USER_2_EMAIL,
+                role: "TEACHER",
+            },
+            {
+                clerkUserId: USER_3_CLERK_ID,
+                name: "Clara Lee",
+                email: USER_3_EMAIL,
+                role: "TEACHER",
+            },
+        ]);
+
+        console.log("👤 Users created");
+
+        /* ================= CLERICAL PROFILES (LINKING) ================= */
+
+        await Clerical.insertMany([
+            {
+                clerkUserId: USER_1_CLERK_ID,
+                teacherIds: [
+                    { teacherId: "T-1", organisationId: "ORG1" },
+                    { teacherId: "T-4", organisationId: "ORG2" },
+                ],
+            },
+            {
+                clerkUserId: USER_2_CLERK_ID,
+                teacherIds: [{ teacherId: "T-2", organisationId: "ORG1" }],
+            },
+            {
+                clerkUserId: USER_3_CLERK_ID,
+                teacherIds: [{ teacherId: "T-3", organisationId: "ORG2" }],
+            },
+        ]);
+
+        console.log("🔗 Clerical profiles (multi-org linking) created");
 
         /* ================= CLASSROOMS ================= */
 

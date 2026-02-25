@@ -15,9 +15,10 @@ export const dynamic = "force-dynamic";
 ---------------------------------------------------------------- */
 export async function PATCH(
     req: Request,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await context.params;
         const { userId } = await auth();
         if (!userId) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -33,7 +34,7 @@ export async function PATCH(
 
         await connectDB();
 
-        const request = await SubstitutionRequest.findById(params.id);
+        const request = await SubstitutionRequest.findById(id);
         if (!request) {
             return NextResponse.json({ error: "Request not found" }, { status: 404 });
         }

@@ -9,8 +9,12 @@ interface Params {
 }
 
 // GET classroom schedule
-export async function GET(req: Request, { params }: Params) {
+export async function GET(
+    req: Request,
+    context: { params: Promise<{ classroomId: string }> }
+) {
     try {
+        const { classroomId } = await context.params;
         await connectDB();
 
         const { searchParams } = new URL(req.url);
@@ -25,7 +29,7 @@ export async function GET(req: Request, { params }: Params) {
 
         const slots = await ScheduleSlot.find({
             organisationId,
-            classroomId: params.classroomId
+            classroomId: classroomId
         })
             .sort({ day: 1, period: 1 })
             .lean();
@@ -49,7 +53,7 @@ export async function GET(req: Request, { params }: Params) {
         }));
 
         return NextResponse.json({
-            classroomId: params.classroomId,
+            classroomId: classroomId,
             organisationId,
             totalSlots: enriched.length,
             schedule: enriched
@@ -63,13 +67,17 @@ export async function GET(req: Request, { params }: Params) {
 }
 
 // PUT update classroom
-export async function PUT(req: Request, { params }: Params) {
+export async function PUT(
+    req: Request,
+    context: { params: Promise<{ classroomId: string }> }
+) {
     try {
+        const { classroomId } = await context.params;
         await connectDB();
         const body = await req.json();
 
         const updated = await Classroom.findOneAndUpdate(
-            { classroomId: params.classroomId },
+            { classroomId: classroomId },
             body,
             { new: true }
         );

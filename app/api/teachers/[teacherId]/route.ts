@@ -7,15 +7,16 @@ import Teacher from "@/models/Teacher";
  */
 export async function PUT(
     req: Request,
-    { params }: { params: { teacherId: string } }
+    context: { params: Promise<{ teacherId: string }> }
 ) {
     try {
+        const { teacherId } = await context.params;
         await connectDB();
 
         const updates = await req.json();
 
         const teacher = await Teacher.findOneAndUpdate(
-            { teacherId: params.teacherId },
+            { teacherId: teacherId },
             updates,
             { new: true }
         );
@@ -42,13 +43,14 @@ export async function PUT(
  */
 export async function DELETE(
     req: Request,
-    { params }: { params: { teacherId: string } }
+    context: { params: Promise<{ teacherId: string }> }
 ) {
     try {
+        const { teacherId } = await context.params;
         await connectDB();
 
         const teacher = await Teacher.findOneAndDelete({
-            teacherId: params.teacherId
+            teacherId: teacherId
         });
 
         if (!teacher) {
