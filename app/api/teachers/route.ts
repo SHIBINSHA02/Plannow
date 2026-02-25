@@ -25,10 +25,35 @@ export async function POST(req: Request) {
             );
         }
 
+        const normalizedEmail = email.toLowerCase();
+
+        // 1. Check if teacher already exists by email
+        const existingTeacher = await Teacher.findOne({ email: normalizedEmail });
+
+        if (existingTeacher) {
+            // 2. Add organisationId to their list if not already present
+            const updatedTeacher = await Teacher.findOneAndUpdate(
+                { email: normalizedEmail },
+                {
+                    $addToSet: { organisations: organisationId },
+                    $set: {
+                        // Optionally update name or subjects if provided
+                        teacherName: teacherName,
+                        subjects: subjects.length > 0 ? subjects : existingTeacher.subjects,
+                        metadata: { ...existingTeacher.metadata, ...metadata }
+                    }
+                },
+                { new: true }
+            );
+
+            return NextResponse.json(updatedTeacher, { status: 200 });
+        }
+
+        // 3. Create new teacher if not found
         const teacher = await Teacher.create({
-            teacherId: `T-${nanoid(6)}`, // ✅ generated here
+            teacherId: `T-${nanoid(6)}`,
             teacherName,
-            email,
+            email: normalizedEmail,
             subjects,
             organisations: [organisationId],
             metadata
@@ -37,6 +62,7 @@ export async function POST(req: Request) {
         return NextResponse.json(teacher, { status: 201 });
 
     } catch (error: any) {
+        console.error("Create/Update teacher error:", error);
         return NextResponse.json(
             { error: error.message },
             { status: 500 }
