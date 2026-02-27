@@ -12,6 +12,7 @@ import ScheduleSlot from "./models/ScheduleSlot.js";
 import TeacherWorkload from "./models/TeacherWorkload.js";
 import User from "./models/User.js";
 import Clerical from "./models/Clerical.js";
+import SubstitutionRequest from "./models/SubstitutionRequest.js";
 
 dotenv.config({
     path: path.resolve(process.cwd(), ".env.local"),
@@ -88,6 +89,7 @@ async function seed() {
             TeacherWorkload.deleteMany({}),
             User.deleteMany({}),
             Clerical.deleteMany({}),
+            SubstitutionRequest.deleteMany({}),
         ]);
 
         console.log("🧹 All collections cleared (including User & Clerical)");
@@ -144,7 +146,7 @@ async function seed() {
                     teacherName: "David Park",
                     email: USER_1_EMAIL,
                     subjects: ["Physics"],
-                    organisations: ["ORG2"],
+                    organisations: ["ORG1", "ORG2"],
                 },
             ],
             { ordered: false }

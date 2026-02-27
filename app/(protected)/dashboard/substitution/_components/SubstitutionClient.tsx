@@ -30,11 +30,6 @@ export default function SubstitutionClient() {
     const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
 
     useEffect(() => {
-        const mergeUnique = (a: Organisation[], b: Organisation[]) => {
-            const seen = new Set(a.map((o) => o.organisationId));
-            return [...a, ...b.filter((o) => !seen.has(o.organisationId))];
-        };
-
         const fetchTeacher = fetch("/api/profile/teacher")
             .then((res) => {
                 if (!res.ok) return [];
@@ -75,8 +70,13 @@ export default function SubstitutionClient() {
 
         Promise.all([fetchTeacher, fetchClerical])
             .then(([teacherOrgs, clericalOrgs]) => {
-                const merged = mergeUnique(teacherOrgs, clericalOrgs);
-                setOrganisations(merged);
+                const combined = [...teacherOrgs, ...clericalOrgs];
+                const unique = Array.from(
+                    new Map(
+                        combined.map((org) => [org.organisationId, org])
+                    ).values()
+                );
+                setOrganisations(unique);
             })
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));

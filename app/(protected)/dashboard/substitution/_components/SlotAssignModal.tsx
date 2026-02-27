@@ -135,30 +135,34 @@ export default function SlotAssignModal({
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
                         >
                             <option value="">Select teacher</option>
-                            {teachers.inDepartment.length > 0 && (
+                            {teachers.inDepartment.filter(t => t.teacherId !== slot.teacherId).length > 0 && (
                                 <optgroup label="Same department (priority)">
-                                    {teachers.inDepartment.map((t) => (
-                                        <option
-                                            key={t.teacherId}
-                                            value={t.teacherId}
-                                        >
-                                            {t.teacherName}
-                                            {t.subjects?.length ? ` (${t.subjects.join(", ")})` : ""}
-                                        </option>
-                                    ))}
+                                    {teachers.inDepartment
+                                        .filter((t) => t.teacherId !== slot.teacherId)
+                                        .map((t) => (
+                                            <option
+                                                key={t.teacherId}
+                                                value={t.teacherId}
+                                            >
+                                                {t.teacherName}
+                                                {t.subjects?.length ? ` (${t.subjects.join(", ")})` : ""}
+                                            </option>
+                                        ))}
                                 </optgroup>
                             )}
-                            {teachers.others.length > 0 && (
+                            {teachers.others.filter(t => t.teacherId !== slot.teacherId).length > 0 && (
                                 <optgroup label="Other teachers in organisation">
-                                    {teachers.others.map((t) => (
-                                        <option
-                                            key={t.teacherId}
-                                            value={t.teacherId}
-                                        >
-                                            {t.teacherName}
-                                            {t.subjects?.length ? ` (${t.subjects.join(", ")})` : ""}
-                                        </option>
-                                    ))}
+                                    {teachers.others
+                                        .filter((t) => t.teacherId !== slot.teacherId)
+                                        .map((t) => (
+                                            <option
+                                                key={t.teacherId}
+                                                value={t.teacherId}
+                                            >
+                                                {t.teacherName}
+                                                {t.subjects?.length ? ` (${t.subjects.join(", ")})` : ""}
+                                            </option>
+                                        ))}
                                 </optgroup>
                             )}
                         </select>

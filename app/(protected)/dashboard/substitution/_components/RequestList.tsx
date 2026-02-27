@@ -56,34 +56,35 @@ export default function RequestList({
                         schedule to create one.
                     </p>
                 ) : (
-                    requests.map((req) => (
-                        <div
-                            key={req._id}
-                            className="p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
-                        >
-                            <div className="flex items-start justify-between gap-2">
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-sm font-medium text-gray-800 truncate">
-                                        {dayNames[req.day - 1] ?? `D${req.day}`} · P
-                                        {req.period}
-                                        {req.subject && ` · ${req.subject}`}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-0.5">
-                                        Assign to:{" "}
-                                        {teachersMap[req.requestedTeacherId] ??
-                                            req.requestedTeacherId}
-                                    </p>
+                    requests
+                        .filter((req) => req.requestedTeacherId !== req.originalTeacherId)
+                        .map((req) => (
+                            <div
+                                key={req._id}
+                                className="p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+                            >
+                                <div className="flex items-start justify-between gap-2">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-sm font-medium text-gray-800 truncate">
+                                            {dayNames[req.day - 1] ?? `D${req.day}`} · P
+                                            {req.period}
+                                            {req.subject && ` · ${req.subject}`}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-0.5">
+                                            Assign to:{" "}
+                                            {teachersMap[req.requestedTeacherId] ??
+                                                req.requestedTeacherId}
+                                        </p>
+                                    </div>
+                                    <span
+                                        className={`shrink-0 text-xs px-2 py-0.5 rounded-full ${statusColors[req.status] ?? "bg-gray-100 text-gray-600"
+                                            }`}
+                                    >
+                                        {req.status}
+                                    </span>
                                 </div>
-                                <span
-                                    className={`shrink-0 text-xs px-2 py-0.5 rounded-full ${
-                                        statusColors[req.status] ?? "bg-gray-100 text-gray-600"
-                                    }`}
-                                >
-                                    {req.status}
-                                </span>
                             </div>
-                        </div>
-                    ))
+                        ))
                 )}
             </div>
         </div>

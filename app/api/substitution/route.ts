@@ -81,6 +81,24 @@ export async function POST(req: Request) {
             );
         }
 
+        // Check for existing pending request for same slot and teacher
+        const existing = await SubstitutionRequest.findOne({
+            organisationId,
+            slotId,
+            requestedTeacherId,
+            status: "pending",
+        });
+
+        if (existing) {
+            return NextResponse.json(
+                {
+                    error:
+                        "A pending request already exists for this teacher for this slot.",
+                },
+                { status: 400 }
+            );
+        }
+
         const created = await SubstitutionRequest.create({
             organisationId,
             slotId,
