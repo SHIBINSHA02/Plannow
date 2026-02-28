@@ -1,4 +1,5 @@
 import ClassroomScheduleClient from "./../../../_components/ClassroomScheduleClient";
+import EditClassOnboarding from "./../../_components/EditClassOnboarding";
 import { Assignment } from "../../../../../_types/schedule";
 import { headers } from "next/headers";
 
@@ -41,7 +42,7 @@ export default async function Page({
         classroomId: string;
     }>;
 }) {
- 
+
     const { organisationId, classroomId } = await params;
 
     // ✅ Allow loading.tsx to render first
@@ -78,14 +79,23 @@ export default async function Page({
 
     return (
         <>
-        <ClassroomScheduleClient
-            organisationId={organisationId}
-            classroomId={classroomId}
-            className={current?.className ?? classroomId}
-            initialGrid={scheduleToGrid(schedule)}
-            days={days}
-            periods={periods}
-        />
+            <ClassroomScheduleClient
+                organisationId={organisationId}
+                classroomId={classroomId}
+                className={current?.className ?? classroomId}
+                initialGrid={scheduleToGrid(schedule)}
+                days={days}
+                periods={periods}
+            />
+
+            {/* Editor for Classroom Details */}
+            <div className="mt-8 px-6 pb-20">
+                <EditClassOnboarding
+                    organisationId={organisationId}
+                    classroomId={classroomId}
+                    currentClassroom={current}
+                />
+            </div>
         </>
     );
 }

@@ -17,17 +17,17 @@ const ClassroomScheduleTable: React.FC = () => {
     } = useScheduleGrid();
 
     return (
-        <div className="relative overflow-x-auto rounded-xl shadow-lg shadow-blue-50">
+        <div className="relative overflow-x-auto rounded-xl shadow-lg shadow-blue-800/20">
             <table className="min-w-full border border-gray-300 rounded-xl">
                 <thead>
                     <tr className="bg-gray-100">
-                        <th className="px-4 py-2 border border-gray-200">
+                        <th className="px-4 py-2 border border-gray-200 bg-blue-700 text-white">
                             Day / Period
                         </th>
                         {periods.map((p) => (
                             <th
                                 key={p}
-                                className="px-4 py-2 border border-gray-200 text-center"
+                                className="px-4 py-2 border border-gray-200 text-center bg-blue-700 text-white"
                             >
                                 {p}
                             </th>
