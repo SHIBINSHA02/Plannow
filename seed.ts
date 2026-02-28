@@ -44,18 +44,23 @@ async function seed() {
         /* ================= HARD RESET (DEV SAFE) ================= */
 
         // 🔥 DROP schedule slots collection completely (removes indexes too)
-        const scheduleCollections = await mongoose.connection.db
+        const db = mongoose.connection.db;
+        if (!db) {
+            throw new Error("❌ Database connection failed: db is undefined");
+        }
+
+        const scheduleCollections = await db
             .listCollections({ name: "scheduleslots" })
             .toArray();
 
         if (scheduleCollections.length > 0) {
-            await mongoose.connection.db.dropCollection("scheduleslots");
+            await db.dropCollection("scheduleslots");
             console.log("🧹 scheduleslots collection dropped (data + indexes)");
         }
 
         /* ================= FIX TEACHER INDEXES (CRITICAL) ================= */
 
-        const teacherCollection = mongoose.connection.db.collection("teachers");
+        const teacherCollection = db.collection("teachers");
         const teacherIndexes = await teacherCollection.indexes();
 
         for (const index of teacherIndexes) {
@@ -70,7 +75,7 @@ async function seed() {
 
         /* ================= FIX USER INDEXES (FIX DUPLICATE EMAIL) ================= */
 
-        const userCollection = mongoose.connection.db.collection("users");
+        const userCollection = db.collection("users");
         const userIndexes = await userCollection.indexes();
 
         for (const index of userIndexes) {

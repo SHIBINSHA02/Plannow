@@ -9,7 +9,7 @@ export default async function OrganisationLayout({
     params,
 }: {
     children: React.ReactNode;
-    params: {organisationId: string };
+    params: Promise<{ organisationId: string }>;
 }) {
     // 🔴 IMPORTANT: unwrap params
     const { organisationId } = await params;
