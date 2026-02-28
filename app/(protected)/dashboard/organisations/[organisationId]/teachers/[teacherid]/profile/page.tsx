@@ -2,7 +2,8 @@ import { connectDB } from "@/lib/db";
 import Teacher from "@/models/Teacher";
 import ScheduleSlot from "@/models/ScheduleSlot";
 import { notFound } from "next/navigation";
-import { Calendar, Mail, Building2 } from "lucide-react";
+import { Calendar, Mail, Building2, User } from "lucide-react";
+import EditTeacherModal from "./_components/EditTeacherModal";
 
 /* ---------------- Constants ---------------- */
 
@@ -24,9 +25,6 @@ export default async function TeacherProfile({
 }: {
     params: Promise<{ organisationId: string; teacherid: string }>;
 }) {
-    // const teacherid = "T-1";
-    // const organisationId = "ORG1";
-
     const { organisationId, teacherid } = await params;
 
     await connectDB();
@@ -66,7 +64,7 @@ export default async function TeacherProfile({
         {
             $addFields: {
                 className: {
-                    $ifNull: ["$classroom.className", "Unknown Class"],
+                    $ifNull: ["$classroom.className", "—"],
                 },
             },
         },
@@ -78,143 +76,138 @@ export default async function TeacherProfile({
         },
     ]);
 
-    /* -------- Build Map: day-period -> slots[] -------- */
+    /* -------- Build Map: day-period → slots[] -------- */
 
     const scheduleMap = new Map<string, any[]>();
 
     for (const slot of slots) {
         const key = `${slot.day}-${slot.period}`;
-
-        if (!scheduleMap.has(key)) {
-            scheduleMap.set(key, []);
-        }
-
+        if (!scheduleMap.has(key)) scheduleMap.set(key, []);
         scheduleMap.get(key)!.push(slot);
     }
 
     /* ---------------- UI ---------------- */
+    // ... (data fetching stays exactly the same)
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <div className="min-h-screen bg-gray-50 px-4 py-10 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-6xl space-y-10">
 
-                {/* ---------- Header ---------- */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-300 p-8">
-                    <div className="flex flex-col md:flex-row justify-between gap-6">
-                        <div>
-                            <h1 className="text-3xl font-semibold">
+                {/* Profile Header - very clean */}
+                <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 sm:p-8">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
+                        <div className="space-y-2">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                                 {teacher.teacherName}
                             </h1>
-
-                            <div className="flex gap-4 mt-2 text-gray-500">
-                                <span className="flex items-center gap-1">
-                                    <Mail className="w-4 h-4" />
+                            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                                <span className="flex items-center gap-1.5">
+                                    <Mail className="size-4" />
                                     {teacher.email}
                                 </span>
-                                <span className="flex items-center gap-1">
-                                    <Building2 className="w-4 h-4" />
+                                <span className="flex items-center gap-1.5">
+                                    <Building2 className="size-4" />
                                     {teacher.teacherId}
                                 </span>
                             </div>
                         </div>
+                        <div className="flex flex-col sm:items-end gap-4 mt-2 sm:mt-0">
+                            <EditTeacherModal
+                                teacher={{
+                                    teacherName: teacher.teacherName,
+                                    email: teacher.email,
+                                    teacherId: teacher.teacherId,
+                                    subjects: teacher.subjects || [],
+                                }}
+                                organisationId={organisationId}
+                            />
 
-                        <div className="flex flex-wrap gap-2 justify-center items-center">
-                            {teacher.subjects?.map((s: string) => (
-                                <span
-                                    key={s}
-                                    className="px-2 py-1 rounded-full text-center bg-blue-50 text-blue-700 text-sm font-medium"
-                                >
-                                    {s}
-                                </span>
-                            ))}
+                            {teacher.subjects?.length > 0 && (
+                                <div className="flex flex-wrap gap-2 sm:justify-end">
+                                    {teacher.subjects.map((s: string) => (
+                                        <span
+                                            key={s}
+                                            className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-md border border-gray-200"
+                                        >
+                                            {s}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
 
-                {/* ---------- Schedule Grid ---------- */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="p-6 border-b border-gray-200 flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-blue-600" />
-                        <h2 className="text-xl font-semibold">
+                {/* Timetable - clean, compact, high readability */}
+                <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden shadow-blue-700/20">
+                    <div className="px-6 py-4 border-b border-gray-200">
+                        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                            <Calendar className="size-5 text-gray-600" />
                             Weekly Schedule
                         </h2>
                     </div>
 
                     <div className="overflow-x-auto">
-                        <div className="min-w-[900px]">
-
-                            {/* Header */}
-                            <div className="grid grid-cols-9 bg-blue-700 border-b border-gray-200">
-                                <div className="p-4 text-center font-medium text-white">
-                                    Day
-                                </div>
-                                {PERIODS.map((p) => (
-                                    <div
-                                        key={p}
-                                        className="p-4 text-center font-semibold text-white"
-                                    >
-                                        P{p}
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Body */}
-                            {DAYS.map((day) => (
-                                <div
-                                    key={day}
-                                    className="grid grid-cols-9 border-b border-gray-300 hover:bg-gray-50/50"
-                                >
-                                    {/* Day Name */}
-                                    <div className="p-4 font-medium bg-blue-700 text-center text-white justify-center items-center flex">
-                                        {DAY_MAP[day]}
-                                    </div>
-
-                                    {/* Period Cells */}
-                                    {PERIODS.map((period) => {
-                                        const slots =
-                                            scheduleMap.get(
-                                                `${day}-${period}`
-                                            ) || [];
-
-                                        return (
-                                            <div
-                                                key={period}
-                                                className="p-2 border-l border-gray-300 min-h-[120px]"
-                                            >
-                                                {slots.length ? (
-                                                    <div className="flex flex-col gap-2 max-h-[140px] overflow-y-auto">
-                                                        {slots.map(
-                                                            (slot, idx) => (
+                        <table className="min-w-full border-collapse">
+                            <thead>
+                                <tr className="bg-blue-700 rounded-lg">
+                                    <th className="w-32 px-6 py-4 text-left font-medium text-white border-b border-r border-gray-200">
+                                        Day
+                                    </th>
+                                    {PERIODS.map(p => (
+                                        <th
+                                            key={p}
+                                            className="px-4 py-4 text-center font-medium text-white border-b border-r border-gray-200"
+                                        >
+                                            P{p}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {DAYS.map(day => (
+                                    <tr key={day} className="border-b border-gray-200 hover:bg-gray-50">
+                                        <td className="px-6 py-5 font-medium text-gray-800 border-r border-gray-200 bg-gray-50">
+                                            {DAY_MAP[day]}
+                                        </td>
+                                        {PERIODS.map(period => {
+                                            const slots = scheduleMap.get(`${day}-${period}`) || [];
+                                            return (
+                                                <td
+                                                    key={period}
+                                                    className="px-3 py-4 border-l border-gray-200 align-top min-h-[9rem]"
+                                                >
+                                                    {slots.length > 0 ? (
+                                                        <div className="space-y-2">
+                                                            {slots.map((slot, i) => (
                                                                 <div
-                                                                    key={idx}
-                                                                    className="bg-blue-50 border border-blue-600 rounded-lg p-2 text-center"
+                                                                    key={i}
+                                                                    className="border border-gray-300 rounded px-3 py-2 bg-white text-sm"
                                                                 >
-                                                                    <div className="text-sm font-semibold text-blue-900">
-                                                                        {slot.subject ??
-                                                                            "No Subject"}
+                                                                    <div className="font-medium text-gray-900">
+                                                                        {slot.subject || '—'}
                                                                     </div>
-                                                                    <div className="text-xs text-blue-600 inline-block px-2 py-0.5 mt-1">
-                                                                        {
-                                                                            slot.className
-                                                                        }
+                                                                    <div className="text-gray-600 text-xs mt-0.5">
+                                                                        {slot.className}
                                                                     </div>
                                                                 </div>
-                                                            )
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <div className="h-full flex items-center justify-center text-green-700 border-green-500 border rounded-lg bg-green-50  text-xs">
-                                                        Free
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            ))}
-                        </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="h-full flex items-center justify-center text-gray-400 text-sm italic">
+                                                            Free
+                                                        </div>
+                                                    )}
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+
             </div>
         </div>
     );
