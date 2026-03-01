@@ -182,7 +182,7 @@ export default function EditClassOnboarding({
     /* ---------- UI ---------- */
 
     return (
-        <form onSubmit={submit} className="space-y-5 text-gray-700 mt-8 border-t pt-8 w-full max-w-4xl mx-auto">
+        <form onSubmit={submit} className="space-y-5 text-gray-700 mt-8 border-t pt-8 w-full max-w-7xl mx-auto">
             <div className="mb-4">
                 <h2 className="text-xl font-semibold mb-1">Edit Classroom Details</h2>
                 <p className="text-sm text-gray-500">Update the class name, department, or subjects.</p>
@@ -229,7 +229,7 @@ export default function EditClassOnboarding({
             </div>
 
             {/* ---------- Teacher Search ---------- */}
-            <div className="border border-gray-100 bg-gray-50/50 p-4 rounded-2xl space-y-4 text-sm mt-4">
+            <div className="border border-gray-100 bg-gray-50/50 py-4 rounded-2xl space-y-4 text-sm mt-4">
                 <h3 className="font-medium text-gray-800">Add Subjects</h3>
                 <div className="relative">
                     <label className="text-sm font-medium text-gray-600 mb-1 block">

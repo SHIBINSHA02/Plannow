@@ -11,11 +11,11 @@ type ScheduleSlot = {
 
 const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const pieColors = [
-    "#1E3A8A", // dark blue
-    "#1D4ED8", // blue
-    "#2563EB", // primary blue
-    "#3B82F6", // light blue
-    "#60A5FA", // very light blue
+    "#4338ca", // indigo-700
+    "#3b82f6", // blue-500
+    "#06b6d4", // cyan-500
+    "#10b981", // emerald-500
+    "#8b5cf6", // violet-500
 ];
 
 export default function WeeklyWorkloadChart({
@@ -96,11 +96,7 @@ export default function WeeklyWorkloadChart({
     };
 
     return (
-        <div className="mt-8 bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Weekly Workload
-            </h3>
-
+        <div className="bg-transparent w-full">
             {/* Responsive container */}
             <div className="flex flex-col md:flex-row gap-6">
                 {/* ---------- Line Graph ---------- */}

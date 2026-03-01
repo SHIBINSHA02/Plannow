@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import TeacherScheduleGrid from "./_components/TeacherScheduleGrid";
 import WorkloadAnalysis from "./_components/WorkloadAnalysis";
 import WeeklyWorkloadChart from "./_components/WeeklyWorkloadChart";
+import StatsOverview from "./_components/StatsOverview";
+import TodaysClasses from "./_components/TodaysClasses";
 
 /* ---------- Types ---------- */
 
@@ -172,7 +174,7 @@ export default function TeacherSchedulePage() {
 
                         {teachers.map(t => (
                             <option key={t.teacherId} value={t.teacherId}>
-                                
+
                                 {t.organisations.map(o => o.name).join(", ")}
                             </option>
                         ))}
@@ -181,21 +183,54 @@ export default function TeacherSchedulePage() {
             )}
 
             {selectedTeacherId && (
-                <div className="bg-white lg:border  lg:border-blue-200 lg:rounded-xl lg:p-5 lg:shadow-lg lg:shadow-blue-50">
-                    <h2 className="text-lg font-semibold mb-4">
-                        Teaching Schedule
-                    </h2>
+                <div className="bg-transparent">
+                    {/* Header Action Section */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-900">
+                                Teaching Schedule
+                            </h2>
+                            <p className="text-sm text-gray-500 mt-1">
+                                Overview of your classes, workload, and schedule.
+                            </p>
+                        </div>
+                    </div>
 
-    
-                    <TeacherScheduleGrid
-                        schedule={schedule}
-                        loading={loadingSchedule}
-                    />
-                  
+                    {/* Stats Overview */}
+                    <StatsOverview schedule={schedule} />
+                    {/* Full Width: Master Schedule Grid */}
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                        <div className="mb-6">
+                            <h3 className="text-xl font-bold text-gray-900">Master Schedule</h3>
+                            <p className="text-sm text-gray-500 mt-1">Full view of your weekly timetable</p>
+                        </div>
+                        <TeacherScheduleGrid
+                            schedule={schedule}
+                            loading={loadingSchedule}
+                        />
+                    </div>
 
-                    <WorkloadAnalysis schedule={schedule} />
-                    <WeeklyWorkloadChart schedule={schedule} />
-                       
+                    {/* Main Content Grid */}
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+                        {/* Left Side: Today's Classes */}
+                        <div className="xl:col-span-1">
+                            <TodaysClasses schedule={schedule} />
+                        </div>
+
+                        {/* Right Side: Workload Analysis */}
+                        <div className="xl:col-span-2 flex flex-col gap-6">
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-3">Workload Distribution</h3>
+                                <WorkloadAnalysis schedule={schedule} />
+                            </div>
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-3">Weekly Trend</h3>
+                                <WeeklyWorkloadChart schedule={schedule} />
+                            </div>
+                        </div>
+                    </div>
+
+                    
                 </div>
             )}
         </div>

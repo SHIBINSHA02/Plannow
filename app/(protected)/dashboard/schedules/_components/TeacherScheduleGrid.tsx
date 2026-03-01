@@ -73,7 +73,7 @@ export default function TeacherScheduleGrid({
                         <tr key={day} className="odd:bg-white even:bg-gray-50">
                             <td className="border border-gray-300 px-4 py-2 font-semibold bg-blue-700">
                                 <div className="b p-2 rounded-lg text-white">
-                                {dayLabels[day]}
+                                    {dayLabels[day]}
                                 </div>
                             </td>
 
