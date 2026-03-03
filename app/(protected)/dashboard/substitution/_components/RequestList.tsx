@@ -1,6 +1,7 @@
 "use client";
 
 import { ClipboardList } from "lucide-react";
+import { format } from "date-fns";
 
 type Request = {
     _id: string;
@@ -26,6 +27,12 @@ const statusColors: Record<string, string> = {
     pending: "bg-amber-100 text-amber-800",
     accepted: "bg-green-100 text-green-800",
     rejected: "bg-red-100 text-red-800",
+};
+
+const statusLabels: Record<string, string> = {
+    pending: "Pending",
+    accepted: "Accepted",
+    rejected: "Cancelled",
 };
 
 export default function RequestList({
@@ -58,33 +65,46 @@ export default function RequestList({
                 ) : (
                     requests
                         .filter((req) => req.requestedTeacherId !== req.originalTeacherId)
-                        .map((req) => (
-                            <div
-                                key={req._id}
-                                className="p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
-                            >
-                                <div className="flex items-start justify-between gap-2">
-                                    <div className="min-w-0 flex-1">
-                                        <p className="text-sm font-medium text-gray-800 truncate">
-                                            {dayNames[req.day - 1] ?? `D${req.day}`} · P
-                                            {req.period}
-                                            {req.subject && ` · ${req.subject}`}
-                                        </p>
-                                        <p className="text-xs text-gray-500 mt-0.5">
-                                            Assign to:{" "}
-                                            {teachersMap[req.requestedTeacherId] ??
-                                                req.requestedTeacherId}
-                                        </p>
-                                    </div>
-                                    <span
-                                        className={`shrink-0 text-xs px-2 py-0.5 rounded-full ${statusColors[req.status] ?? "bg-gray-100 text-gray-600"
+                        .map((req) => {
+                            const statusLabel =
+                                statusLabels[req.status] ?? req.status;
+                            return (
+                                <div
+                                    key={req._id}
+                                    className="p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+                                >
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-sm font-medium text-gray-800 truncate">
+                                                {dayNames[req.day - 1] ?? `D${req.day}`} · P
+                                                {req.period}
+                                                {req.subject && ` · ${req.subject}`}
+                                            </p>
+                                            <p className="text-xs text-gray-500 mt-0.5">
+                                                Assign to:{" "}
+                                                {teachersMap[req.requestedTeacherId] ??
+                                                    req.requestedTeacherId}
+                                            </p>
+                                            <p className="text-[11px] text-gray-400 mt-0.5">
+                                                Last updated:{" "}
+                                                {format(
+                                                    new Date(req.createdAt),
+                                                    "MMM d, h:mm a"
+                                                )}
+                                            </p>
+                                        </div>
+                                        <span
+                                            className={`shrink-0 text-xs px-2 py-0.5 rounded-full ${
+                                                statusColors[req.status] ??
+                                                "bg-gray-100 text-gray-600"
                                             }`}
-                                    >
-                                        {req.status}
-                                    </span>
+                                        >
+                                            {statusLabel}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                 )}
             </div>
         </div>

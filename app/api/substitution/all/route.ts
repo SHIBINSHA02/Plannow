@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 
 /* ----------------------------------------------------------------
    GET /api/substitution/all?organisationId=...
-   Returns ALL substitution requests for an organisation.
-   Used for admin dashboard overviews.
+   Returns substitution requests for an organisation limited
+   to the last 7 days for admin overview.
 ---------------------------------------------------------------- */
 export async function GET(req: Request) {
     try {
@@ -29,12 +29,13 @@ export async function GET(req: Request) {
 
         await connectDB();
 
-        // Note: We might want to add a check here in the future 
-        // to verify that the requesting user is actually an admin 
-        // for this organisation. For now, matching existing patterns.
+        // Only show last 7 days
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
         const requests = await SubstitutionRequest.find({
             organisationId,
+            createdAt: { $gte: sevenDaysAgo },
         })
             .sort({ createdAt: -1 })
             .lean();
@@ -48,3 +49,4 @@ export async function GET(req: Request) {
         );
     }
 }
+

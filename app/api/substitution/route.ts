@@ -25,9 +25,14 @@ export async function GET(req: Request) {
 
         await connectDB();
 
+        // Only show last 7 days
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
         const requests = await SubstitutionRequest.find({
             organisationId,
             requestedBy: userId,
+            createdAt: { $gte: sevenDaysAgo },
         })
             .sort({ createdAt: -1 })
             .lean();
@@ -81,19 +86,20 @@ export async function POST(req: Request) {
             );
         }
 
-        // Check for existing pending request for same slot and teacher
+        // Enforce a single active substitution per slot:
+        // - If there is any non-rejected request for this slot in this organisation,
+        //   prevent creating another one.
         const existing = await SubstitutionRequest.findOne({
             organisationId,
             slotId,
-            requestedTeacherId,
-            status: "pending",
+            status: { $ne: "rejected" },
         });
 
         if (existing) {
             return NextResponse.json(
                 {
                     error:
-                        "A pending request already exists for this teacher for this slot.",
+                        "An active substitution already exists for this slot.",
                 },
                 { status: 400 }
             );

@@ -37,7 +37,7 @@ const statusConfig = {
         card: "border-emerald-100",
     },
     rejected: {
-        label: "Rejected",
+        label: "Cancelled",
         icon: XCircle,
         badge: "bg-red-100 text-red-700 border border-red-200",
         card: "border-red-100",

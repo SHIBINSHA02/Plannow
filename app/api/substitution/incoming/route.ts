@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
    GET /api/substitution/incoming?organisationId=...
    Returns substitution requests where requestedTeacherId matches
    the clerical user's teacherId for that organisation.
+   Limited to the last 7 days.
 ---------------------------------------------------------------- */
 export async function GET(req: Request) {
     try {
@@ -48,9 +49,13 @@ export async function GET(req: Request) {
             return NextResponse.json([]);
         }
 
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
         const requests = await SubstitutionRequest.find({
             organisationId,
             requestedTeacherId: entry.teacherId,
+            createdAt: { $gte: sevenDaysAgo },
         })
             .sort({ createdAt: -1 })
             .lean();
@@ -67,5 +72,7 @@ export async function GET(req: Request) {
 
 /**
  * GET /api/substitution/incoming?organisationId=[id]
- * Fetches all pending substitution requests for the signed-in clerical user within a specific organization.
+ * Fetches recent substitution requests (last 7 days) for
+ * the signed-in clerical user within a specific organisation.
  */
+
