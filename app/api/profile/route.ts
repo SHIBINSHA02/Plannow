@@ -3,6 +3,9 @@ import { auth } from "@clerk/nextjs/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Organisation from "@/models/Organisation";
+import SubstitutionRequest from "@/models/SubstitutionRequest";
+import TeacherWorkload from "@/models/TeacherWorkload";
+import Teacher from "@/models/Teacher";
 
 /**
  * GET profile
@@ -22,10 +25,32 @@ export async function GET() {
     }
 
     const organisations = await Organisation.find({
-        _id: user.organisationId,
+        _id: { $in: [user.organisationId, ...(user.pinnedOrganisations?.map((o: any) => o.organisationId) || [])] },
     })
         .select("name organisationId")
         .lean();
+
+    // --- Statistics Calculations ---
+
+    // 1. Total Organisations
+    const totalOrganisations = organisations.length;
+
+    // 2. Total Substitutions (Requested by user OR User is the substitute)
+    const totalSubstitutions = await SubstitutionRequest.countDocuments({
+        $or: [
+            { requestedBy: userId },
+            { requestedTeacherId: { $in: await Teacher.find({ email: user.email }).distinct("teacherId") } }
+        ],
+        status: "accepted"
+    });
+
+    // 3. Total Working Hours (Sum of workload across all orgs)
+    const teacherProfiles = await Teacher.find({ email: user.email }).distinct("teacherId");
+    const workloadData = await TeacherWorkload.aggregate([
+        { $match: { teacherId: { $in: teacherProfiles } } },
+        { $group: { _id: null, total: { $sum: "$workload" } } }
+    ]);
+    const totalWorkingHours = workloadData[0]?.total || 0;
 
     return NextResponse.json({
         user: {
@@ -35,6 +60,11 @@ export async function GET() {
             role: user.role,
         },
         organisations,
+        stats: {
+            totalSubstitutions,
+            totalOrganisations,
+            totalWorkingHours
+        }
     });
 }
 

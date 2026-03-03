@@ -103,8 +103,7 @@ export async function POST(req: Request) {
             });
             return NextResponse.json(
                 {
-                    error:
-                        "An active substitution already exists for this slot.",
+                    error: `An active substitution already exists for this slot (Status: ${existing.status}).`,
                 },
                 { status: 400 }
             );
