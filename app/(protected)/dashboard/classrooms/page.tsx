@@ -1,3 +1,5 @@
+import ClassroomOverview from "./_components/ClassroomOverview";
+
 export default function ClassroomPage() {
-    return <div>Protected Dashboard</div>;
+    return <ClassroomOverview />;
 }
