@@ -11,7 +11,7 @@ type IncomingRequest = {
     subject?: string;
     originalTeacherId?: string;
     requestedTeacherId: string;
-    status: "pending" | "accepted" | "rejected";
+    status: "pending" | "accepted" | "rejected" | "cancelled";
     createdAt: string;
 };
 
@@ -37,10 +37,16 @@ const statusConfig = {
         card: "border-emerald-100",
     },
     rejected: {
-        label: "Cancelled",
+        label: "Rejected",
         icon: XCircle,
         badge: "bg-red-100 text-red-700 border border-red-200",
         card: "border-red-100",
+    },
+    cancelled: {
+        label: "Cancelled",
+        icon: Clock,
+        badge: "bg-gray-100 text-gray-700 border border-gray-200",
+        card: "border-gray-100 opacity-60",
     },
 };
 

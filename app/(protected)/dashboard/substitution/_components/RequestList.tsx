@@ -11,7 +11,7 @@ type Request = {
     subject?: string;
     originalTeacherId?: string;
     requestedTeacherId: string;
-    status: string;
+    status: "pending" | "accepted" | "rejected" | "cancelled";
     createdAt: string;
 };
 
@@ -27,12 +27,14 @@ const statusColors: Record<string, string> = {
     pending: "bg-amber-100 text-amber-800",
     accepted: "bg-green-100 text-green-800",
     rejected: "bg-red-100 text-red-800",
+    cancelled: "bg-gray-100 text-gray-800",
 };
 
 const statusLabels: Record<string, string> = {
     pending: "Pending",
     accepted: "Accepted",
-    rejected: "Cancelled",
+    rejected: "Rejected",
+    cancelled: "Cancelled",
 };
 
 export default function RequestList({
@@ -40,6 +42,22 @@ export default function RequestList({
     onRefresh,
     teachersMap = {},
 }: Props) {
+    const handleUndo = async (id: string) => {
+        if (!confirm("Are you sure you want to cancel this request?")) return;
+        try {
+            const res = await fetch(`/api/substitution/${id}/undo`, {
+                method: "POST",
+            });
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || "Failed to undo request");
+            }
+            onRefresh();
+        } catch (error: any) {
+            alert(error.message);
+        }
+    };
+
     return (
         <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm sticky top-4">
             <div className="flex items-center justify-between mb-4">
@@ -75,32 +93,40 @@ export default function RequestList({
                                 >
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-medium text-gray-800 truncate">
-                                                {dayNames[req.day - 1] ?? `D${req.day}`} · P
-                                                {req.period}
-                                                {req.subject && ` · ${req.subject}`}
-                                            </p>
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-sm font-medium text-gray-800 truncate">
+                                                    {dayNames[req.day - 1] ?? `D${req.day}`} · P
+                                                    {req.period}
+                                                    {req.subject && ` · ${req.subject}`}
+                                                </p>
+                                                <span
+                                                    className={`shrink-0 text-[10px] px-2 py-0.5 rounded-full ${statusColors[req.status] ??
+                                                        "bg-gray-100 text-gray-600"
+                                                        }`}
+                                                >
+                                                    {statusLabel}
+                                                </span>
+                                            </div>
                                             <p className="text-xs text-gray-500 mt-0.5">
                                                 Assign to:{" "}
                                                 {teachersMap[req.requestedTeacherId] ??
                                                     req.requestedTeacherId}
                                             </p>
                                             <p className="text-[11px] text-gray-400 mt-0.5">
-                                                Last updated:{" "}
                                                 {format(
                                                     new Date(req.createdAt),
                                                     "MMM d, h:mm a"
                                                 )}
                                             </p>
+                                            {req.status === "pending" && (
+                                                <button
+                                                    onClick={() => handleUndo(req._id)}
+                                                    className="mt-2 text-[11px] text-red-600 hover:text-red-700 font-medium border border-red-100 rounded px-2 py-0.5 hover:bg-red-50 transition-colors"
+                                                >
+                                                    Undo Request
+                                                </button>
+                                            )}
                                         </div>
-                                        <span
-                                            className={`shrink-0 text-xs px-2 py-0.5 rounded-full ${
-                                                statusColors[req.status] ??
-                                                "bg-gray-100 text-gray-600"
-                                            }`}
-                                        >
-                                            {statusLabel}
-                                        </span>
                                     </div>
                                 </div>
                             );

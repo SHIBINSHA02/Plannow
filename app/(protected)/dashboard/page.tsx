@@ -154,16 +154,22 @@ export default function DashboardPage() {
             {/* Dashboard Content */}
             {selectedOrganisationId && (
                 <section className="mx-auto px-6 pb-20 mt-8 space-y-6">
+                    <div className="w-full">
+                        <AdminMasterSchedule
+                            organisationId={selectedOrganisationId}
+                            teachersMap={teachersMap}
+                        />
+                    </div>
 
                     {/* Top Row: Substitution metrics & Admin's own schedule */}
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                        <div className="xl:col-span-2 h-full">
+                        <div className="xl:col-span-2 overflow-y-scroll hide-scrollbar h-2/3 shadow-2xl rounded-3xl bg-white ">
                             <AdminSubstitutionOverview
                                 organisationId={selectedOrganisationId}
                                 teachersMap={teachersMap}
                             />
                         </div>
-                        <div className="xl:col-span-1 h-full">
+                        <div className="xl:col-span-1 ">
                             <AdminPersonalSchedule
                                 organisationId={selectedOrganisationId}
                             />
@@ -171,12 +177,7 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Master Schedule Bottom Row */}
-                    <div className="w-full">
-                        <AdminMasterSchedule
-                            organisationId={selectedOrganisationId}
-                            teachersMap={teachersMap}
-                        />
-                    </div>
+                    
                 </section>
             )}
         </main>

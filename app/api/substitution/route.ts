@@ -92,10 +92,15 @@ export async function POST(req: Request) {
         const existing = await SubstitutionRequest.findOne({
             organisationId,
             slotId,
-            status: { $ne: "rejected" },
+            status: { $in: ["pending", "accepted"] },
         });
 
         if (existing) {
+            console.log("Blocking POST: Found existing active request:", {
+                id: existing._id,
+                status: existing.status,
+                requestedBy: existing.requestedBy
+            });
             return NextResponse.json(
                 {
                     error:

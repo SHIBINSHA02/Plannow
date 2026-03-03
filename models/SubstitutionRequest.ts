@@ -10,7 +10,7 @@ export interface ISubstitutionRequest {
     originalTeacherId?: string;
     requestedTeacherId: string;
     requestedBy: string; // clerk user id
-    status: "pending" | "accepted" | "rejected";
+    status: "pending" | "accepted" | "rejected" | "cancelled";
 }
 
 const SubstitutionRequestSchema = new Schema<ISubstitutionRequest>(
@@ -26,7 +26,7 @@ const SubstitutionRequestSchema = new Schema<ISubstitutionRequest>(
         requestedBy: { type: String, required: true, index: true },
         status: {
             type: String,
-            enum: ["pending", "accepted", "rejected"],
+            enum: ["pending", "accepted", "rejected", "cancelled"],
             default: "pending",
         },
     },
