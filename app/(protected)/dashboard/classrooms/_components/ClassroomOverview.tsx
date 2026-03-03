@@ -139,7 +139,7 @@ export default function ClassroomOverview() {
     );
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 py-10 px-6">
+        <div className="max-w-8xl mx-auto space-y-8 py-10 px-6">
 
             {/* --- Header & Controls --- */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -330,7 +330,7 @@ export default function ClassroomOverview() {
                                                         </h4>
                                                     </div>
 
-                                                    <div className="rounded-2xl border border-gray-100 overflow-hidden">
+                                                    <div className="rounded-2xl border border-gray-100 overflow-hidden ">
                                                         <ClassroomScheduleGrid
                                                             schedule={selectedSchedule}
                                                             loading={scheduleLoading}

@@ -60,7 +60,7 @@ export default function ClassroomScheduleGrid({
     };
 
     return (
-        <div className="overflow-x-auto bg-white border border-gray-100 rounded-2xl shadow-sm">
+        <div className="overflow-x-auto bg-white border border-gray-100 rounded-2xl shadow-sm lg:hide-scrollbar">
             <table className="min-w-full border-collapse text-xs">
                 <thead>
                     <tr className="bg-blue-600 text-white">
