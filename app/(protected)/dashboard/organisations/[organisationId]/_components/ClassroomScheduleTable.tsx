@@ -58,41 +58,39 @@ const ClassroomScheduleTable: React.FC = () => {
                                             >
 
 
-                                                
-                                        
+
+
                                                 {/* Teacher */}
                                                 <select
                                                     value={slot.teacherId}
                                                     onChange={(e) => {
-                                                        const value =
-                                                            e.target.value;
-                                                        updateAssignment(
-                                                            dayIndex,
-                                                            periodIndex,
-                                                            idx,
-                                                            "teacherId",
-                                                            value
-                                                        );
-                                                        saveSlot(
-                                                            dayIndex,
-                                                            periodIndex,idx,
-                                                            {
-                                                                ...slot,
-                                                                teacherId:
-                                                                    value,
+                                                        const teacherId = e.target.value;
+                                                        updateAssignment(dayIndex, periodIndex, idx, "teacherId", teacherId);
+
+                                                        // Auto-select subject if only one is available for this teacher
+                                                        let finalSubject = slot.subject;
+                                                        if (teacherId) {
+                                                            const selectedTeacher = teachers.find(t => t.teacherId === teacherId);
+                                                            if (selectedTeacher && selectedTeacher.subjects.length === 1) {
+                                                                finalSubject = selectedTeacher.subjects[0];
+                                                                updateAssignment(dayIndex, periodIndex, idx, "subject", finalSubject);
                                                             }
-                                                        );
+                                                        }
+
+                                                        saveSlot(dayIndex, periodIndex, idx, {
+                                                            ...slot,
+                                                            teacherId: teacherId,
+                                                            subject: finalSubject,
+                                                        });
                                                     }}
                                                     className="w-full px-2 py-1 mb-1 text-xs border border-gray-300 rounded"
                                                 >
-                                                    <option value="">
-                                                        Select Teacher
-                                                    </option>
-                                                    {teachers.map((t) => (
-                                                        <option
-                                                            key={t.teacherId}
-                                                            value={t.teacherId}
-                                                        >
+                                                    <option value="">Select Teacher</option>
+                                                    {(slot.subject
+                                                        ? teachers.filter(t => t.subjects.includes(slot.subject))
+                                                        : teachers
+                                                    ).map((t) => (
+                                                        <option key={t.teacherId} value={t.teacherId}>
                                                             {t.teacherName}
                                                         </option>
                                                     ))}
@@ -102,30 +100,32 @@ const ClassroomScheduleTable: React.FC = () => {
                                                 <select
                                                     value={slot.subject}
                                                     onChange={(e) => {
-                                                        const value =
-                                                            e.target.value;
-                                                        updateAssignment(
-                                                            dayIndex,
-                                                            periodIndex,
-                                                            idx,
-                                                            "subject",
-                                                            value
-                                                        );
-                                                        saveSlot(
-                                                            dayIndex,
-                                                            periodIndex,idx,
-                                                            {
-                                                                ...slot,
-                                                                subject: value,
+                                                        const subject = e.target.value;
+                                                        updateAssignment(dayIndex, periodIndex, idx, "subject", subject);
+
+                                                        // Auto-select teacher if only one is available for this subject
+                                                        let finalTeacherId = slot.teacherId;
+                                                        if (subject) {
+                                                            const availableTeachers = teachers.filter(t => t.subjects.includes(subject));
+                                                            if (availableTeachers.length === 1) {
+                                                                finalTeacherId = availableTeachers[0].teacherId;
+                                                                updateAssignment(dayIndex, periodIndex, idx, "teacherId", finalTeacherId);
                                                             }
-                                                        );
+                                                        }
+
+                                                        saveSlot(dayIndex, periodIndex, idx, {
+                                                            ...slot,
+                                                            subject: subject,
+                                                            teacherId: finalTeacherId,
+                                                        });
                                                     }}
                                                     className="w-full px-2 py-1 text-xs border border-gray-300 rounded"
                                                 >
-                                                    <option value="">
-                                                        Select Subject
-                                                    </option>
-                                                    {subjects.map((s) => (
+                                                    <option value="">Select Subject</option>
+                                                    {(slot.teacherId
+                                                        ? teachers.find(t => t.teacherId === slot.teacherId)?.subjects || []
+                                                        : subjects
+                                                    ).map((s) => (
                                                         <option key={s} value={s}>
                                                             {s}
                                                         </option>
@@ -134,7 +134,7 @@ const ClassroomScheduleTable: React.FC = () => {
 
                                                 {/* Delete */}
                                                 <button
-                                                    type="button"   
+                                                    type="button"
                                                     onClick={() =>
                                                         deleteAssignment(
                                                             dayIndex,
@@ -152,7 +152,7 @@ const ClassroomScheduleTable: React.FC = () => {
 
                                         {/* Add Assignment */}
                                         <button
-                                            type="button"   
+                                            type="button"
                                             onClick={() =>
                                                 addAssignment(dayIndex, periodIndex)
                                             }
