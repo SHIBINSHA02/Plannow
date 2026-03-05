@@ -93,10 +93,10 @@ export default function TeacherScheduleGrid({
                                                         className="bg-indigo-100 p-2 rounded text-xs text-left"
                                                     >
                                                         <div className="font-semibold text-indigo-800">
-                                                            {s.className}
+                                                            {s.subject}
                                                         </div>
                                                         <div className="text-indigo-600">
-                                                            {s.subject}
+                                                            {s.className}
                                                         </div>
                                                     </div>
                                                 ))}

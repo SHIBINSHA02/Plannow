@@ -26,16 +26,35 @@ export default function AdminMasterSchedule({ organisationId, teachersMap }: Pro
     useEffect(() => {
         if (!organisationId) return;
 
-        const fetchSchedule = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
+
+                // 1. Fetch Classrooms to get mapping of ID -> Name
+                const classroomsRes = await fetch(`/api/classrooms?organisationId=${organisationId}`);
+                let classroomsMap: Record<string, string> = {};
+                if (classroomsRes.ok) {
+                    const classroomsData = await classroomsRes.json();
+                    classroomsData.forEach((c: any) => {
+                        classroomsMap[c.classroomId] = c.className;
+                    });
+                }
+
+                // 2. Fetch Schedule
                 const res = await fetch(`/api/schedule?organisationId=${organisationId}`);
                 if (!res.ok) throw new Error("Failed to fetch schedule");
                 const data = await res.json();
 
                 // data.data contains the slots
                 const slots = Array.isArray(data.data) ? data.data : [];
-                setSchedule(slots);
+
+                // 3. Enrich slots with className from classroomsMap
+                const enrichedSlots = slots.map((slot: ScheduleSlot) => ({
+                    ...slot,
+                    className: slot.className || classroomsMap[slot.classroomId] || "Unknown Class"
+                }));
+
+                setSchedule(enrichedSlots);
             } catch (error) {
                 console.error("Error fetching master schedule:", error);
             } finally {
@@ -43,7 +62,7 @@ export default function AdminMasterSchedule({ organisationId, teachersMap }: Pro
             }
         };
 
-        fetchSchedule();
+        fetchData();
     }, [organisationId]);
 
     // TeacherScheduleGrid expects the schedule items to have classroom details
