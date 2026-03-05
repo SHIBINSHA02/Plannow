@@ -79,7 +79,9 @@ export default function AdminSubstitutionOverview({
                     : []),
                 ...(Array.isArray(data.others) ? data.others : []),
             ];
-            setTeacherOptions(allTeachers);
+            setTeacherOptions(
+                allTeachers.filter((t) => t.teacherId !== req.originalTeacherId)
+            );
         } catch (error: any) {
             setManageError(error.message || "Failed to load teachers");
         } finally {
@@ -156,7 +158,7 @@ export default function AdminSubstitutionOverview({
         if (status === "accepted")
             return "bg-blue-600 text-white";
         if (status === "rejected")
-            return "border-red-600 bg-red-100 text-red-600";
+            return "border-red-500 bg-red-100 text-red-500";
         if (status === "cancelled")
             return "border-gray-400 bg-gray-100 text-gray-500";
         return "bg-blue-100 text-blue-700";
@@ -234,7 +236,7 @@ export default function AdminSubstitutionOverview({
 
                                         <div className="flex flex-col items-end gap-2">
                                             <span
-                                                className={`px-2 py-0.5 text-xs font-semibold rounded ${statusStyle(
+                                                className={`px-2 py-0.5 text-xs  rounded ${statusStyle(
                                                     req.status
                                                 )}`}
                                             >
@@ -250,29 +252,31 @@ export default function AdminSubstitutionOverview({
                                                 )}
                                             </p>
 
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() =>
-                                                        openReassign(
-                                                            req
-                                                        )
-                                                    }
-                                                    className="text-xs px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50"
-                                                >
-                                                    Reassign
-                                                </button>
+                                            {req.status !== "rejected" && req.status !== "cancelled" && (
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() =>
+                                                            openReassign(
+                                                                req
+                                                            )
+                                                        }
+                                                        className="text-xs px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50"
+                                                    >
+                                                        Reassign
+                                                    </button>
 
-                                                <button
-                                                    onClick={() =>
-                                                        handleCancel(
-                                                            req
-                                                        )
-                                                    }
-                                                    className="text-xs px-3 py-1 border border-black text-black rounded hover:bg-black hover:text-white"
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </div>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleCancel(
+                                                                req
+                                                            )
+                                                        }
+                                                        className="text-xs px-3 py-1 border border-black text-black rounded hover:bg-black hover:text-white"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </li>
