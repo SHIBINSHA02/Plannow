@@ -47,14 +47,26 @@ export async function GET(
             return NextResponse.json([]);
         }
 
-        const teachers = await Teacher.find({
+        const teacherProfiles = await Teacher.find({
             teacherId: { $in: teacherIds },
             organisations: organisationId,
         })
-            .select("teacherId teacherName subjects")
+            .select("teacherId teacherName")
             .lean();
 
-        return NextResponse.json(teachers);
+        const classroomTeachers = teacherProfiles.map((tp: any) => {
+            const classroomSubjects = classroom.subjects
+                .filter((s: any) => s.defaultTeacherId === tp.teacherId)
+                .map((s: any) => s.subject);
+
+            return {
+                teacherId: tp.teacherId,
+                teacherName: tp.teacherName,
+                subjects: classroomSubjects,
+            };
+        });
+
+        return NextResponse.json(classroomTeachers);
 
     } catch (err: any) {
         console.error(err);
