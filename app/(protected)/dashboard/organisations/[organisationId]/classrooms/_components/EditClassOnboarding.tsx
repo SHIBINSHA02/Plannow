@@ -135,6 +135,26 @@ export default function EditClassOnboarding({
         setSubjects(prev => prev.filter((_, i) => i !== index));
     };
 
+    const updateSubject = (index: number, updates: Partial<SubjectInput>) => {
+        setSubjects(prev =>
+            prev.map((s, i) => {
+                if (i !== index) return s;
+
+                const newSubject = { ...s, ...updates };
+
+                // If teacher changed, check if they teach the current subject
+                if (updates.defaultTeacherId) {
+                    const teacher = teachers.find(t => t.teacherId === updates.defaultTeacherId);
+                    if (teacher && !teacher.subjects.includes(newSubject.subject)) {
+                        newSubject.subject = ""; // Reset subject if new teacher doesn't teach it
+                    }
+                }
+
+                return newSubject;
+            })
+        );
+    };
+
     /* ---------- Submit ---------- */
 
     const submit = async (e: React.FormEvent) => {
@@ -334,26 +354,81 @@ export default function EditClassOnboarding({
                 )}
                 {subjects.map((s, idx) => (
                     <div
-                        key={`${s.subject}-${s.defaultTeacherId}-${idx}`}
-                        className="flex justify-between items-center bg-white border p-3 rounded-xl shadow-sm"
+                        key={`${idx}`}
+                        className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-white p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
                     >
-                        <div className="flex flex-col">
-                            <span className="font-medium text-gray-800">
-                                {s.subject} <span className="text-gray-400 font-normal">({s.weeklyHours} hrs)</span>
-                            </span>
-                            <span className="text-sm text-gray-500">
-                                {teachers.find(t => t.teacherId === s.defaultTeacherId)?.teacherName || "Unknown Teacher"}
-                            </span>
+                        {/* Subject Name Dropdown */}
+                        <div className="md:col-span-5 space-y-1">
+                            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-1">Subject Name</label>
+                            <select
+                                value={s.subject}
+                                onChange={(e) => updateSubject(idx, { subject: e.target.value })}
+                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium appearance-none"
+                            >
+                                <option value="">Select Subject</option>
+                                {teachers.find(t => t.teacherId === s.defaultTeacherId)?.subjects.map((sub) => (
+                                    <option key={sub} value={sub}>
+                                        {sub}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
-                        <button
-                            type="button"
-                            onClick={() => removeSubject(idx)}
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                            aria-label="Remove subject"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>
-                        </button>
+                        {/* Weekly Hours */}
+                        <div className="md:col-span-2 space-y-1">
+                            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-1">Hrs/Wk</label>
+                            <input
+                                type="number"
+                                value={s.weeklyHours}
+                                onChange={(e) => updateSubject(idx, { weeklyHours: Number(e.target.value) })}
+                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium"
+                                min="1"
+                            />
+                        </div>
+
+                        {/* Teacher Select */}
+                        <div className="md:col-span-4 space-y-1">
+                            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-1">Assigned Teacher</label>
+                            <select
+                                value={s.defaultTeacherId}
+                                onChange={(e) => updateSubject(idx, { defaultTeacherId: e.target.value })}
+                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium appearance-none"
+                            >
+                                <option value="">Select Teacher</option>
+                                {teachers.map((t) => (
+                                    <option key={t.teacherId} value={t.teacherId}>
+                                        {t.teacherName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Remove Button */}
+                        <div className="md:col-span-1 flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => removeSubject(idx)}
+                                className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2.5 rounded-xl transition-all group"
+                                aria-label="Remove subject"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="group-hover:scale-110 transition-transform"
+                                >
+                                    <path d="M3 6h18" />
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
