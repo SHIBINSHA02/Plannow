@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Classroom } from "@/types/classroom";
+import { useScheduleGrid } from "../../../../../dashboard/context/ScheduleGridContext";
 
 /* ---------- Types ---------- */
 
@@ -33,6 +34,7 @@ export default function EditClassOnboarding({
     currentClassroom,
     onSuccess,
 }: Props) {
+    const { refreshTeachers } = useScheduleGrid();
 
     /* ---------- Classroom ---------- */
 
@@ -188,6 +190,7 @@ export default function EditClassOnboarding({
 
             setSuccessMsg("Classroom updated successfully!");
             onSuccess?.();
+            await refreshTeachers();
 
             // Clear success message after 3 seconds
             setTimeout(() => setSuccessMsg(null), 3000);

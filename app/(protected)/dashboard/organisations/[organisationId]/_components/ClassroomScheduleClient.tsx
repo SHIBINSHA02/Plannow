@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import ClassroomScheduleTable from "./ClassroomScheduleTable";
 import { ScheduleGridProvider } from "../../../../dashboard/context/ScheduleGridContext";
 import { Assignment } from "../../../../dashboard/_types/schedule";
+import EditClassOnboarding from "../classrooms/_components/EditClassOnboarding";
 
 type Props = {
     organisationId: string;
@@ -12,6 +13,7 @@ type Props = {
     initialGrid: Assignment[][][];
     days: string[];
     periods: string[];
+    currentClassroom: any;
 };
 
 export default function ClassroomScheduleClient({
@@ -21,6 +23,7 @@ export default function ClassroomScheduleClient({
     initialGrid,
     days,
     periods,
+    currentClassroom,
 }: Props) {
     const router = useRouter();
 
@@ -45,6 +48,15 @@ export default function ClassroomScheduleClient({
                 periods={periods}
             >
                 <ClassroomScheduleTable />
+
+                {/* Editor for Classroom Details moved inside provider */}
+                <div className="mt-8 px-0 pb-20">
+                    <EditClassOnboarding
+                        organisationId={organisationId}
+                        classroomId={classroomId}
+                        currentClassroom={currentClassroom}
+                    />
+                </div>
             </ScheduleGridProvider>
         </div>
     );

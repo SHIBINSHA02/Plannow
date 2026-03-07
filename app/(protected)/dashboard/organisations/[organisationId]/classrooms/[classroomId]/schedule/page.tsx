@@ -1,6 +1,5 @@
 import ClassroomScheduleClient from "./../../../_components/ClassroomScheduleClient";
-import EditClassOnboarding from "./../../_components/EditClassOnboarding";
-import { Assignment } from "../../../../../_types/schedule";
+import { Assignment } from "@/app/(protected)/dashboard/_types/schedule";
 import { headers } from "next/headers";
 
 /* ---------- Constants ---------- */
@@ -86,16 +85,8 @@ export default async function Page({
                 initialGrid={scheduleToGrid(schedule)}
                 days={days}
                 periods={periods}
+                currentClassroom={current}
             />
-
-            {/* Editor for Classroom Details */}
-            <div className="mt-8 px-6 pb-20">
-                <EditClassOnboarding
-                    organisationId={organisationId}
-                    classroomId={classroomId}
-                    currentClassroom={current}
-                />
-            </div>
         </>
     );
 }

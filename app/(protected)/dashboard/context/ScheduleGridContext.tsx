@@ -41,6 +41,7 @@ type ScheduleGridContextType = {
     ) => void;
     deleteAssignment: (day: number, period: number, index: number) => Promise<void>;
     saveSlot: (day: number, period: number, index: number, slot: Assignment) => void;
+    refreshTeachers: () => Promise<void>;
 };
 
 const ScheduleGridContext =
@@ -85,29 +86,27 @@ export function ScheduleGridProvider({
         );
 
     /* ---------- Load Teachers ---------- */
-    useEffect(() => {
+    const loadTeachers = async () => {
         if (!organisationId || !classroomId) return;
+        const res = await fetch(
+            `/api/classrooms/classroom/${classroomId}/teachers?organisationId=${organisationId}`
+        );
 
-        const loadTeachers = async () => {
-            const res = await fetch(
-                `/api/classrooms/classroom/${classroomId}/teachers?organisationId=${organisationId}`
-            );
+        if (!res.ok) {
+            console.error("Failed to fetch teachers");
+            return;
+        }
 
-            if (!res.ok) {
-                console.error("Failed to fetch teachers");
-                return;
-            }
+        const data: Teacher[] = await res.json();
+        setTeachers(data);
 
-            const data: Teacher[] = await res.json();
-            setTeachers(data);
+        setSubjects(
+            Array.from(new Set(data.flatMap(t => t.subjects)))
+        );
+    };
 
-            setSubjects(
-                Array.from(new Set(data.flatMap(t => t.subjects)))
-            );
-        };
-
+    useEffect(() => {
         loadTeachers();
-
     }, [organisationId, classroomId])
 
 
@@ -242,6 +241,7 @@ export function ScheduleGridProvider({
                 deleteAssignment,
                 saveSlot: (d, p, i, s) =>
                     debouncedSave(debounceKey(s, d, p, i), d, p, s),
+                refreshTeachers: loadTeachers,
             }}
         >
             {children}
