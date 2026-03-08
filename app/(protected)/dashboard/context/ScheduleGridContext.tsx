@@ -23,6 +23,13 @@ export type Assignment = {
     _id?: string;
     teacherId: string;
     subject: string;
+    status?: "idle" | "saving" | "saved" | "error";
+};
+
+export type SubjectConfig = {
+    subject: string;
+    weeklyHours: number;
+    currentWeeklyHoursLeft: number;
 };
 
 type ScheduleGridContextType = {
@@ -31,13 +38,15 @@ type ScheduleGridContextType = {
     periods: string[];
     teachers: Teacher[];
     subjects: string[];
+    subjectsConfig: SubjectConfig[];
+    remainingHours: Record<string, number>;
     addAssignment: (day: number, period: number) => void;
     updateAssignment: (
         day: number,
         period: number,
         index: number,
         field: keyof Assignment,
-        value: string
+        value: any
     ) => void;
     deleteAssignment: (day: number, period: number, index: number) => Promise<void>;
     saveSlot: (day: number, period: number, index: number, slot: Assignment) => void;
@@ -54,11 +63,13 @@ export function ScheduleGridProvider({
     initialGrid,
     days,
     periods,
+    subjectsConfig: initialSubjectsConfig,
 }: {
     children: ReactNode;
     initialGrid: Assignment[][][];
     days: string[];
     periods: string[];
+    subjectsConfig: SubjectConfig[];
 }) {
     const params = useParams();
     const organisationId = params.organisationId as string;
@@ -69,8 +80,41 @@ export function ScheduleGridProvider({
     const [grid, setGrid] = useState(initialGrid);
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [subjects, setSubjects] = useState<string[]>([]);
+    const [subjectsConfig, setSubjectsConfig] = useState<SubjectConfig[]>(initialSubjectsConfig);
+
+    useEffect(() => {
+        if (initialSubjectsConfig) {
+            setSubjectsConfig(initialSubjectsConfig);
+        }
+    }, [initialSubjectsConfig]);
+
+    useEffect(() => {
+        return () => {
+            Object.values(saveTimeouts.current).forEach(clearTimeout);
+        };
+    }, []);
 
     const saveTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
+
+    // Calculate remaining hours based on initial subjectsConfig and current grid
+    const remainingHours = React.useMemo(() => {
+        const counts: Record<string, number> = {};
+        grid.forEach(day => {
+            day.forEach(period => {
+                period.forEach(slot => {
+                    if (slot.subject) {
+                        counts[slot.subject] = (counts[slot.subject] || 0) + 1;
+                    }
+                });
+            });
+        });
+
+        const remaining: Record<string, number> = {};
+        subjectsConfig.forEach(s => {
+            remaining[s.subject] = s.weeklyHours - (counts[s.subject] || 0);
+        });
+        return remaining;
+    }, [grid, subjectsConfig]);
 
     /* ---------- Helpers ---------- */
 
@@ -125,54 +169,75 @@ export function ScheduleGridProvider({
         period: number,
         index: number,
         field: keyof Assignment,
-        value: string
+        value: any
     ) => {
         setGrid(prev => {
             const copy = structuredClone(prev);
-            copy[day][period][index][field] = value;
+            (copy[day][period][index] as any)[field] = value;
             return copy;
         });
     };
 
     /* ---------- SAVE ---------- */
 
-    const saveSlot = async (day: number, period: number, slot: Assignment) => {
+    const saveSlot = async (day: number, period: number, index: number, slot: Assignment) => {
         if (!slot.teacherId || !slot.subject) return;
         if (isDuplicateInCell(day, period, slot)) return;
+
+        // Set status to saving
+        updateAssignment(day, period, index, "status", "saving");
 
         const token = await getToken();
         const isUpdate = Boolean(slot._id);
 
-        const res = await fetch(
-            isUpdate
-                ? `/api/schedule/${slot._id}?organisationId=${organisationId}`
-                : `/api/schedule/classroom/${classroomId}`,
-            {
-                method: isUpdate ? "PATCH" : "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    organisationId,
-                    classroomId,
-                    teacherId: slot.teacherId,
-                    subject: slot.subject,
-                    day: day + 1,
-                    period: period + 1,
-                }),
+        try {
+            const res = await fetch(
+                isUpdate
+                    ? `/api/schedule/${slot._id}?organisationId=${organisationId}`
+                    : `/api/schedule/classroom/${classroomId}`,
+                {
+                    method: isUpdate ? "PATCH" : "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        organisationId,
+                        classroomId,
+                        teacherId: slot.teacherId,
+                        subject: slot.subject,
+                        day: day + 1,
+                        period: period + 1,
+                    }),
+                }
+            );
+
+            if (res.status === 409 || !res.ok) {
+                updateAssignment(day, period, index, "status", "error");
+                return;
             }
-        );
 
-        if (res.status === 409 || !res.ok) return;
+            const savedData = await res.json();
+            const savedSlot = savedData.slot || savedData;
 
-        if (!isUpdate) {
-            const saved = await res.json();
             setGrid(prev => {
                 const copy = structuredClone(prev);
-                copy[day][period][copy[day][period].length - 1]._id = saved._id;
+                copy[day][period][index] = {
+                    ...copy[day][period][index],
+                    _id: savedSlot._id,
+                    status: "saved",
+                };
                 return copy;
             });
+
+            // Set to idle after a short delay
+            setTimeout(() => {
+                updateAssignment(day, period, index, "status", "idle");
+            }, 2000);
+
+        } catch (err) {
+            console.error("Save error:", err);
+            updateAssignment(day, period, index, "status", "error");
         }
     };
 
@@ -180,11 +245,12 @@ export function ScheduleGridProvider({
         key: string,
         day: number,
         period: number,
+        index: number,
         slot: Assignment
     ) => {
         clearTimeout(saveTimeouts.current[key]);
         saveTimeouts.current[key] = setTimeout(
-            () => saveSlot(day, period, slot),
+            () => saveSlot(day, period, index, slot),
             400
         );
     };
@@ -236,11 +302,13 @@ export function ScheduleGridProvider({
                 periods,
                 teachers,
                 subjects,
+                subjectsConfig,
+                remainingHours,
                 addAssignment,
                 updateAssignment,
                 deleteAssignment,
                 saveSlot: (d, p, i, s) =>
-                    debouncedSave(debounceKey(s, d, p, i), d, p, s),
+                    debouncedSave(debounceKey(s, d, p, i), d, p, i, s),
                 refreshTeachers: loadTeachers,
             }}
         >

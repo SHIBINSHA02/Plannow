@@ -46,6 +46,7 @@ export default function ClassroomScheduleClient({
                 initialGrid={initialGrid}
                 days={days}
                 periods={periods}
+                subjectsConfig={currentClassroom?.subjects || []}
             >
                 <ClassroomScheduleTable />
 
