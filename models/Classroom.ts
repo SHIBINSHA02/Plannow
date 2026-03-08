@@ -5,6 +5,12 @@ const SubjectSchema = new Schema(
         subject: { type: String, required: true },
         defaultTeacherId: { type: String },
         weeklyHours: { type: Number },
+        currentWeeklyHoursLeft: {
+            type: Number,
+            default: function (this: any) {
+                return this.weeklyHours;
+            }
+        },
     },
     { _id: true }
 );
@@ -32,7 +38,7 @@ const ClassroomSchema = new Schema(
             type: String,
         },
 
-    
+
         adminEmail: {
             type: String,
             required: true,
@@ -42,7 +48,7 @@ const ClassroomSchema = new Schema(
             match: [/^\S+@\S+\.\S+$/, "Invalid admin email"],
         },
 
-     
+
         editorEmails: [
             {
                 type: String,

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import ScheduleSlot from "@/models/ScheduleSlot";
+import { incrementWorkload } from "@/lib/workload";
+import { updateSubjectHours } from "@/lib/classroom";
 
 /* ---------- GET CLASSROOM SCHEDULE ---------- */
 export async function GET(
@@ -41,6 +44,8 @@ export async function POST(
     { params }: { params: Promise<{ classroomId: string }> }
 ) {
     await connectDB();
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
     try {
         const { classroomId } = await params;
@@ -61,7 +66,7 @@ export async function POST(
             );
         }
 
-        // ✅ PREVENT DUPLICATE CREATION
+        // ✅ PREVENT DUPLICATE CREATION (Exact match only)
         const existing = await ScheduleSlot.findOne({
             organisationId,
             classroomId,
@@ -69,25 +74,55 @@ export async function POST(
             period,
             teacherId: teacherId ?? undefined,
             subject: subject ?? undefined,
-        });
+        }).session(session);
 
         if (existing) {
             // Slot already exists → frontend must PATCH instead
+            await session.abortTransaction();
+            session.endSession();
             return NextResponse.json(existing, { status: 409 });
         }
 
-        const created = await ScheduleSlot.create({
-            organisationId,
-            classroomId,
-            teacherId,
-            subject,
-            day,
-            period,
-        });
+        const created = await ScheduleSlot.create([
+            {
+                organisationId,
+                classroomId,
+                teacherId,
+                subject,
+                day,
+                period,
+            }],
+            { session }
+        );
 
-        return NextResponse.json(created, { status: 201 });
+        if (teacherId) {
+            await incrementWorkload({
+                organisationId,
+                teacherId,
+                day,
+                period,
+                session
+            });
+        }
+
+        if (subject) {
+            await updateSubjectHours({
+                organisationId,
+                classroomId,
+                subjectName: subject,
+                delta: -1,
+                session
+            });
+        }
+
+        await session.commitTransaction();
+        session.endSession();
+
+        return NextResponse.json(created[0], { status: 201 });
 
     } catch (err: any) {
+        await session.abortTransaction();
+        session.endSession();
         return NextResponse.json(
             { error: err.message },
             { status: 500 }

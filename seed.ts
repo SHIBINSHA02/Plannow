@@ -208,87 +208,105 @@ async function seed() {
 
         /* ================= CLASSROOMS ================= */
 
-        await Classroom.insertMany(
-            [
-                {
-                    organisationId: "ORG1",
-                    classroomId: "ORG1-C1",
-                    className: "CSE A",
-                    department: "CSE",
-                    adminEmail: ADMIN_EMAIL,
-                    editorEmails: [ADMIN_EMAIL],
-                    subjects: [
-                        { subject: "Maths", defaultTeacherId: "T-1", weeklyHours: 4 },
-                        { subject: "Physics", defaultTeacherId: "T-4", weeklyHours: 3 },
-                    ],
-                },
-                {
-                    organisationId: "ORG1",
-                    classroomId: "ORG1-C2",
-                    className: "CSE B",
-                    department: "CSE",
-                    adminEmail: ADMIN_EMAIL,
-                    editorEmails: [ADMIN_EMAIL],
-                    subjects: [
-                        { subject: "Chemistry", defaultTeacherId: "T-2", weeklyHours: 3 },
-                    ],
-                },
-                {
-                    organisationId: "ORG2",
-                    classroomId: "ORG2-C1",
-                    className: "IT A",
-                    department: "IT",
-                    adminEmail: ADMIN_EMAIL,
-                    editorEmails: [ADMIN_EMAIL],
-                    subjects: [
-                        { subject: "CS", defaultTeacherId: "T-3", weeklyHours: 5 },
-                    ],
-                },
-            ],
-            { ordered: false }
-        );
+        /* ================= SCHEDULE SLOTS DATA ================= */
+        const slotsData = [
+            {
+                organisationId: "ORG1",
+                classroomId: "ORG1-C1",
+                teacherId: "T-1",
+                subject: "Maths",
+                day: 1,
+                period: 1,
+            },
+            {
+                organisationId: "ORG1",
+                classroomId: "ORG1-C1",
+                teacherId: "T-4",
+                subject: "Physics",
+                day: 1,
+                period: 1,
+            },
+            {
+                organisationId: "ORG1",
+                classroomId: "ORG1-C2",
+                teacherId: "T-2",
+                subject: "Chemistry",
+                day: 2,
+                period: 3,
+            },
+            {
+                organisationId: "ORG2",
+                classroomId: "ORG2-C1",
+                teacherId: "T-3",
+                subject: "CS",
+                day: 1,
+                period: 2,
+            },
+        ];
 
-        console.log("🏷️ Classrooms created");
+        /* ================= CLASSROOMS ================= */
 
-        /* ================= SCHEDULE SLOTS ================= */
+        const classroomsData = [
+            {
+                organisationId: "ORG1",
+                classroomId: "ORG1-C1",
+                className: "CSE A",
+                department: "CSE",
+                adminEmail: ADMIN_EMAIL,
+                editorEmails: [ADMIN_EMAIL],
+                subjects: [
+                    { subject: "Maths", defaultTeacherId: "T-1", weeklyHours: 4 },
+                    { subject: "Physics", defaultTeacherId: "T-4", weeklyHours: 3 },
+                ],
+            },
+            {
+                organisationId: "ORG1",
+                classroomId: "ORG1-C2",
+                className: "CSE B",
+                department: "CSE",
+                adminEmail: ADMIN_EMAIL,
+                editorEmails: [ADMIN_EMAIL],
+                subjects: [
+                    { subject: "Chemistry", defaultTeacherId: "T-2", weeklyHours: 3 },
+                ],
+            },
+            {
+                organisationId: "ORG2",
+                classroomId: "ORG2-C1",
+                className: "IT A",
+                department: "IT",
+                adminEmail: ADMIN_EMAIL,
+                editorEmails: [ADMIN_EMAIL],
+                subjects: [
+                    { subject: "CS", defaultTeacherId: "T-3", weeklyHours: 5 },
+                ],
+            },
+        ];
 
-        await ScheduleSlot.insertMany(
-            [
-                {
-                    organisationId: "ORG1",
-                    classroomId: "ORG1-C1",
-                    teacherId: "T-1",
-                    subject: "Maths",
-                    day: 1,
-                    period: 1,
-                },
-                {
-                    organisationId: "ORG1",
-                    classroomId: "ORG1-C1",
-                    teacherId: "T-4",
-                    subject: "Physics",
-                    day: 1,
-                    period: 1,
-                },
-                {
-                    organisationId: "ORG1",
-                    classroomId: "ORG1-C2",
-                    teacherId: "T-2",
-                    subject: "Chemistry",
-                    day: 2,
-                    period: 3,
-                },
-                {
-                    organisationId: "ORG2",
-                    classroomId: "ORG2-C1",
-                    teacherId: "T-3",
-                    subject: "CS",
-                    day: 1,
-                    period: 2,
-                },
-            ],
-            { ordered: false }
-        );
+        // ✅ AUTO-CALCULATE currentWeeklyHoursLeft based on slotsData
+        const enrichedClassrooms = classroomsData.map(cls => ({
+            ...cls,
+            subjects: cls.subjects.map(sub => {
+                const usedHours = slotsData.filter(s =>
+                    s.classroomId === cls.classroomId &&
+                    s.subject === sub.subject
+                ).length;
+                return {
+                    ...sub,
+                    currentWeeklyHoursLeft: sub.weeklyHours - usedHours
+                };
+            })
+        }));
+
+        await Classroom.insertMany(enrichedClassrooms, { ordered: false });
+
+        console.log("🏷️ Classrooms created (with auto-calculated hours)");
+
+        /* ================= INSERT SCHEDULE SLOTS ================= */
+
+        await ScheduleSlot.insertMany(slotsData, { ordered: false });
+
+        console.log("📅 Schedule slots created");
 
         console.log("📅 Schedule slots created");
         console.log("✅ SEEDING COMPLETED SUCCESSFULLY");

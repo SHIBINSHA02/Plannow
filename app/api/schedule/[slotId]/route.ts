@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import ScheduleSlot from "@/models/ScheduleSlot";
 import { connectDB } from "@/lib/db";
-import { decrementWorkload } from "@/lib/workload";
+import { incrementWorkload, decrementWorkload } from "@/lib/workload";
+import { updateSubjectHours } from "@/lib/classroom";
 
 /* ---------- UPDATE SLOT ---------- */
 export async function PATCH(
@@ -10,6 +11,8 @@ export async function PATCH(
     { params }: { params: Promise<{ slotId: string }> }
 ) {
     await connectDB();
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
     try {
         const { slotId } = await params;
@@ -24,25 +27,81 @@ export async function PATCH(
             );
         }
 
-        const updated = await ScheduleSlot.findOneAndUpdate(
-            { _id: slotId, organisationId },
-            {
-                teacherId: teacherId ?? undefined,
-                subject: subject ?? undefined,
-            },
-            { new: true }
-        );
+        const existing = await ScheduleSlot.findOne({
+            _id: slotId,
+            organisationId
+        }).session(session);
 
-        if (!updated) {
+        if (!existing) {
+            await session.abortTransaction();
+            session.endSession();
             return NextResponse.json(
                 { message: "Slot not found" },
                 { status: 404 }
             );
         }
 
+        // --- WORKLOAD UPDATE ---
+        if (teacherId !== undefined && existing.teacherId !== teacherId) {
+            if (existing.teacherId) {
+                await decrementWorkload({
+                    organisationId,
+                    teacherId: existing.teacherId,
+                    day: existing.day,
+                    period: existing.period,
+                    session
+                });
+            }
+            if (teacherId) {
+                await incrementWorkload({
+                    organisationId,
+                    teacherId,
+                    day: existing.day,
+                    period: existing.period,
+                    session
+                });
+            }
+        }
+
+        // --- SUBJECT HOURS UPDATE ---
+        if (subject !== undefined && existing.subject !== subject) {
+            if (existing.subject) {
+                await updateSubjectHours({
+                    organisationId,
+                    classroomId: existing.classroomId,
+                    subjectName: existing.subject,
+                    delta: 1,
+                    session
+                });
+            }
+            if (subject) {
+                await updateSubjectHours({
+                    organisationId,
+                    classroomId: existing.classroomId,
+                    subjectName: subject,
+                    delta: -1,
+                    session
+                });
+            }
+        }
+
+        const updated = await ScheduleSlot.findOneAndUpdate(
+            { _id: slotId, organisationId },
+            {
+                teacherId: teacherId ?? existing.teacherId,
+                subject: subject ?? existing.subject,
+            },
+            { new: true, session }
+        );
+
+        await session.commitTransaction();
+        session.endSession();
+
         return NextResponse.json(updated);
 
     } catch (err: any) {
+        await session.abortTransaction();
+        session.endSession();
         return NextResponse.json(
             { error: err.message },
             { status: 500 }
@@ -90,6 +149,16 @@ export async function DELETE(
                 day: slot.day,
                 period: slot.period,
                 session,
+            });
+        }
+
+        if (slot.subject) {
+            await updateSubjectHours({
+                organisationId,
+                classroomId: slot.classroomId,
+                subjectName: slot.subject,
+                delta: 1,
+                session
             });
         }
 

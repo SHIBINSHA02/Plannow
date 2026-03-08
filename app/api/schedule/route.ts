@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import ScheduleSlot from "@/models/ScheduleSlot";
 import { incrementWorkload, decrementWorkload } from "@/lib/workload";
+import { updateSubjectHours } from "@/lib/classroom";
 
 import { connectDB } from "@/lib/db";
 
@@ -22,7 +23,9 @@ export async function POST(req: Request) {
             organisationId,
             classroomId,
             day,
-            period
+            period,
+            teacherId: teacherId ?? undefined,
+            subject: subject ?? undefined,
         }).session(session);
 
         if (existing && existing.teacherId !== teacherId) {
@@ -36,19 +39,41 @@ export async function POST(req: Request) {
             });
         }
 
+        // --- UPDATE SUBJECT HOURS ---
+        if (existing) {
+            // Already exists, just return the existing slot (no extra hours to deduct)
+            await session.commitTransaction();
+            session.endSession();
+            return NextResponse.json({ success: true, slot: existing });
+        }
+
+        // New assignment in this period, deduct hour from subject
+        if (subject) {
+            await updateSubjectHours({
+                organisationId,
+                classroomId,
+                subjectName: subject,
+                delta: -1,
+                session
+            });
+        }
+        // -----------------------------
+
         const slot = await ScheduleSlot.findOneAndUpdate(
-            { organisationId, classroomId, day, period },
+            { organisationId, classroomId, day, period, teacherId, subject },
             { $set: { teacherId, subject } },
             { upsert: true, new: true, session }
         );
 
-        await incrementWorkload({
-            organisationId,
-            teacherId,
-            day,
-            period,
-            session
-        });
+        if (teacherId) {
+            await incrementWorkload({
+                organisationId,
+                teacherId,
+                day,
+                period,
+                session
+            });
+        }
 
         await session.commitTransaction();
         session.endSession();
