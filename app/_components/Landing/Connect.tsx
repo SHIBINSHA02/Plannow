@@ -31,12 +31,12 @@ export default function Connect() {
   };
 
   return (
-    <section className="relative py-32 overflow-hidden ">
+    <section className="relative py-32  ">
       {/* Abstract Animated Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute top-0 right-[20%] w-[400px] h-[400px] bg-indigo-100/30 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-pulse-slow"></div>
-        <div className="absolute bottom-[10%] left-[10%] w-[500px] h-[500px] bg-blue-100/20 rounded-full mix-blend-multiply filter blur-[100px] opacity-50 animate-pulse-slow animation-delay-2000"></div>
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[50px]"></div>
+        <div className="absolute bottom-[10%] left-[10%] w-[500px] h-[500px]  rounded-full mix-blend-multiply filter blur-[100px] opacity-50 animate-pulse-slow animation-delay-2000"></div>
+        <div className="absolute inset-0  backdrop-blur-[50px]"></div>
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
@@ -153,7 +153,7 @@ export default function Connect() {
                   </div>
                   <div className="ml-5">
                     <p className="text-[10px] font-light tracking-[0.2em] uppercase text-gray-400 mb-1">Electronic</p>
-                    <a href="mailto:hello@planora.ai" className="text-gray-800 font-light hover:text-blue-600 transition-colors">hello@planora.ai</a>
+                    <a href="mailto:[EMAIL_ADDRESS]" className="text-gray-800 font-light hover:text-blue-600 transition-colors">shibin24666@gmail.com</a>
                   </div>
                 </div>
 
@@ -163,7 +163,7 @@ export default function Connect() {
                   </div>
                   <div className="ml-5">
                     <p className="text-[10px] font-light tracking-[0.2em] uppercase text-gray-400 mb-1">Voice</p>
-                    <a href="tel:+18005550199" className="text-gray-800 font-light hover:text-indigo-600 transition-colors">+1 (800) 555-0199</a>
+                    <a href="tel:+18005550199" className="text-gray-800 font-light hover:text-indigo-600 transition-colors">+91 8136884184</a>
                   </div>
                 </div>
               </div>

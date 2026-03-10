@@ -281,7 +281,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[250px] animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-300" >
 
                     {/* BENTO ITEM 1 - Large Span */}
-                    <div className="md:col-span-2 lg:col-span-2 row-span-2 group relative p-8 rounded-4xl bg-white/40 border border-gray-100/50 backdrop-blur-xl overflow-hidden transition-all duration-700 hover:shadow-[0_20px_40px_-20px_rgba(59,130,246,0.15)] hover:border-blue-100 hover:-translate-y-1" >
+                    <div className="md:col-span-2 lg:col-span-2 shadow-lg shadow-blue-700/20 row-span-2 group relative p-8 rounded-4xl bg-white/40 border border-gray-100/50 backdrop-blur-xl overflow-hidden transition-all duration-700 hover:shadow-[0_20px_40px_-20px_rgba(59,130,246,0.15)] hover:border-blue-100 hover:-translate-y-1" >
                         <div className="relative z-10 flex flex-col h-full justify-between">
                             <div className="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform duration-500">
                                 {features[0].icon.props.children ? features[0].icon :
@@ -303,7 +303,7 @@ export default function Home() {
                     </div>
 
                     {/* BENTO ITEM 2 - Tall Card */}
-                    <div className="md:col-span-1 lg:col-span-1 row-span-2 group relative p-8 rounded-4xl bg-white/40 border border-gray-100/50 backdrop-blur-xl overflow-hidden transition-all duration-700 hover:shadow-[0_20px_40px_-20px_rgba(99,102,241,0.15)] hover:border-indigo-100 hover:-translate-y-1" >
+                    <div className="md:col-span-1 lg:col-span-1 shadow-lg shadow-indigo-700/20 row-span-2 group relative p-8 rounded-4xl bg-white/40 border border-gray-100/50 backdrop-blur-xl overflow-hidden transition-all duration-700 hover:shadow-[0_20px_40px_-20px_rgba(99,102,241,0.15)] hover:border-indigo-100 hover:-translate-y-1" >
                         <div className="relative z-10 flex flex-col h-full justify-between">
                             <div className="w-14 h-14 rounded-full bg-indigo-50/50 flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform duration-500">
                                 {features[1].icon.props.children ? features[1].icon :
@@ -324,7 +324,7 @@ export default function Home() {
                     </div>
 
                     {/* BENTO ITEM 3 - Small Card */}
-                    <div className="md:col-span-3 lg:col-span-1 row-span-1 group relative p-8 rounded-4xl bg-[#fafafa] border border-gray-100/50 overflow-hidden transition-all duration-700 hover:bg-white hover:shadow-[0_10px_30px_-15px_rgba(168,85,247,0.1)] hover:border-purple-100 hover:-translate-y-1" >
+                    <div className="md:col-span-3 shadow-lg shadow-purple-700/20 lg:col-span-1 row-span-1 group relative p-8 rounded-4xl bg-[#fafafa] border border-gray-100/50 overflow-hidden transition-all duration-700 hover:bg-white hover:shadow-[0_10px_30px_-15px_rgba(168,85,247,0.1)] hover:border-purple-100 hover:-translate-y-1" >
                         <div className="relative z-10 flex flex-col h-full justify-center">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-10 h-10 rounded-full bg-purple-50/50 flex items-center justify-center text-purple-500 group-hover:rotate-12 transition-transform duration-500">
@@ -342,7 +342,7 @@ export default function Home() {
                     </div>
 
                     {/* BENTO ITEM 4 - Small Card */}
-                    <div className="md:col-span-3 lg:col-span-1 row-span-1 group relative p-8 rounded-4xl bg-[#fafafa] border border-gray-100/50 overflow-hidden transition-all duration-700 hover:bg-white hover:shadow-[0_10px_30px_-15px_rgba(16,185,129,0.1)] hover:border-emerald-100 hover:-translate-y-1" >
+                    <div className="md:col-span-3 lg:col-span-1 row-span-1 group relative p-8 rounded-4xl bg-[#fafafa] border border-gray-100/50 overflow-hidden transition-all duration-700 hover:bg-white hover:shadow-[0_10px_30px_-15px_rgba(16,185,129,0.1)] hover:border-emerald-100 hover:-translate-y-1 shadow-lg shadow-emerald-700/20" >
                         <div className="relative z-10 flex flex-col h-full justify-center">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-10 h-10 rounded-full bg-emerald-50/50 flex items-center justify-center text-emerald-500 group-hover:-rotate-12 transition-transform duration-500">
