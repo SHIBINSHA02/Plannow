@@ -14,60 +14,60 @@ export default function Navbar() {
   const { user } = useUser();
 
   return (
-    <nav className="w-full h-16 px-6 flex items-center justify-center my-3 ">
-          <div className='lg:w-full  flex items-center justify-between   shadow-blue-100 rounded-lg p-3 mt-3 shadow'>
+    <nav className="fixed top-0 left-0 w-full h-20 px-6 flex items-center justify-center z-50">
+      <div className='max-w-7xl w-full flex items-center justify-between bg-white/70 backdrop-blur-md border border-white/20 shadow-sm rounded-3xl p-4 shadow-blue-500/5'>
         {/* Left */}
         <div className="flex items-center gap-2">
-        <div className="relative w-40 h-10">
+          <div className="relative w-32 h-8">
             <Image
-                src="/logo.svg"
-                alt="App Logo"
-                fill
-                className="object-contain"
-                priority
+              src="/logo.svg"
+              alt="App Logo"
+              fill
+              className="object-contain"
+              priority
             />
-            </div>
-        
+          </div>
+
         </div>
 
         {/* Right */}
-        <div className="flex items-center gap-4">
-            <SignedOut>
+        <div className="flex items-center gap-6">
+          <SignedOut>
             <SignInButton>
-                <button className="text-sm font-medium">
+              <button className="text-sm font-light text-gray-500 tracking-wide hover:text-blue-500 transition-colors">
                 Sign In
-                </button>
+              </button>
             </SignInButton>
 
             <SignUpButton>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium">
-                Sign Up
-                </button>
+              <button className="bg-gray-900 text-white px-6 py-2.5 rounded-full text-sm font-light tracking-wide hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-200 transition-all active:scale-95">
+                Join
+              </button>
             </SignUpButton>
-            </SignedOut>
+          </SignedOut>
 
-            <SignedIn>
-            <div className="flex items-center gap-3">
-                {/* Name + Email */}
-                <div className="hidden sm:flex flex-col text-right leading-tight">
-                <span className="text-sm font-medium">
-                    {user?.fullName}
+          <SignedIn>
+            <div className="flex items-center gap-4">
+              {/* Name + Email */}
+              <div className="hidden sm:flex flex-col text-right leading-tight">
+                <span className="text-sm font-light text-gray-800 tracking-wide">
+                  {user?.fullName}
                 </span>
-                <span className="text-xs text-gray-500">
-                    {user?.primaryEmailAddress?.emailAddress}
+                <span className="text-[10px] text-gray-400 font-extralight tracking-[0.2em] uppercase">
+                  {user?.primaryEmailAddress?.emailAddress}
                 </span>
-                </div>
+              </div>
 
-                {/* Profile */}
-                <UserButton
+              {/* Profile */}
+              <UserButton
                 appearance={{
-                    elements: {
-                    avatarBox: "w-9 h-9",
-                    },
+                  elements: {
+                    avatarBox: "w-10 h-10 border-2 border-white shadow-sm ring-1 ring-gray-100",
+                  },
                 }}
-                />
+              />
             </div>
-            </SignedIn>
+          </SignedIn>
         </div>
       </div>
     </nav>
