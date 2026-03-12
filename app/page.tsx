@@ -66,22 +66,9 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-[#fafafa]">
             <div className="fixed inset-0 bg-[#fafafa] z-0" />
-
-            {/* Highly Interactive Canvas Particle Web */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <ParticleNetwork particleCount={150} interactionRadius={180} />
-            </div>
-
-            {/* Dynamic Cursor Spotlight (Kept for extra glow) */}
-            <div
-                className="fixed inset-0 z-0 pointer-events-none transition-opacity duration-300"
-                style={{
-                    background: `radial-gradient(800px circle at ${mouseRaw.x}px ${mouseRaw.y}px, rgba(96, 165, 250, 0.05), transparent 40%)`
-                }}
-            />
             {/* HERO */}
             <Navbar />
-            <section className="relative overflow-hidden flex flex-col items-center justify-center min-h-screen pt-32 pb-20 px-4 transition-colors duration-1000 ease-out">
+            <section className="relative overflow-hidden flex flex-col items-center justify-center min-h-screen pt-32 pb-20 px-4 transition-colors duration-1000 ease-out bg-blue-700">
                 {/* 
                   ====================================================
                   DENSE ABSTRACT BACKGROUND ECOSYSTEM & SPOTLIGHT
@@ -92,10 +79,10 @@ export default function Home() {
                 <div className="max-w-7xl mx-auto w-full relative z-10 grid gap-12 lg:grid-cols-12 items-center">
                     {/* LEFT CONTENT - 6 Cols */}
                     <div className="lg:col-span-6 text-left space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                        <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-gray-200 bg-white/60 backdrop-blur-md shadow-sm text-gray-500 text-xs tracking-[0.2em] uppercase font-light transition-transform hover:-translate-y-1 duration-500 cursor-default">
+                        <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-gray-200 bg-white/60 backdrop-blur-md shadow-sm text-gray-800 text-xs tracking-[0.2em] uppercase font-light transition-transform hover:-translate-y-1 duration-500 cursor-default">
                             <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-700"></span>
                             </span>
                             Live Synchronization
                         </div>
@@ -104,14 +91,14 @@ export default function Home() {
                             {/* Decorative Line behind text */}
                             <div className="absolute -left-8 top-4 bottom-4 w-px bg-linear-to-b from-transparent via-blue-200 to-transparent opacity-50 hidden md:block" />
 
-                            <h1 className="text-6xl md:text-7xl lg:text-[5rem] xl:text-[6rem] tracking-tighter text-gray-900 leading-none font-extralight group">
+                            <h1 className="text-6xl md:text-7xl lg:text-[5rem] xl:text-[6rem] tracking-tighter text-gray-200 leading-none font-extralight group">
                                 Master
                                 <br />
-                                <span className="text-transparent bg-clip-text bg-linear-to-r from-gray-800 to-gray-400 inline-block transition-transform duration-700 group-hover:translate-x-4">
+                                <span className="text-transparent bg-clip-text bg-linear-to-r from-gray-100 to-gray-400 inline-block transition-transform duration-700 group-hover:translate-x-4">
                                     the flow
                                 </span>
                                 <br />
-                                <span className="italic text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-blue-700 to-blue-800 pr-2">
+                                <span className="italic text-transparent bg-clip-text bg-linear-to-r from-blue-100 via-blue-100 to-blue-50 pr-2">
                                     of time.
                                 </span>
                             </h1>
@@ -161,7 +148,7 @@ export default function Home() {
 
                     {/* RIGHT HERO DYNAMIC ECOSYSTEM - 6 Cols */}
                     <div
-                        className="lg:col-span-6 relative hidden lg:flex justify-center items-center h-[600px] animate-in fade-in zoom-in-95 duration-1000 delay-300 pointer-events-none"
+                        className="lg:col-span-6 relative hidden lg:flex justify-center items-center h-[600px] animate-in fade-in zoom-in-95 duration-1000 delay-300 pointer-events-none bg-blue-700"
                         style={{ perspective: '1000px' }}
                     >
                         {/* 3D Wrapper responding to mouse */}
@@ -281,18 +268,18 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[250px] animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-300" >
 
                     {/* BENTO ITEM 1 - Large Span */}
-                    <div className="md:col-span-2 lg:col-span-2 shadow-lg shadow-blue-700/20 row-span-2 group relative p-8 rounded-4xl bg-white/40 border border-gray-100/50 backdrop-blur-xl overflow-hidden transition-all duration-700 hover:shadow-[0_20px_40px_-20px_rgba(59,130,246,0.15)] hover:border-blue-100 hover:-translate-y-1" >
-                        <div className="relative z-10 flex flex-col h-full justify-between">
-                            <div className="w-14 h-14 rounded-full bg-blue-50/50 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform duration-500">
+                    <div className="md:col-span-2 lg:col-span-2 shadow-lg shadow-blue-700/20 row-span-2 group relative p-8 rounded-4xl bg-blue-600 border border-gray-100/50 backdrop-blur-xl overflow-hidden transition-all duration-700 hover:shadow-[0_20px_40px_-20px_rgba(59,130,246,0.15)] hover:border-blue-100 hover:-translate-y-1" >
+                        <div className="relative z-10 flex flex-col h-full justify-between ">
+                            <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform duration-500">
                                 {features[0].icon.props.children ? features[0].icon :
                                     Object.assign({}, features[0].icon, { props: { ...features[0].icon.props, className: features[0].icon.props.className.replace('text-blue-600 group-hover:text-white', '') } })}
                             </div>
 
                             <div className="space-y-4">
-                                <h3 className="text-3xl font-light text-gray-900 tracking-tight">
+                                <h3 className="text-3xl font-light text-white tracking-tight">
                                     {features[0].title}
                                 </h3>
-                                <p className="text-gray-500 font-extralight leading-relaxed max-w-sm">
+                                <p className="text-gray-300 font-extralight leading-relaxed max-w-sm">
                                     {features[0].description}
                                 </p>
                             </div>

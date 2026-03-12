@@ -31,10 +31,10 @@ export default function Connect() {
   };
 
   return (
-    <section className="relative py-32  ">
+    <section className="relative py-32  bg-blue-100  lg:rounded-t-[5rem] rounded-2xl border-t-2 border-blue-200">
       {/* Abstract Animated Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 right-[20%] w-[400px] h-[400px] bg-indigo-100/30 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-pulse-slow"></div>
+        <div className="absolute top-0 right-[20%] w-[400px] h-[400px] bg-blue-500/20 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-pulse-slow"></div>
         <div className="absolute bottom-[10%] left-[10%] w-[500px] h-[500px]  rounded-full mix-blend-multiply filter blur-[100px] opacity-50 animate-pulse-slow animation-delay-2000"></div>
         <div className="absolute inset-0  backdrop-blur-[50px]"></div>
       </div>
@@ -68,7 +68,7 @@ export default function Connect() {
                     Your Identity
                   </label>
                   <div className="relative group/input">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within/input:text-blue-400 transition-colors duration-500" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700 group-focus-within/input:text-blue-400 transition-colors duration-500" />
                     <input
                       type="text"
                       name="name"
@@ -76,7 +76,7 @@ export default function Connect() {
                       value={formData.name}
                       onChange={handleChange}
                       placeholder="Jane Doe"
-                      className="w-full pl-12 pr-4 py-4 bg-[#fcfcfc] border-b border-gray-200 outline-none text-gray-800 font-light placeholder-gray-300 focus:border-blue-400 focus:bg-white transition-all duration-500 rounded-t-xl"
+                      className="w-full pl-12 pr-4 py-4 bg-[#fcfcfc] border-b border-gray-200 outline-none text-gray-800 font-light placeholder-gray-400 focus:border-blue-400 focus:bg-white transition-all duration-500 rounded-t-xl"
                     />
                   </div>
                 </div>
@@ -95,7 +95,7 @@ export default function Connect() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="jane@institution.edu"
-                      className="w-full pl-12 pr-4 py-4 bg-[#fcfcfc] border-b border-gray-200 outline-none text-gray-800 font-light placeholder-gray-300 focus:border-blue-400 focus:bg-white transition-all duration-500 rounded-t-xl"
+                      className="w-full pl-12 pr-4 py-4 bg-[#fcfcfc] border-b border-gray-200 outline-none text-gray-800 font-light placeholder-gray-400 focus:border-blue-400 focus:bg-white transition-all duration-500 rounded-t-xl"
                     />
                   </div>
                 </div>
@@ -114,7 +114,7 @@ export default function Connect() {
                     value={formData.message}
                     onChange={handleChange}
                     placeholder="Describe your current scheduling challenges..."
-                    className="w-full p-6 bg-[#fcfcfc] border border-gray-100 outline-none text-gray-800 font-light placeholder-gray-300 focus:border-blue-200 focus:bg-white focus:shadow-[0_10px_30px_-15px_rgba(59,130,246,0.1)] transition-all duration-500 rounded-3xl resize-none"
+                    className="w-full p-6 bg-[#fcfcfc] border border-gray-100 outline-none text-gray-800 font-light placeholder-gray-400 focus:border-blue-200 focus:bg-white focus:shadow-[0_10px_30px_-15px_rgba(59,130,246,0.1)] transition-all duration-500 rounded-3xl resize-none"
                   ></textarea>
                 </div>
               </div>
