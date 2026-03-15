@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import ClassroomScheduleTable from "./ClassroomScheduleTable";
+import ScheduleStatusGrid from "./ScheduleStatusGrid";
 import { ScheduleGridProvider } from "../../../../dashboard/context/ScheduleGridContext";
 import { Assignment } from "../../../../dashboard/_types/schedule";
 import EditClassOnboarding from "../classrooms/_components/EditClassOnboarding";
@@ -38,8 +39,8 @@ export default function ClassroomScheduleClient({
                 ← Back to classrooms
             </button>
 
-            <h1 className="text-2xl font-semibold mb-6">
-                Classroom Schedule – {className}
+            <h1 className="text-2xl font-semibold mb-6 text-gray-800">
+                Classroom Schedule – <span className="text-blue-600">{className}</span>
             </h1>
 
             <ScheduleGridProvider
@@ -48,6 +49,7 @@ export default function ClassroomScheduleClient({
                 periods={periods}
                 subjectsConfig={currentClassroom?.subjects || []}
             >
+                <ScheduleStatusGrid />
                 <ClassroomScheduleTable />
 
                 {/* Editor for Classroom Details moved inside provider */}
