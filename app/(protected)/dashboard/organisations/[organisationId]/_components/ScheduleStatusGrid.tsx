@@ -120,104 +120,103 @@ const ScheduleStatusGrid: React.FC = () => {
             </motion.div>
 
             {/* Subjects Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
                 <AnimatePresence mode="popLayout">
                     {subjectsConfig.map((subject, index) => {
                         const assigned = assignedHours[subject.subject] || 0;
                         const total = subject.weeklyHours;
                         const percentage = Math.min(Math.round((assigned / total) * 100), 100);
+
                         const isComplete = assigned === total;
                         const isOver = assigned > total;
-                        const isUnder = assigned < total && assigned > 0;
-                        const isEmpty = assigned === 0;
 
                         return (
                             <motion.div
                                 key={subject.subject}
                                 layout
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.05 }}
-                                className={`relative group p-5 rounded-2xl border transition-all duration-300 ${isOver ? "bg-red-50/30 border-red-100 scale-[1.02] shadow-lg shadow-red-900/5" :
-                                        isComplete ? "bg-blue-50/30 border-blue-100 shadow-md" :
-                                            "bg-white border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-900/5"
+                                className={`p-5 rounded-xl border transition-all duration-300 
+          ${isOver
+                                        ? "bg-red-50 border-red-200"
+                                        : isComplete
+                                            ? "bg-blue-50 border-blue-200"
+                                            : "bg-white border-gray-200 hover:border-blue-300 hover:shadow-md"
                                     }`}
                             >
+                                {/* Header */}
                                 <div className="flex justify-between items-start mb-4">
-                                    <div className="space-y-1">
-                                        <h3 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                    <div>
+                                        <h3 className="text-gray-900 font-semibold text-sm">
                                             {subject.subject}
                                         </h3>
-                                        <div className="flex items-center gap-1.5 text-xs text-gray-500 font-semibold">
+
+                                        <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
                                             <Clock className="w-3 h-3" />
-                                            Target: {total}h
+                                            Target {total}h
                                         </div>
                                     </div>
 
-                                    <div className={`flex items-center justify-center p-2 rounded-xl ${isOver ? "bg-red-500 text-white shadow-lg shadow-red-500/30" :
-                                            isComplete ? "bg-blue-500 text-white shadow-lg shadow-blue-500/30" :
-                                                isUnder ? "bg-blue-500 text-white shadow-lg shadow-blue-500/30" :
-                                                    "bg-gray-100 text-gray-400"
-                                        }`}>
-                                        {isComplete && !isOver ? (
-                                            <CheckCircle2 className="w-5 h-5" />
-                                        ) : isOver ? (
-                                            <AlertCircle className="w-5 h-5" />
-                                        ) : (
-                                            <span className="text-[10px] font-black uppercase">{percentage}%</span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-end">
-                                        <div className="flex flex-col">
-                                            <span className={`text-xl font-black ${isOver ? "text-red-600" :
-                                                    isComplete ? "text-blue-600" :
-                                                        "text-gray-800"
-                                                }`}>
-                                                {assigned} <span className="text-xs text-gray-400 font-bold uppercase ml-0.5">/ {total}h</span>
-                                            </span>
-                                        </div>
-                                        {isOver && (
-                                            <motion.span
-                                                animate={{ scale: [1, 1.1, 1] }}
-                                                transition={{ repeat: Infinity, duration: 2 }}
-                                                className="text-[10px] font-black bg-red-600 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter"
-                                            >
-                                                Exceeded
-                                            </motion.span>
-                                        )}
-                                    </div>
-
-                                    <div className="relative h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${Math.min(percentage, 100)}%` }}
-                                            transition={{ duration: 0.8, ease: "circOut" }}
-                                            className={`h-full rounded-full ${isOver ? "bg-red-500" :
-                                                    isComplete ? "bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.3)]" :
-                                                        "bg-blue-500"
-                                                }`}
-                                        />
-                                        {percentage > 100 && (
-                                            <div className="absolute top-0 right-0 h-full w-[2px] bg-red-700"></div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {isComplete && !isOver && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="absolute -top-1 -right-1"
+                                    {/* Status Icon */}
+                                    <div
+                                        className={`p-1.5 rounded-lg
+              ${isOver
+                                                ? "bg-red-100 text-red-600"
+                                                : isComplete
+                                                    ? "bg-blue-100 text-blue-600"
+                                                    : "bg-gray-100 text-gray-500"
+                                            }`}
                                     >
-                                        <span className="flex h-3 w-3">
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                                        {isComplete && !isOver ? (
+                                            <CheckCircle2 className="w-4 h-4" />
+                                        ) : isOver ? (
+                                            <AlertCircle className="w-4 h-4" />
+                                        ) : (
+                                            <span className="text-[11px] font-medium">{percentage}%</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Hours */}
+                                <div className="flex justify-between items-end mb-3">
+                                    <span
+                                        className={`text-lg font-semibold
+                ${isOver
+                                                ? "text-red-600"
+                                                : isComplete
+                                                    ? "text-blue-600"
+                                                    : "text-gray-800"
+                                            }`}
+                                    >
+                                        {assigned}
+                                        <span className="text-xs text-gray-400 font-medium ml-1">
+                                            / {total}h
                                         </span>
-                                    </motion.div>
-                                )}
+                                    </span>
+
+                                    {isOver && (
+                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-600 font-medium">
+                                            exceeded
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Progress Bar */}
+                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${Math.min(percentage, 100)}%` }}
+                                        transition={{ duration: 0.8 }}
+                                        className={`h-full rounded-full
+                ${isOver
+                                                ? "bg-red-500"
+                                                : isComplete
+                                                    ? "bg-blue-600"
+                                                    : "bg-blue-500"
+                                            }`}
+                                    />
+                                </div>
                             </motion.div>
                         );
                     })}
