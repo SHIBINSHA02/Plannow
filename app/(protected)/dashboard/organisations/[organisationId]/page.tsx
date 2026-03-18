@@ -38,7 +38,6 @@ export default function OrganisationPage() {
     const [profileUrl, setProfileUrl] = useState("");
     const [bgUrl, setBgUrl] = useState("");
     const [saving, setSaving] = useState(false);
-    const [isAutoAssigning, setIsAutoAssigning] = useState(false);
 
     /* ---------- Fetch Organisation ---------- */
     useEffect(() => {
@@ -134,42 +133,6 @@ export default function OrganisationPage() {
         }
     };
 
-    /* ---------- Auto Assign ---------- */
-    const handleAutoAssign = async () => {
-        if (!canEdit) return;
-
-        const confirmed = confirm(
-            "Auto-assign will attempt to fill empty slots in all classroom schedules with available teachers.\nExisting assignments will not be overwritten.\nProceed?"
-        );
-
-        if (!confirmed) return;
-
-        setIsAutoAssigning(true);
-
-        try {
-            const res = await fetch(`/api/organisation/${organisationId}/auto-assign`, {
-                method: "POST",
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                alert(`Error: ${data.error || "Failed to auto-assign"}`);
-                return;
-            }
-
-            const data = await res.json();
-            alert(data.message);
-
-            // Refresh the page or data
-            window.location.reload();
-        } catch (error) {
-            console.error(error);
-            alert("An unexpected error occurred during auto-assignment.");
-        } finally {
-            setIsAutoAssigning(false);
-        }
-    };
-
     /* ---------- GATED RENDERING ---------- */
 
     if (loading) {
@@ -245,30 +208,52 @@ export default function OrganisationPage() {
                         </div>
 
                         {canEdit && (
-                            <div className="flex items-center gap-2">
-                                {/* Edit */}
-                                <button
-                                    onClick={() => setShowEdit(true)}
-                                    className="text-gray-400 p-2 rounded-xl hover:bg-gray-100 transition"
-                                >
-                                    <Edit />
-                                </button>
+                            <div className="flex flex-col gap-3 items-end">
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setShowLinkModal("TEACHER")}
+                                        className="px-3 py-2 rounded-xl text-sm font-medium bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all"
+                                    >
+                                        + Teacher Link
+                                    </button>
+                                    <button
+                                        onClick={() => setShowLinkModal("CLASSROOM")}
+                                        className="px-3 py-2 rounded-xl text-sm font-medium bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all"
+                                    >
+                                        + Classroom Link
+                                    </button>
+                                    <button
+                                        onClick={() => router.push(`/dashboard/organisations/${organisationId}/verify`)}
+                                        className="px-3 py-2 rounded-xl text-sm font-medium bg-teal-50 text-teal-600 border border-teal-200 hover:bg-teal-100 transition-all"
+                                    >
+                                        Review Submissions
+                                    </button>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {/* Edit */}
+                                    <button
+                                        onClick={() => setShowEdit(true)}
+                                        className="text-gray-400 p-2 rounded-xl hover:bg-gray-100 transition bg-white border border-gray-200"
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                    </button>
 
-                                {/* Delete */}
-                                <button
-                                    onClick={handleDeleteOrganisation}
-                                    disabled={deleting}
-                                    className="
-                                    px-3 py-2 rounded-xl text-sm font-medium
-                                    bg-red-50 text-red-500 border border-red-500
-                                    hover:bg-red-600 hover:text-white
-                                    active:scale-95
-                                    transition-all
-                                    disabled:opacity-50
-                                "
-                                >
-                                    {deleting ? "Deleting..." : "Delete"}
-                                </button>
+                                    {/* Delete */}
+                                    <button
+                                        onClick={handleDeleteOrganisation}
+                                        disabled={deleting}
+                                        className="
+                                        px-3 py-2 rounded-xl text-sm font-medium
+                                        bg-red-50 text-red-500 border border-red-500
+                                        hover:bg-red-600 hover:text-white
+                                        active:scale-95
+                                        transition-all
+                                        disabled:opacity-50
+                                    "
+                                    >
+                                        {deleting ? "Deleting..." : "Delete"}
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -278,6 +263,76 @@ export default function OrganisationPage() {
             {/* ---------- Sections ---------- */}
             <ClassroomSection organisationId={organisationId} />
             <TeachersSection organisationId={organisationId} />
+
+            {/* ---------- Link Gen Modal ---------- */}
+            {showLinkModal && canEdit && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4">
+                        <h2 className="text-xl font-semibold">
+                            Generate {showLinkModal === "TEACHER" ? "Teacher" : "Classroom"} Link
+                        </h2>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Valid for (in hours)</label>
+                            <input
+                                type="number"
+                                value={linkTimer}
+                                onChange={e => setLinkTimer(e.target.value)}
+                                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                placeholder="24"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">
+                                Custom Instructions / Notes (Optional)
+                            </label>
+                            <textarea
+                                value={linkInstructions}
+                                onChange={e => setLinkInstructions(e.target.value)}
+                                rows={3}
+                                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none transition resize-none"
+                                placeholder="E.g. Please use your official school email ID..."
+                            />
+                        </div>
+
+                        {generatedLink && (
+                            <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm break-all font-mono text-gray-800">
+                                {generatedLink}
+                            </div>
+                        )}
+
+                        <div className="flex justify-end gap-3 pt-2">
+                            <button
+                                onClick={() => { setShowLinkModal(null); setGeneratedLink(""); setLinkInstructions(""); }}
+                                className="px-5 py-2.5 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition"
+                            >
+                                Close
+                            </button>
+
+                            {!generatedLink ? (
+                                <button
+                                    disabled={generatingLink}
+                                    onClick={handleGenerateLink}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded font-medium disabled:opacity-50 hover:bg-blue-700 transition"
+                                >
+                                    {generatingLink ? "Generating..." : "Generate"}
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(generatedLink);
+                                        alert("Link copied!");
+                                    }}
+                                    className="px-4 py-2 bg-green-600 text-white rounded font-medium hover:bg-green-700 transition"
+                                >
+                                    Copy Link
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* ---------- Edit Modal ---------- */}
             {showEdit && canEdit && (
