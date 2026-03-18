@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import ClassroomSection from "./_components/ClassroomSection";
 import TeachersSection from "./_components/Teachers/TeachersSection";
 
-import { Edit } from "lucide-react";
+import { Edit, Sparkles, Loader2 } from "lucide-react";
 
 /* ---------- Types ---------- */
 
@@ -38,6 +38,7 @@ export default function OrganisationPage() {
     const [profileUrl, setProfileUrl] = useState("");
     const [bgUrl, setBgUrl] = useState("");
     const [saving, setSaving] = useState(false);
+    const [isAutoAssigning, setIsAutoAssigning] = useState(false);
 
     /* ---------- Fetch Organisation ---------- */
     useEffect(() => {
@@ -133,6 +134,42 @@ export default function OrganisationPage() {
         }
     };
 
+    /* ---------- Auto Assign ---------- */
+    const handleAutoAssign = async () => {
+        if (!canEdit) return;
+
+        const confirmed = confirm(
+            "Auto-assign will attempt to fill empty slots in all classroom schedules with available teachers.\nExisting assignments will not be overwritten.\nProceed?"
+        );
+
+        if (!confirmed) return;
+
+        setIsAutoAssigning(true);
+
+        try {
+            const res = await fetch(`/api/organisation/${organisationId}/auto-assign`, {
+                method: "POST",
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                alert(`Error: ${data.error || "Failed to auto-assign"}`);
+                return;
+            }
+
+            const data = await res.json();
+            alert(data.message);
+
+            // Refresh the page or data
+            window.location.reload();
+        } catch (error) {
+            console.error(error);
+            alert("An unexpected error occurred during auto-assignment.");
+        } finally {
+            setIsAutoAssigning(false);
+        }
+    };
+
     /* ---------- GATED RENDERING ---------- */
 
     if (loading) {
@@ -191,6 +228,20 @@ export default function OrganisationPage() {
                             <p className="text-sm text-gray-700">
                                 Organisation ID: {organisationId}
                             </p>
+                        </div>
+                        <div>
+                            <button
+                                onClick={handleAutoAssign}
+                                disabled={isAutoAssigning || !canEdit}
+                                title="Auto-assign schedules"
+                                className="text-blue-600 p-2 rounded-xl hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isAutoAssigning ? (
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                    <Sparkles className="w-5 h-5" />
+                                )}
+                            </button>
                         </div>
 
                         {canEdit && (
