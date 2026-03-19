@@ -251,6 +251,7 @@ export default function OrganisationPage() {
                             </p>
                         </div>
                         <div>
+                        <div className="flex items-center gap-2 w-full justify-end">
                             <button
                                 onClick={handleAutoAssign}
                                 disabled={isAutoAssigning || !canEdit}
@@ -260,7 +261,10 @@ export default function OrganisationPage() {
                                 {isAutoAssigning ? (
                                     <Loader2 className="w-5 h-5 animate-spin" />
                                 ) : (
-                                    <Sparkles className="w-5 h-5" />
+                                    <div className="flex items-center gap-2 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all px-2 py-1 rounded-xl w-full">
+                                        <Sparkles className="w-5 h-5" />
+                                        <p>Auto Assign</p>
+                                    </div>
                                 )}
                             </button>
                         </div>
@@ -314,6 +318,7 @@ export default function OrganisationPage() {
                                 </div>
                             </div>
                         )}
+                        </div>
                     </div>
                 </div>
             </div>
