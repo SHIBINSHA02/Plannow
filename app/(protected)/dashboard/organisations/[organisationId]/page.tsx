@@ -39,6 +39,16 @@ export default function OrganisationPage() {
     const [bgUrl, setBgUrl] = useState("");
     const [saving, setSaving] = useState(false);
 
+    /* Link Gen state */
+    const [showLinkModal, setShowLinkModal] = useState<"TEACHER" | "CLASSROOM" | null>(null);
+    const [linkTimer, setLinkTimer] = useState("24");
+    const [linkInstructions, setLinkInstructions] = useState("");
+    const [generatedLink, setGeneratedLink] = useState("");
+    const [generatingLink, setGeneratingLink] = useState(false);
+
+    /* Auto Assign state */
+    const [isAutoAssigning, setIsAutoAssigning] = useState(false);
+
     /* ---------- Fetch Organisation ---------- */
     useEffect(() => {
         if (!organisationId) return;
@@ -130,6 +140,54 @@ export default function OrganisationPage() {
             console.error(error);
         } finally {
             setSaving(false);
+        }
+    };
+
+    /* ---------- Auto Assign ---------- */
+    const handleAutoAssign = async () => {
+        if (!canEdit) return;
+        setIsAutoAssigning(true);
+        try {
+            const res = await fetch(`/api/organisation/${organisationId}/auto-assign`, {
+                method: "POST",
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to auto-assign");
+            alert(data.message || "Schedules auto-assigned successfully!");
+            window.location.reload();
+        } catch (error: any) {
+            console.error(error);
+            alert(error.message);
+        } finally {
+            setIsAutoAssigning(false);
+        }
+    };
+
+    /* ---------- Link Generation ---------- */
+    const handleGenerateLink = async () => {
+        if (!showLinkModal) return;
+        setGeneratingLink(true);
+        try {
+            const res = await fetch(`/api/organisation/${organisationId}/onboarding-tokens`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: showLinkModal,
+                    expiresInHours: parseInt(linkTimer),
+                    instructions: linkInstructions,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Failed to generate link");
+
+            const baseUrl = window.location.origin;
+            const link = `${baseUrl}/onboarding/${data.token.tokenId}`;
+            setGeneratedLink(link);
+        } catch (error: any) {
+            console.error(error);
+            alert(error.message);
+        } finally {
+            setGeneratingLink(false);
         }
     };
 
