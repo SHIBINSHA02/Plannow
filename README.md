@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Planora 📅
 
-## Getting Started
+**Planora** is an intelligent scheduling and organization management platform tailored for educational institutions. It streamlines the complex task of managing classrooms, teachers, and schedules through a centralized, automated system.
 
-First, run the development server:
+---
 
+## ✨ Features
+
+### 🏢 Organisation Management
+- Create and manage educational organizations.
+- Dashboard with high-level statistics and activity monitoring.
+- Multi-user support with custom permissions (Admins & Editors).
+
+### 🏫 Classroom & Teacher Portals
+- Manage classrooms with specific subject requirements and teacher assignments.
+- Track teacher workloads and availability across the organization.
+- **Onboarding Link Generation**: Swiftly invite teachers and classroom admins using secure, time-limited onboarding links.
+
+### ⚡ Intelligence & Automation
+- **Auto-Assign Algorithm**: A greedy scheduling algorithm that automatically populates weekly slots based on subject requirements and teacher availability, preventing double-bookings.
+- **Substitution System**: Manage teacher absences by finding and assigning available substitutes in real-time.
+
+### 🔍 Verification & Compliance
+- Review and verify submissions from classrooms and teachers to ensure data accuracy before finalizing schedules.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router, Turbopack)
+- **Authentication**: [Clerk](https://clerk.com/)
+- **Database**: [MongoDB](https://www.mongodb.com/) (using [Mongoose](https://mongoosejs.com/))
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Parsing**: [PapaParse](https://www.papaparse.com/) for CSV handling.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
+- Node.js 20+
+- MongoDB instance (local or Atlas)
+- Clerk API keys
+
+### 2. Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Environment Setup
+Create a `.env.local` file in the root directory and add your credentials:
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
+CLERK_SECRET_KEY=...
+MONGODB_URI=...
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to see your app in action.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📖 Related Documentation
+- [Auto-Assignment Scheduling Algorithm](doc.md) - Deep dive into the greedy logic used for scheduling.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📄 License
+This project is licensed under the [LICENSE](LICENSE) provided in the repository.
