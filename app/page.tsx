@@ -104,7 +104,7 @@ export default function Home() {
                             </h1>
                         </div>
 
-                        <p className="text-xl md:text-2xl text-gray-400 max-w-xl leading-relaxed font-extralight tracking-wide pl-2 border-l border-transparent hover:border-gray-200 transition-colors duration-500">
+                        <p className="text-xl md:text-2xl text-gray-100 max-w-xl leading-relaxed font-extralight tracking-wide pl-2 border-l border-transparent hover:border-gray-200 transition-colors duration-500">
                             A multidimensional scheduling engine that bends to your institution&apos;s will. Fluid, responsive, and infinitely scalable.
                         </p>
 
@@ -129,7 +129,7 @@ export default function Home() {
                                         className="group relative flex items-center justify-center px-10 py-5 bg-black text-white rounded-full overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] active:scale-[0.98]"
                                     >
                                         <div className="absolute inset-0 bg-linear-to-r from-blue-500/0 via-blue-500/20 to-blue-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-                                        <span className="relative flex items-center gap-3 text-sm tracking-[0.2em] uppercase font-light">
+                                        <span className="relative flex items-center gap-3 tracking-[0.2em] uppercase font-light">
                                             Enter Hub <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-2 transition-transform duration-500" />
                                         </span>
                                     </Link>
@@ -137,7 +137,7 @@ export default function Home() {
                                         href="/dashboard/profile"
                                         className="group relative flex items-center justify-center px-10 py-5 bg-white border border-gray-200 text-gray-900 rounded-full overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:shadow-sm active:scale-[0.98] cursor-pointer"
                                     >
-                                        <span className="relative flex items-center gap-3 text-sm tracking-[0.2em] uppercase font-light">
+                                        <span className="relative flex items-center gap-3  tracking-[0.2em] uppercase font-light">
                                             Profile
                                         </span>
                                     </Link>
@@ -276,7 +276,7 @@ export default function Home() {
                             </div>
 
                             <div className="space-y-4">
-                                <h3 className="text-3xl font-light text-white tracking-tight">
+                                <h3 className="text-3xl font-semibold text-white tracking-tight">
                                     {features[0].title}
                                 </h3>
                                 <p className="text-gray-300 font-extralight leading-relaxed max-w-sm">
@@ -298,7 +298,7 @@ export default function Home() {
                             </div>
 
                             <div className="space-y-4">
-                                <h3 className="text-2xl font-light text-gray-900 tracking-tight leading-tight">
+                                <h3 className="text-2xl font-semibold text-gray-800 tracking-tight leading-tight">
                                     {features[1].title}
                                 </h3>
                                 <p className="text-sm text-gray-500 font-extralight leading-relaxed">
@@ -318,7 +318,7 @@ export default function Home() {
                                     {features[2].icon.props.children ? features[2].icon :
                                         Object.assign({}, features[2].icon, { props: { ...features[2].icon.props, className: features[2].icon.props.className.replace('text-blue-600 group-hover:text-white', 'w-5 h-5') } })}
                                 </div>
-                                <h3 className="text-xl font-light text-gray-900 tracking-tight">
+                                <h3 className="text-xl font-semibold text-gray-800 tracking-tight">
                                     {features[2].title}
                                 </h3>
                             </div>
@@ -336,7 +336,7 @@ export default function Home() {
                                     {features[3].icon.props.children ? features[3].icon :
                                         Object.assign({}, features[3].icon, { props: { ...features[3].icon.props, className: features[3].icon.props.className.replace('text-blue-600 group-hover:text-white', 'w-5 h-5') } })}
                                 </div>
-                                <h3 className="text-xl font-light text-gray-900 tracking-tight">
+                                <h3 className="text-xl font-semibold text-gray-800 tracking-tight">
                                     {features[3].title}
                                 </h3>
                             </div>

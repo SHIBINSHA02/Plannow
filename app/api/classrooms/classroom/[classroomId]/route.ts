@@ -122,6 +122,12 @@ export async function DELETE(
             );
         }
 
+        // Delete all schedule slots associated with this classroom
+        await ScheduleSlot.deleteMany({
+            classroomId,
+            organisationId,
+        });
+
         return NextResponse.json({
             message: "Classroom deleted successfully",
         });
