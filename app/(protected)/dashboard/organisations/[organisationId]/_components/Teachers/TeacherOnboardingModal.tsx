@@ -38,6 +38,10 @@ export default function TeacherOnboardingModal({
         setSubjectInput("");
     };
 
+    const removeSubject = (subjectToRemove: string) => {
+        setSubjects(prev => prev.filter(s => s !== subjectToRemove));
+    };
+
     /* ---------- Create single teacher ---------- */
 
     const submitTeacher = async () => {
@@ -130,9 +134,16 @@ export default function TeacherOnboardingModal({
                     {subjects.map(s => (
                         <span
                             key={s}
-                            className="bg-gray-100 px-2 py-1 text-xs rounded-md"
+                            className="bg-gray-100 px-2 py-1 text-xs rounded-md flex items-center gap-1"
                         >
                             {s}
+                            <button
+                                type="button"
+                                onClick={() => removeSubject(s)}
+                                className="text-gray-500 hover:text-red-500 ml-1"
+                            >
+                                &times;
+                            </button>
                         </span>
                     ))}
                 </div>
