@@ -8,7 +8,7 @@ import ClericalRequestList from "./ClericalRequestList";
 import SlotAssignModal from "./SlotAssignModal";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const PERIODS = ["P1", "P2", "P3", "P4", "P5"];
+const PERIODS = ["P1", "P2", "P3", "P4", "P5", "P6"];
 
 export type SlotInfo = {
     slotId: string;

@@ -29,7 +29,7 @@ export default function ClassroomScheduleClient({
     const router = useRouter();
 
     return (
-        <div className="p-6 max-w-7xl mx-auto">
+        <div className="p-6  mx-auto">
             <button
                 onClick={() =>
                     router.push(`/dashboard/organisations/${organisationId}`)

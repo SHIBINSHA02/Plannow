@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 /* ---------- Constants ---------- */
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const periods = ["P1", "P2", "P3", "P4", "P5"];
+const periods = ["P1", "P2", "P3", "P4", "P5", "P6"];
 
 /* ---------- Helpers ---------- */
 
