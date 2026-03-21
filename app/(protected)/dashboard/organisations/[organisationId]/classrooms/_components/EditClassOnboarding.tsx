@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Classroom } from "@/types/classroom";
 import { useScheduleGrid } from "../../../../../dashboard/context/ScheduleGridContext";
 
@@ -34,6 +35,7 @@ export default function EditClassOnboarding({
     currentClassroom,
     onSuccess,
 }: Props) {
+    const router = useRouter();
     const { refreshTeachers } = useScheduleGrid();
 
     /* ---------- Classroom ---------- */
@@ -192,6 +194,8 @@ export default function EditClassOnboarding({
             onSuccess?.();
             await refreshTeachers();
 
+            router.push(`/dashboard/organisations/${organisationId}/classrooms/${classroomId}/schedule`);
+
             // Clear success message after 3 seconds
             setTimeout(() => setSuccessMsg(null), 3000);
 
@@ -233,7 +237,7 @@ export default function EditClassOnboarding({
                         placeholder="Classroom Name"
                         value={className}
                         onChange={e => setClassName(e.target.value)}
-                        className="w-full p-2 border rounded-xl"
+                        className="w-full p-2 bg-white border border-gray-200 rounded-xl"
                         required
                     />
                 </div>
@@ -246,13 +250,13 @@ export default function EditClassOnboarding({
                         placeholder="Department"
                         value={department}
                         onChange={e => setDepartment(e.target.value)}
-                        className="w-full p-2 border rounded-xl"
+                        className="w-full p-2 bg-white border border-gray-200 rounded-xl"
                     />
                 </div>
             </div>
 
             {/* ---------- Teacher Search ---------- */}
-            <div className="border border-gray-100 bg-gray-50/50 py-4 rounded-2xl space-y-4 text-sm mt-4">
+            <div className="bg-gray-50/50 py-4 rounded-2xl space-y-4 text-sm mt-4">
                 <h3 className="font-medium text-gray-800">Add Subjects</h3>
                 <div className="relative">
                     <label className="text-sm font-medium text-gray-600 mb-1 block">
@@ -270,7 +274,7 @@ export default function EditClassOnboarding({
                         }}
                         onFocus={() => setShowTeacherList(true)}
                         placeholder="Type teacher name..."
-                        className="w-full p-2 border rounded-xl bg-white"
+                        className="w-full p-2 border border-gray-200 rounded-xl bg-white"
                     />
 
                     {showTeacherList && teacherSearch && (
@@ -310,7 +314,7 @@ export default function EditClassOnboarding({
                             value={selectedSubject}
                             onChange={e => setSelectedSubject(e.target.value)}
                             disabled={!selectedTeacher}
-                            className="w-full p-2 border rounded-xl bg-white disabled:opacity-50"
+                            className="w-full p-2 border border-gray-300 rounded-xl focus:border-blue-500 bg-white disabled:opacity-50"
                         >
                             <option value="">Select Subject</option>
 
@@ -329,7 +333,7 @@ export default function EditClassOnboarding({
                             placeholder="Hours"
                             value={weeklyHours}
                             onChange={e => setWeeklyHours(e.target.value)}
-                            className="w-20 p-2 border rounded-xl bg-white"
+                            className="w-20 p-2 border border-gray-300 rounded-xl bg-white"
                             min="1"
                         />
                     </div>
@@ -339,7 +343,7 @@ export default function EditClassOnboarding({
                             type="button"
                             onClick={addSubject}
                             disabled={!selectedTeacher || !selectedSubject || !weeklyHours}
-                            className="px-4 py-2 h-[42px] bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl transition-colors"
+                            className="px-4 py-2 h-[42px] bg-blue-600 border border-gray-200  hover:bg-blue-800 text-white rounded-xl "
                         >
                             Add
                         </button>

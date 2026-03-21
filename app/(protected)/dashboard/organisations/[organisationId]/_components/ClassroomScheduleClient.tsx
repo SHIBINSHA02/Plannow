@@ -5,7 +5,7 @@ import ClassroomScheduleTable from "./ClassroomScheduleTable";
 import ScheduleStatusGrid from "./ScheduleStatusGrid";
 import { ScheduleGridProvider } from "../../../../dashboard/context/ScheduleGridContext";
 import { Assignment } from "../../../../dashboard/_types/schedule";
-import EditClassOnboarding from "../classrooms/_components/EditClassOnboarding";
+
 
 type Props = {
     organisationId: string;
@@ -52,13 +52,14 @@ export default function ClassroomScheduleClient({
                 <ScheduleStatusGrid />
                 <ClassroomScheduleTable />
 
-                {/* Editor for Classroom Details moved inside provider */}
-                <div className="mt-8 px-0 pb-20">
-                    <EditClassOnboarding
-                        organisationId={organisationId}
-                        classroomId={classroomId}
-                        currentClassroom={currentClassroom}
-                    />
+                {/* Editor for Classroom Details moved to separate page */}
+                <div className="mt-8 flex justify-end px-0 pb-20">
+                    <button
+                        onClick={() => router.push(`/dashboard/organisations/${organisationId}/classrooms/${classroomId}/edit`)}
+                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors shadow-sm"
+                    >
+                        Edit Classroom Details
+                    </button>
                 </div>
             </ScheduleGridProvider>
         </div>
