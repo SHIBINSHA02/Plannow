@@ -123,6 +123,14 @@ const ClassroomScheduleTable: React.FC = () => {
                                                             });
                                                         }
 
+                                                        // Ensure current teacher is always in the list to avoid "Select Teacher" display bug
+                                                        if (slot.teacherId && !availableTeachers.some(t => t.teacherId === slot.teacherId)) {
+                                                            const currentTeacher = teachers.find(t => t.teacherId === slot.teacherId);
+                                                            if (currentTeacher) {
+                                                                availableTeachers.push(currentTeacher);
+                                                            }
+                                                        }
+
                                                         return availableTeachers.map((t) => (
                                                             <option key={t.teacherId} value={t.teacherId}>
                                                                 {t.teacherName}
@@ -158,11 +166,27 @@ const ClassroomScheduleTable: React.FC = () => {
                                                 >
                                                     <option value="">Select Subject</option>
                                                     {(() => {
-                                                        const teacherSubjects = slot.teacherId
+                                                        const initialSubjects = slot.teacherId
                                                             ? teachers.find(t => t.teacherId === slot.teacherId)?.subjects || []
                                                             : subjects;
 
-                                                        return teacherSubjects.map((s) => {
+                                                        // Filter subjects: must have at least one available teacher
+                                                        const availableForPeriod = initialSubjects.filter(s => {
+                                                            return teachers.some(t => {
+                                                                if (!t.subjects.includes(s)) return false;
+                                                                if (allowParallelAssignments) return true;
+                                                                // Check if this teacher is busy elsewhere
+                                                                const isBusyElsewhere = allOrganisationAssignments.some(a =>
+                                                                    a.day === dayIndex + 1 &&
+                                                                    a.period === periodIndex + 1 &&
+                                                                    a.teacherId === t.teacherId &&
+                                                                    a._id !== slot._id
+                                                                );
+                                                                return !isBusyElsewhere;
+                                                            });
+                                                        });
+
+                                                        return availableForPeriod.map((s) => {
                                                             const remaining = remainingHours[s] ?? 0;
                                                             const isSelected = slot.subject === s;
                                                             // Show subject if it has hours left OR it's already selected in this slot

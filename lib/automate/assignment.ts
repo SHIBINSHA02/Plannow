@@ -72,7 +72,7 @@ export async function performAutoAssignment(organisationId: string, session: Cli
 
                     // Check preferred teacher first
                     if (preferredTeacherId) {
-                        const isBusy = teacherBusy[d]?.[p]?.has(preferredTeacherId);
+                        const isBusy = !org.allowParallelAssignments && teacherBusy[d]?.[p]?.has(preferredTeacherId);
                         if (!isBusy) {
                             chosenTeacherId = preferredTeacherId;
                         }
@@ -81,7 +81,7 @@ export async function performAutoAssignment(organisationId: string, session: Cli
                     // If preferred is busy, try others
                     if (!chosenTeacherId) {
                         for (const t of qualifiedTeachers) {
-                            const isBusy = teacherBusy[d]?.[p]?.has(t.teacherId);
+                            const isBusy = !org.allowParallelAssignments && teacherBusy[d]?.[p]?.has(t.teacherId);
                             if (!isBusy) {
                                 chosenTeacherId = t.teacherId;
                                 break;
