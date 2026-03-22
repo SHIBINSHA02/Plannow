@@ -7,9 +7,11 @@ import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getUserEmail(user: any): string | null {
     return user?.emailAddresses?.[0]?.emailAddress ?? null;
 }
+
 
 export async function POST(
     req: Request,
@@ -64,6 +66,51 @@ export async function POST(
         console.error("POST onboarding token error:", error);
         return NextResponse.json(
             { message: "Failed to generate token" },
+            { status: 500 }
+        );
+    }
+}
+
+export async function GET(
+    req: Request,
+    context: { params: Promise<{ organisationId: string }> }
+) {
+    try {
+        const clerkUser = await currentUser();
+        if (!clerkUser) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+
+        const email = getUserEmail(clerkUser);
+        if (!email) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+
+        const { organisationId } = await context.params;
+
+        await connectDB();
+
+        // Check if user is Admin or Editor for this organisation
+        const organisation = await Organisation.findOne({
+            organisationId,
+            $or: [{ adminName: email }, { editors: email }],
+        });
+
+        if (!organisation) {
+            return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+        }
+
+        // Fetch active tokens
+        const tokens = await OnboardingToken.find({
+            organisationId,
+            expiresAt: { $gt: new Date() },
+        }).sort({ createdAt: -1 });
+
+        return NextResponse.json({ tokens });
+    } catch (error) {
+        console.error("GET onboarding tokens error:", error);
+        return NextResponse.json(
+            { message: "Failed to fetch tokens" },
             { status: 500 }
         );
     }
