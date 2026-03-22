@@ -39,15 +39,15 @@ const ClassroomScheduleTable: React.FC = () => {
 
                 <tbody>
                     {grid.map((row, dayIndex) => (
-                        <tr key={dayIndex}>
-                            <td className="px-4 py-2 border border-gray-200 rounded-lg font-semibold bg-gray-50">
+                        <tr key={dayIndex} className={dayIndex % 2 !== 0 ? "bg-blue-50" : ""}>
+                            <td className={`px-4 py-2 border border-gray-200 text-center text-white font-semibold bg-blue-700`}>
                                 {days[dayIndex]}
                             </td>
 
                             {row.map((cell, periodIndex) => (
                                 <td
                                     key={periodIndex}
-                                    className="p-2 min-w-[180px] border border-gray-300 align-top"
+                                    className="p-2 min-w-[180px] border border-blue-700 border-b-2  align-top"
                                 >
                                     <div className="space-y-2">
                                         {cell.map((slot, idx) => (
