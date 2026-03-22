@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import {
     SignedIn,
     UserButton,
@@ -142,10 +143,14 @@ function NavItem({
     icon: React.ReactNode;
     label: string;
 }) {
+    const pathname = usePathname();
+    const isActive = pathname === href || (pathname.startsWith(`${href}/`) && href !== "/dashboard");
+
     return (
         <Link
             href={href}
-            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition"
+            className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition ${isActive ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
+                }`}
         >
             {icon}
             <span>{label}</span>
