@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import TeacherOnboardingModal from "./TeacherOnboardingModal";
 import { useRouter } from "next/navigation";
+import TeacherCard, { TeacherSkeleton } from "./TeacherCard";
 
 /* ---------- Types ---------- */
 
@@ -25,8 +26,6 @@ export default function TeachersSection({ organisationId }: Props) {
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
-
-    const router = useRouter();
 
 
     const fetchTeachers = async () => {
@@ -81,11 +80,13 @@ export default function TeachersSection({ organisationId }: Props) {
             />
 
             {/* Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading && (
-                    <p className="text-sm text-gray-500">
-                        Loading teachers...
-                    </p>
+                    <>
+                        <TeacherSkeleton />
+                        <TeacherSkeleton />
+                        <TeacherSkeleton />
+                    </>
                 )}
 
                 {!loading &&
@@ -100,37 +101,11 @@ export default function TeachersSection({ organisationId }: Props) {
                                     .includes(search.toLowerCase())
                         )
                         .map(t => (
-                            <div
+                            <TeacherCard
                                 key={t._id}
-                                onClick={() => router.push(
-                                    `/dashboard/organisations/${organisationId}/teachers/${t.teacherId}/profile`
-                                )}
-                                className="rounded-xl border border-blue-100 shadow-xl shadow-blue-50 p-4 space-y-3 hover:shadow-sm"
-                            >
-                                <div>
-                                    <p className="font-semibold text-lg">
-                                        {t.teacherName}
-                                    </p>
-                                    <p className="text-sm text-gray-500">
-                                        {t.email}
-                                    </p>
-                                </div>
-
-                                <div className="flex flex-wrap gap-2">
-                                    {t.subjects.map((s, i) => (
-                                        <span
-                                            key={i}
-                                            className="rounded-md bg-gray-100 px-2 py-1 text-xs"
-                                        >
-                                            {s}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                <p className="text-xs text-gray-400">
-                                    Teacher ID: {t.teacherId}
-                                </p>
-                            </div>
+                                teacher={t}
+                                organisationId={organisationId}
+                            />
                         ))}
             </div>
         </div>
