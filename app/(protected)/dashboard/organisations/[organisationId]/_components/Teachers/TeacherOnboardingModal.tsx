@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Papa from "papaparse";
+import { Camera, X as LucideX, Upload } from "lucide-react";
 
 /* ---------- Props ---------- */
 
@@ -24,6 +25,8 @@ export default function TeacherOnboardingModal({
     const [subjects, setSubjects] = useState<string[]>([]);
     const [csvFile, setCsvFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [profileImage, setProfileImage] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     if (!open) return null;
 
@@ -42,6 +45,17 @@ export default function TeacherOnboardingModal({
         setSubjects(prev => prev.filter(s => s !== subjectToRemove));
     };
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setProfileImage(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
+
     /* ---------- Create single teacher ---------- */
 
     const submitTeacher = async () => {
@@ -55,6 +69,7 @@ export default function TeacherOnboardingModal({
                 teacherName,
                 email: teacherEmail,
                 subjects,
+                profileImageUrl: profileImage,
             }),
         });
 
@@ -100,6 +115,43 @@ export default function TeacherOnboardingModal({
                 <h2 className="text-xl font-semibold">
                     Create Teacher Profile
                 </h2>
+
+                {/* Profile Image Upload */}
+                <div className="flex flex-col items-center gap-4 py-2">
+                    <div className="relative group">
+                        <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center transition-all group-hover:border-blue-300">
+                            {profileImage ? (
+                                <img src={profileImage} alt="Preview" className="w-full h-full object-cover" />
+                            ) : (
+                                <Camera className="w-8 h-8 text-gray-300 group-hover:text-blue-400" />
+                            )}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="absolute -bottom-2 -right-2 p-2 bg-white text-blue-600 rounded-lg shadow-md border border-blue-50 hover:bg-blue-600 hover:text-white transition-all transform hover:scale-105"
+                        >
+                            <Upload className="w-4 h-4" />
+                        </button>
+                        {profileImage && (
+                            <button
+                                type="button"
+                                onClick={() => setProfileImage(null)}
+                                className="absolute -top-2 -right-2 p-1 bg-red-50 text-red-500 rounded-full shadow-sm border border-red-100 hover:bg-red-500 hover:text-white transition-all"
+                            >
+                                <LucideX className="w-3 h-3" />
+                            </button>
+                        )}
+                    </div>
+                    <p className="text-[10px] text-gray-400 font-medium">Add profile photo (optional)</p>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                    />
+                </div>
 
                 <input
                     placeholder="Teacher name"

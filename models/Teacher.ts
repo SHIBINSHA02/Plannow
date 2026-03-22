@@ -18,9 +18,9 @@ const TeacherSchema = new Schema(
             type: String,
             required: true,
             lowercase: true,
-            unique: true, 
+            unique: true,
             trim: true,
-            index: true  
+            index: true
         },
 
         subjects: {
@@ -28,8 +28,13 @@ const TeacherSchema = new Schema(
             default: []
         },
 
+        profileImageUrl: {
+            type: String,
+            default: null
+        },
+
         organisations: {
-            type: [String], 
+            type: [String],
             default: []
         },
 

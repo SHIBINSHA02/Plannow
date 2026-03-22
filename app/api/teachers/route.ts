@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { connectDB } from "@/lib/db";
+import mongoose from "mongoose";
 import Teacher from "@/models/Teacher";
 import { nanoid } from "nanoid";
 
@@ -15,6 +17,7 @@ export async function POST(req: Request) {
             email,
             subjects = [],
             organisationId,
+            profileImageUrl = null,
             metadata = {}
         } = await req.json();
 
@@ -40,6 +43,7 @@ export async function POST(req: Request) {
                         // Optionally update name or subjects if provided
                         teacherName: teacherName,
                         subjects: subjects.length > 0 ? subjects : existingTeacher.subjects,
+                        profileImageUrl: profileImageUrl || existingTeacher.profileImageUrl,
                         metadata: { ...existingTeacher.metadata, ...metadata }
                     }
                 },
@@ -55,6 +59,7 @@ export async function POST(req: Request) {
             teacherName,
             email: normalizedEmail,
             subjects,
+            profileImageUrl,
             organisations: [organisationId],
             metadata
         });
@@ -95,6 +100,69 @@ export async function GET(req: Request) {
         return NextResponse.json(teachers);
 
     } catch (error: any) {
+        return NextResponse.json(
+            { error: error.message },
+            { status: 500 }
+        );
+    }
+}
+/**
+ * UPDATE TEACHER
+ * PATCH /api/teachers
+ */
+export async function PATCH(req: Request) {
+    try {
+        await connectDB();
+
+        const {
+            teacherId,
+            teacherName,
+            subjects,
+            profileImageUrl,
+            organisationId,
+            metadata
+        } = await req.json();
+
+        if (!teacherId) {
+            return NextResponse.json(
+                { error: "teacherId is required" },
+                { status: 400 }
+            );
+        }
+
+        const updateData: any = {};
+        if (teacherName !== undefined) updateData.teacherName = teacherName;
+        if (subjects !== undefined) updateData.subjects = subjects;
+        if (profileImageUrl !== undefined) updateData.profileImageUrl = profileImageUrl;
+        if (metadata !== undefined) updateData.metadata = metadata;
+
+        console.log("Updating teacher image for ID:", teacherId, "Image length:", profileImageUrl?.length || 0);
+        const updatedTeacher = await Teacher.findOneAndUpdate(
+            { teacherId },
+            { $set: updateData },
+            { new: true }
+        );
+
+        if (!updatedTeacher) {
+            console.error("Teacher NOT found during PATCH for ID:", teacherId);
+            return NextResponse.json(
+                { error: "Teacher not found" },
+                { status: 404 }
+            );
+        }
+
+        console.log("Teacher image updated successfully in DB for:", updatedTeacher.teacherName);
+
+        if (organisationId) {
+            revalidatePath(`/dashboard/organisations/${organisationId}/teachers`, "page");
+            revalidatePath(`/dashboard/organisations/${organisationId}/teachers/${teacherId}/profile`, "page");
+            console.log("Revalidated paths for organisation:", organisationId);
+        }
+
+        return NextResponse.json(updatedTeacher);
+
+    } catch (error: any) {
+        console.error("Update teacher error:", error);
         return NextResponse.json(
             { error: error.message },
             { status: 500 }

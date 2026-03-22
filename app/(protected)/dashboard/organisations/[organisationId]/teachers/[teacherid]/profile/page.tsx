@@ -2,8 +2,9 @@ import { connectDB } from "@/lib/db";
 import Teacher from "@/models/Teacher";
 import ScheduleSlot from "@/models/ScheduleSlot";
 import { notFound } from "next/navigation";
-import { Calendar, Mail, Building2, User } from "lucide-react";
-import EditTeacherModal from "./_components/EditTeacherModal";
+import { Calendar } from "lucide-react";
+import ProfileHeader from "./_components/ProfileHeader";
+export const dynamic = "force-dynamic";
 
 /* ---------------- Constants ---------------- */
 
@@ -37,6 +38,7 @@ export default async function TeacherProfile({
     }).lean();
 
     if (!teacher) return notFound();
+    console.log(`[Server] Fetched teacher ${teacher.teacherName}: profileImageUrl is ${teacher.profileImageUrl ? 'present (' + teacher.profileImageUrl.length + ' chars)' : 'MISSING'}`);
 
     /* -------- Fetch Schedule Slots -------- */
 
@@ -93,50 +95,17 @@ export default async function TeacherProfile({
         <div className="min-h-screen bg-gray-50 px-4 py-10 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-6xl space-y-10">
 
-                {/* Profile Header - very clean */}
-                <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 sm:p-8">
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
-                        <div className="space-y-2">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                                {teacher.teacherName}
-                            </h1>
-                            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                                <span className="flex items-center gap-1.5">
-                                    <Mail className="size-4" />
-                                    {teacher.email}
-                                </span>
-                                <span className="flex items-center gap-1.5">
-                                    <Building2 className="size-4" />
-                                    {teacher.teacherId}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="flex flex-col sm:items-end gap-4 mt-2 sm:mt-0">
-                            <EditTeacherModal
-                                teacher={{
-                                    teacherName: teacher.teacherName,
-                                    email: teacher.email,
-                                    teacherId: teacher.teacherId,
-                                    subjects: teacher.subjects || [],
-                                }}
-                                organisationId={organisationId}
-                            />
-
-                            {teacher.subjects?.length > 0 && (
-                                <div className="flex flex-wrap gap-2 sm:justify-end">
-                                    {teacher.subjects.map((s: string) => (
-                                        <span
-                                            key={s}
-                                            className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-md border border-gray-200"
-                                        >
-                                            {s}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                {/* Profile Header */}
+                <ProfileHeader
+                    teacher={{
+                        teacherId: teacher.teacherId,
+                        teacherName: teacher.teacherName,
+                        email: teacher.email,
+                        subjects: teacher.subjects || [],
+                        profileImageUrl: teacher.profileImageUrl,
+                    }}
+                    organisationId={organisationId}
+                />
 
                 {/* Timetable - clean, compact, high readability */}
                 <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden shadow-blue-700/20">
