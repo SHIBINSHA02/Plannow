@@ -20,8 +20,12 @@ export async function PATCH(
     context: { params: Promise<{ organisationId: string }> }
 ) {
     try {
+        const { organisationId } = await context.params;
+        console.log("Organisation PATCH hit for ID:", organisationId);
+
         const clerkUser = await currentUser();
         if (!clerkUser) {
+            console.error("Clerk user not found in PATCH organisation");
             return NextResponse.json(
                 { message: "Unauthorized" },
                 { status: 401 }
@@ -36,8 +40,7 @@ export async function PATCH(
             );
         }
 
-        const { organisationId } = await context.params;
-        const { profileImageUrl, backgroundImageUrl } = await req.json();
+        const { profileImageUrl, backgroundImageUrl, allowParallelAssignments } = await req.json();
 
         await connectDB();
 
@@ -52,8 +55,9 @@ export async function PATCH(
             },
             {
                 $set: {
-                    profileImageUrl: profileImageUrl ?? null,
-                    backgroundImageUrl: backgroundImageUrl ?? null,
+                    profileImageUrl: profileImageUrl ?? undefined,
+                    backgroundImageUrl: backgroundImageUrl ?? undefined,
+                    allowParallelAssignments: allowParallelAssignments ?? undefined,
                 },
             },
             { new: true, runValidators: true }
@@ -70,7 +74,7 @@ export async function PATCH(
             organisation,
         });
     } catch (error) {
-        console.error("PATCH organisation error:", error);
+        console.error("PATCH organisation error:", JSON.stringify(error, null, 2));
         return NextResponse.json(
             { message: "Failed to update organisation" },
             { status: 500 }

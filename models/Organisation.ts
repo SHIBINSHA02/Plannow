@@ -11,6 +11,7 @@ const organisationSchema = new Schema(
 
         profileImageUrl: { type: String, default: null },
         backgroundImageUrl: { type: String, default: null },
+        allowParallelAssignments: { type: Boolean, default: false },
     },
     { timestamps: true }
 );

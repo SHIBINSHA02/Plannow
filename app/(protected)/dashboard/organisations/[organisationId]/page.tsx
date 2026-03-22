@@ -15,6 +15,7 @@ type Organisation = {
     adminName: string;
     profileImageUrl?: string | null;
     backgroundImageUrl?: string | null;
+    allowParallelAssignments?: boolean;
 };
 
 type OrganisationResponse = {
@@ -37,6 +38,7 @@ export default function OrganisationPage() {
     const [showEdit, setShowEdit] = useState(false);
     const [profileUrl, setProfileUrl] = useState("");
     const [bgUrl, setBgUrl] = useState("");
+    const [allowParallel, setAllowParallel] = useState(false);
     const [saving, setSaving] = useState(false);
 
     /* Link Gen state */
@@ -72,6 +74,7 @@ export default function OrganisationPage() {
                 setCanEdit(data.canEdit);
                 setProfileUrl(data.organisation.profileImageUrl ?? "");
                 setBgUrl(data.organisation.backgroundImageUrl ?? "");
+                setAllowParallel(data.organisation.allowParallelAssignments ?? false);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -125,6 +128,7 @@ export default function OrganisationPage() {
                 body: JSON.stringify({
                     profileImageUrl: profileUrl || null,
                     backgroundImageUrl: bgUrl || null,
+                    allowParallelAssignments: allowParallel,
                 }),
             });
 
@@ -251,60 +255,65 @@ export default function OrganisationPage() {
                             </p>
                         </div>
                         <div>
-                        <div className="flex items-center gap-2 w-full justify-end">
-                            <button
-                                onClick={handleAutoAssign}
-                                disabled={isAutoAssigning || !canEdit}
-                                title="Auto-assign schedules"
-                                className="text-blue-600 p-2 rounded-xl hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isAutoAssigning ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    <div className="flex items-center gap-2 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all px-2 py-1 rounded-xl w-full">
-                                        <Sparkles className="w-5 h-5" />
-                                        <p>Auto Assign</p>
+                            <div className="flex items-center gap-2 w-full justify-end">
+                                <button
+                                    onClick={handleAutoAssign}
+                                    disabled={isAutoAssigning || !canEdit}
+                                    title="Auto-assign schedules"
+                                    className="text-blue-600 p-2 rounded-xl hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isAutoAssigning ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        <div className="flex items-center gap-2 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all px-2 py-1 rounded-xl w-full">
+                                            <Sparkles className="w-5 h-5" />
+                                            <p>Auto Assign</p>
+                                        </div>
+                                    )}
+                                </button>
+                            </div>
+
+                            {canEdit && (
+                                <div className="flex flex-col gap-3 items-end">
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => setShowLinkModal("TEACHER")}
+                                            className="px-3 py-2 rounded-xl text-sm font-medium bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all"
+                                        >
+                                            + Teacher Link
+                                        </button>
+                                        <button
+                                            onClick={() => setShowLinkModal("CLASSROOM")}
+                                            className="px-3 py-2 rounded-xl text-sm font-medium bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all"
+                                        >
+                                            + Classroom Link
+                                        </button>
+                                        <button
+                                            onClick={() => router.push(`/dashboard/organisations/${organisationId}/verify`)}
+                                            className="px-3 py-2 rounded-xl text-sm font-medium bg-teal-50 text-teal-600 border border-teal-200 hover:bg-teal-100 transition-all"
+                                        >
+                                            Review Submissions
+                                        </button>
                                     </div>
-                                )}
-                            </button>
-                        </div>
+                                    <div className="flex items-center gap-2">
+                                        {/* Edit */}
+                                        <button
+                                            onClick={() => {
+                                                setProfileUrl(organisation.profileImageUrl ?? "");
+                                                setBgUrl(organisation.backgroundImageUrl ?? "");
+                                                setAllowParallel(organisation.allowParallelAssignments ?? false);
+                                                setShowEdit(true);
+                                            }}
+                                            className="text-gray-400 p-2 rounded-xl hover:bg-gray-100 transition bg-white border border-gray-200"
+                                        >
+                                            <Edit className="w-4 h-4" />
+                                        </button>
 
-                        {canEdit && (
-                            <div className="flex flex-col gap-3 items-end">
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setShowLinkModal("TEACHER")}
-                                        className="px-3 py-2 rounded-xl text-sm font-medium bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all"
-                                    >
-                                        + Teacher Link
-                                    </button>
-                                    <button
-                                        onClick={() => setShowLinkModal("CLASSROOM")}
-                                        className="px-3 py-2 rounded-xl text-sm font-medium bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all"
-                                    >
-                                        + Classroom Link
-                                    </button>
-                                    <button
-                                        onClick={() => router.push(`/dashboard/organisations/${organisationId}/verify`)}
-                                        className="px-3 py-2 rounded-xl text-sm font-medium bg-teal-50 text-teal-600 border border-teal-200 hover:bg-teal-100 transition-all"
-                                    >
-                                        Review Submissions
-                                    </button>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    {/* Edit */}
-                                    <button
-                                        onClick={() => setShowEdit(true)}
-                                        className="text-gray-400 p-2 rounded-xl hover:bg-gray-100 transition bg-white border border-gray-200"
-                                    >
-                                        <Edit className="w-4 h-4" />
-                                    </button>
-
-                                    {/* Delete */}
-                                    <button
-                                        onClick={handleDeleteOrganisation}
-                                        disabled={deleting}
-                                        className="
+                                        {/* Delete */}
+                                        <button
+                                            onClick={handleDeleteOrganisation}
+                                            disabled={deleting}
+                                            className="
                                         px-3 py-2 rounded-xl text-sm font-medium
                                         bg-red-50 text-red-500 border border-red-500
                                         hover:bg-red-600 hover:text-white
@@ -312,12 +321,12 @@ export default function OrganisationPage() {
                                         transition-all
                                         disabled:opacity-50
                                     "
-                                    >
-                                        {deleting ? "Deleting..." : "Delete"}
-                                    </button>
+                                        >
+                                            {deleting ? "Deleting..." : "Delete"}
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
                         </div>
                     </div>
                 </div>
@@ -402,27 +411,51 @@ export default function OrganisationPage() {
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4">
                         <h2 className="text-xl font-semibold">
-                            Update Organisation Images
+                            Organisation Settings
                         </h2>
 
-                        <input
-                            value={profileUrl}
-                            onChange={e => setProfileUrl(e.target.value)}
-                            className="w-full border rounded px-3 py-2"
-                            placeholder="Profile Image URL"
-                        />
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">Profile Image URL</label>
+                                <input
+                                    value={profileUrl}
+                                    onChange={e => setProfileUrl(e.target.value)}
+                                    className="w-full border rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                    placeholder="https://example.com/profile.jpg"
+                                />
+                            </div>
 
-                        <input
-                            value={bgUrl}
-                            onChange={e => setBgUrl(e.target.value)}
-                            className="w-full border rounded px-3 py-2"
-                            placeholder="Background Image URL"
-                        />
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">Background Image URL</label>
+                                <input
+                                    value={bgUrl}
+                                    onChange={e => setBgUrl(e.target.value)}
+                                    className="w-full border rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                    placeholder="https://example.com/bg.jpg"
+                                />
+                            </div>
 
-                        <div className="flex justify-end gap-3">
+                            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-100">
+                                <div>
+                                    <p className="text-sm font-semibold text-blue-900">Allow Parallel Assignments</p>
+                                    <p className="text-[10px] text-blue-700">Enable if teachers can have overlapping slots across classrooms</p>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={allowParallel}
+                                        onChange={(e) => setAllowParallel(e.target.checked)}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-2">
                             <button
                                 onClick={() => setShowEdit(false)}
-                                className="px-4 py-2 border rounded"
+                                className="px-5 py-2.5 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition"
                             >
                                 Cancel
                             </button>
@@ -430,9 +463,9 @@ export default function OrganisationPage() {
                             <button
                                 disabled={saving}
                                 onClick={handleSaveImages}
-                                className="px-4 py-2 bg-blue-600 text-white rounded"
+                                className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-medium disabled:opacity-50 hover:bg-blue-700 transition"
                             >
-                                {saving ? "Saving..." : "Save"}
+                                {saving ? "Saving..." : "Save Settings"}
                             </button>
                         </div>
                     </div>

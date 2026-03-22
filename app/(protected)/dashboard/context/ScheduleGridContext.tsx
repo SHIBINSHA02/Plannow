@@ -51,6 +51,9 @@ type ScheduleGridContextType = {
     deleteAssignment: (day: number, period: number, index: number) => Promise<void>;
     saveSlot: (day: number, period: number, index: number, slot: Assignment) => void;
     refreshTeachers: () => Promise<void>;
+    allOrganisationAssignments: any[];
+    allowParallelAssignments: boolean;
+    refreshOrganisationData: () => Promise<void>;
 };
 
 const ScheduleGridContext =
@@ -81,6 +84,8 @@ export function ScheduleGridProvider({
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [subjects, setSubjects] = useState<string[]>([]);
     const [subjectsConfig, setSubjectsConfig] = useState<SubjectConfig[]>(initialSubjectsConfig);
+    const [allOrganisationAssignments, setAllOrganisationAssignments] = useState<any[]>([]);
+    const [allowParallelAssignments, setAllowParallelAssignments] = useState(false);
 
     useEffect(() => {
         if (initialSubjectsConfig) {
@@ -152,6 +157,36 @@ export function ScheduleGridProvider({
     useEffect(() => {
         loadTeachers();
     }, [organisationId, classroomId])
+
+    /* ---------- Load Organisation Data ---------- */
+    const loadOrganisationData = async () => {
+        if (!organisationId) return;
+
+        try {
+            // Fetch Organisation Settings
+            const orgRes = await fetch(`/api/organisation/${organisationId}`);
+            if (orgRes.ok) {
+                const orgData = await orgRes.json();
+                console.log("Loaded organisation data in context:", orgData.organisation.organisationId, "allowParallelAssignments:", orgData.organisation.allowParallelAssignments);
+                setAllowParallelAssignments(orgData.organisation.allowParallelAssignments ?? false);
+            } else {
+                console.error("Failed to fetch organisation in context:", orgRes.status);
+            }
+
+            // Fetch All Assignments
+            const assignmentsRes = await fetch(`/api/schedule?organisationId=${organisationId}`);
+            if (assignmentsRes.ok) {
+                const assignmentsData = await assignmentsRes.json();
+                setAllOrganisationAssignments(assignmentsData.data || []);
+            }
+        } catch (error) {
+            console.error("Failed to load organisation data:", error);
+        }
+    };
+
+    useEffect(() => {
+        loadOrganisationData();
+    }, [organisationId]);
 
 
     /* ---------- Grid Mutations ---------- */
@@ -235,6 +270,9 @@ export function ScheduleGridProvider({
                 updateAssignment(day, period, index, "status", "idle");
             }, 2000);
 
+            // Refresh org assignments to ensure consistency
+            loadOrganisationData();
+
         } catch (err) {
             console.error("Save error:", err);
             updateAssignment(day, period, index, "status", "error");
@@ -290,6 +328,9 @@ export function ScheduleGridProvider({
             copy[day][period].splice(index, 1);
             return copy;
         });
+
+        // Refresh org assignments
+        loadOrganisationData();
     };
 
     /* ---------- Provider ---------- */
@@ -310,6 +351,9 @@ export function ScheduleGridProvider({
                 saveSlot: (d, p, i, s) =>
                     debouncedSave(debounceKey(s, d, p, i), d, p, i, s),
                 refreshTeachers: loadTeachers,
+                allOrganisationAssignments,
+                allowParallelAssignments,
+                refreshOrganisationData: loadOrganisationData,
             }}
         >
             {children}

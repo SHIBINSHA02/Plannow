@@ -4,8 +4,15 @@ import { connectDB } from "@/lib/db";
 export async function syncUser(clerkUserId: string) {
     await connectDB();
 
+    console.log("Syncing user with clerkUserId:", clerkUserId);
     const clerk = await clerkClient();
-    const clerkUser = await clerk.users.getUser(clerkUserId);
+    let clerkUser;
+    try {
+        clerkUser = await clerk.users.getUser(clerkUserId);
+    } catch (err: any) {
+        console.error("Clerk getUser error:", JSON.stringify(err, null, 2));
+        throw err;
+    }
 
     const existingUser = await User.findOne({ clerkUserId });
 

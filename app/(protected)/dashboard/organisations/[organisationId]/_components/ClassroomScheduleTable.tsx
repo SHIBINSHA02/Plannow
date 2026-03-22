@@ -16,6 +16,8 @@ const ClassroomScheduleTable: React.FC = () => {
         updateAssignment,
         deleteAssignment,
         saveSlot,
+        allOrganisationAssignments,
+        allowParallelAssignments,
     } = useScheduleGrid();
 
     return (
@@ -102,11 +104,24 @@ const ClassroomScheduleTable: React.FC = () => {
                                                 >
                                                     <option value="">Select Teacher</option>
                                                     {(() => {
-                                                        const availableTeachers = slot.subject
+                                                        let availableTeachers = slot.subject
                                                             ? teachers.filter(t => t.subjects.includes(slot.subject))
                                                             : teachers.filter(t =>
                                                                 t.subjects.some(s => (remainingHours[s] ?? 0) > 0)
                                                             );
+
+                                                        // Filter out busy teachers if parallel assignments are NOT allowed
+                                                        if (!allowParallelAssignments) {
+                                                            availableTeachers = availableTeachers.filter(t => {
+                                                                const isBusyElsewhere = allOrganisationAssignments.some(a =>
+                                                                    a.day === dayIndex + 1 &&
+                                                                    a.period === periodIndex + 1 &&
+                                                                    a.teacherId === t.teacherId &&
+                                                                    a._id !== slot._id
+                                                                );
+                                                                return !isBusyElsewhere;
+                                                            });
+                                                        }
 
                                                         return availableTeachers.map((t) => (
                                                             <option key={t.teacherId} value={t.teacherId}>
@@ -155,7 +170,7 @@ const ClassroomScheduleTable: React.FC = () => {
 
                                                             return (
                                                                 <option key={s} value={s}>
-                                                                    {s} 
+                                                                    {s}
                                                                 </option>
                                                             );
                                                         }).filter(Boolean);

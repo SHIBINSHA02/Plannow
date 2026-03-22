@@ -19,9 +19,16 @@ export async function GET() {
         await connectDB();
 
         /* ---------- Clerk ---------- */
+        console.log("Fetching teacher profile for userId:", userId);
         const { clerkClient } = await import("@clerk/nextjs/server");
         const clerk = await clerkClient();
-        const user = await clerk.users.getUser(userId);
+        let user;
+        try {
+            user = await clerk.users.getUser(userId);
+        } catch (err: any) {
+            console.error("Clerk getUser error in profile route:", JSON.stringify(err, null, 2));
+            throw err;
+        }
 
         const emails = user.emailAddresses.map(e =>
             e.emailAddress.toLowerCase()
