@@ -37,7 +37,7 @@ export default function Sidebar() {
                 <Link href="/">
                     <div className="relative w-28 h-8">
                         <Image
-                            src="/logo.svg"
+                            src="/logo.png"
                             alt="App Logo"
                             fill
                             className="object-contain"
@@ -69,7 +69,7 @@ export default function Sidebar() {
                     <Link href="/">
                         <div className="relative w-32 h-8">
                             <Image
-                                src="/logo.svg"
+                                src="/logo.png"
                                 alt="App Logo"
                                 fill
                                 className="object-contain"
