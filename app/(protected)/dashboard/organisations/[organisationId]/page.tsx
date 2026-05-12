@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ClassroomSection from "./_components/ClassroomSection";
 import TeachersSection from "./_components/Teachers/TeachersSection";
@@ -211,12 +211,53 @@ export default function OrganisationPage() {
         return null;
     }
 
+    const handleToggleParallelAssignment: MouseEventHandler<HTMLButtonElement> = async () => {
+        try {
+            setLoading(true);
+
+            const updatedValue = !organisation.allowParallelAssignments;
+
+            const res = await fetch(`/api/organisation/${organisationId}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    allowParallelAssignments: updatedValue,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to update setting");
+            }
+
+            setOrganisation((prev) => {
+                if (!prev) return null;
+
+                return {
+                    ...prev,
+                    allowParallelAssignments: updatedValue,
+                };
+            });
+
+            console.log(data.message);
+
+        } catch (error: any) {
+            console.error(error);
+            alert(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     /* ---------- FULL CONTENT ---------- */
 
     return (
         <div className="space-y-8">
             {/* ---------- Organisation Header ---------- */}
-            <div className="flex flex-col rounded-4xl overflow-hidden border border-gray-300">
+            <div className={`flex flex-col rounded-4xl overflow-hidden border border-gray-300 ${organisation.allowParallelAssignments ? "shadow-lg shadow-blue-400" : "shadow-lg shadow-gray-600"}`}>
                 {/* Background */}
                 {organisation.backgroundImageUrl ? (
                     <div
@@ -253,7 +294,25 @@ export default function OrganisationPage() {
                             <p className="text-sm text-gray-700">
                                 Organisation ID: {organisationId}
                             </p>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-gray-800 text-base">Enable Parallel Assignment</h1>
+                                <button
+                                    onClick={handleToggleParallelAssignment}
+                                    className={`w-10 h-5 flex items-center rounded-full p-1 transition ${organisation.allowParallelAssignments
+                                            ? "bg-blue-500 shadow-md shadow-blue-200 shadow-inner"
+                                            : "bg-white border border-gray-300  shadow-xl"
+                                        }`}
+                                >
+                                    <div
+                                        className={` w-4 h-4 rounded-full shadow-md transform transition ${organisation.allowParallelAssignments
+                                                ? "translate-x-4 border border-blue-500 bg-white shadow-lg shadow-inner"
+                                                : "translate-x-0 border border-blue-600 bg-blue-600 shadow-lg shadow-inner"
+                                            }`}
+                                    />
+                                </button>
+                            </div>
                         </div>
+
                         <div>
                             <div className="flex items-center gap-2 w-full justify-end">
                                 <button

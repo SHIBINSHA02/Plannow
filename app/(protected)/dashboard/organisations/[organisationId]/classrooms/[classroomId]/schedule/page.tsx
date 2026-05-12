@@ -49,7 +49,6 @@ export default async function Page({
         return null;
     }
 
-    // ✅ Build absolute URL
     const hdrs = await headers();
     const host = hdrs.get("host");
     const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
