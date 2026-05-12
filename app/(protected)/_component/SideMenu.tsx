@@ -35,12 +35,14 @@ export default function Sidebar() {
                 </button>
 
                 <Link href="/">
-                    <div className="relative w-28 h-8">
+                    <div className="relative ">
                         <Image
                             src="/logo.png"
                             alt="App Logo"
-                            fill
+                            width={150}
+                            height={200}
                             className="object-contain"
+                            priority
                         />
                     </div>
                 </Link>
@@ -67,12 +69,13 @@ export default function Sidebar() {
                 {/* Header */}
                 <div className="h-16 px-6 border-b border-gray-300 flex items-center justify-between">
                     <Link href="/">
-                        <div className="relative w-32 h-8">
+                        <div className="relative ">
                             <Image
                                 src="/logo.png"
                                 alt="App Logo"
-                                fill
-                                className="object-contain"
+                                width={120}
+                                height={120}
+                                className="object-contain lg:w-40"
                                 priority
                             />
                         </div>

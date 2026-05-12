@@ -92,12 +92,8 @@ export default function Home() {
                             <div className="absolute -left-8 top-4 bottom-4 w-px bg-linear-to-b from-transparent via-blue-200 to-transparent opacity-50 hidden md:block" />
 
                             <h1 className="text-6xl md:text-7xl lg:text-[5rem] xl:text-[6rem] tracking-tighter text-gray-200 leading-none font-extralight group">
-                                Master
-                                <br />
-                                <span className="text-transparent bg-clip-text bg-linear-to-r from-gray-100 to-gray-400 inline-block transition-transform duration-700 group-hover:translate-x-4">
-                                    the flow
-                                </span>
-                                <br />
+                                Master the flow
+                                <br/>
                                 <span className="italic text-transparent bg-clip-text bg-linear-to-r from-blue-100 via-blue-100 to-blue-50 pr-2">
                                     of time.
                                 </span>
@@ -112,7 +108,7 @@ export default function Home() {
                             {/* User NOT signed in */}
                             <SignedOut>
                                 <SignUpButton mode="modal">
-                                    <button className="group relative flex items-center justify-center px-10 py-5 bg-black text-white rounded-full overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] active:scale-[0.98]">
+                                    <button className="group relative flex items-center justify-center px-10 py-5 bg-black text-white rounded-3xl overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] active:scale-[0.98]">
                                         <div className="absolute inset-0 bg-linear-to-r from-blue-500/0 via-blue-500/20 to-blue-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
                                         <span className="relative flex items-center gap-3 text-sm tracking-[0.2em] uppercase font-light">
                                             Initialize <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-2 transition-transform duration-500" />
@@ -154,9 +150,6 @@ export default function Home() {
                         {/* 3D Wrapper responding to mouse */}
                         <div
                             className="relative w-full h-full flex justify-center items-center transition-transform duration-200 ease-out"
-                            style={{
-                                transform: `rotateY(${mousePosition.x * 10}deg) rotateX(${-mousePosition.y * 10}deg)`
-                            }}
                         >
                             {/* Core Central Interface */}
                             <div className="absolute z-20 w-[380px] p-6 bg-white/60 backdrop-blur-3xl border border-white/50 rounded-[3rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] pointer-events-auto transition-transform duration-700 hover:scale-[1.03]">
@@ -188,7 +181,9 @@ export default function Home() {
                             {/* Orbiting Element 1 - Top Right - Moves FASTER via parallax */}
                             <div
                                 className="absolute top-[10%] right-[5%] z-30 p-4 bg-white/80 backdrop-blur-xl border border-white rounded-3xl shadow-[0_20px_40px_-20px_rgba(0,0,0,0.08)] animate-[bounce_4s_infinite_ease-in-out]"
-                                style={{ transform: `translateX(${mousePosition.x * 30}px) translateY(${mousePosition.y * 30}px) translateZ(50px)` }}
+                                style={{
+                                transform: `translateX(${mousePosition.x * 30}px) translateY(${mousePosition.y * 30}px) translateZ(50px), rotateY(${mousePosition.x * 10}deg) rotateX(${-mousePosition.y * 10}deg)`
+                            }}
                             >
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center">
@@ -204,7 +199,7 @@ export default function Home() {
                             {/* Orbiting Element 2 - Bottom Left - Moves FASTER opposite via parallax */}
                             <div
                                 className="absolute bottom-[15%] left-[-5%] z-30 p-5 bg-[#111] backdrop-blur-xl border border-gray-800 rounded-3xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] animate-[bounce_5s_infinite_ease-in-out_reverse]"
-                                style={{ transform: `translateX(${-mousePosition.x * 20}px) translateY(${-mousePosition.y * 20}px) translateZ(30px)` }}
+                                style={{ transform: `translateX(${-mousePosition.x * 20}px) translateY(${-mousePosition.y * 20}px) translateZ(30px), rotateY(${mousePosition.x * 10}deg) rotateX(${-mousePosition.y * 10}deg)` }}
                             >
                                 <p className="text-[10px] tracking-[0.2em] uppercase text-gray-500 font-light mb-2">Efficiency</p>
                                 <div className="flex items-end gap-2">
@@ -222,7 +217,7 @@ export default function Home() {
                             {/* Orbiting Element 3 - Top Left Floating Avatar List - Moves Deep */}
                             <div
                                 className="absolute top-[20%] left-[5%] z-10 flex -space-x-3 hover:space-x-1 transition-all duration-500 animate-[bounce_6s_infinite_ease-in-out]"
-                                style={{ transform: `translateX(${mousePosition.x * 10}px) translateY(${mousePosition.y * 10}px) translateZ(-50px)` }}
+                                style={{ transform: `translateX(${mousePosition.x * 10}px) translateY(${mousePosition.y * 10}px) translateZ(-50px), rotateY(${mousePosition.x * 10}deg) rotateX(${-mousePosition.y * 10}deg)` }}
                             >
                                 {[1, 2, 3].map((i) => (
                                     <div key={i} className={`w-10 h-10 rounded-full border-2 border-white bg-gray-${i}00 shadow-sm overflow-hidden bg-cover bg-center`}
