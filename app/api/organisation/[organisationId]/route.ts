@@ -7,6 +7,7 @@ import Teacher from "@/models/Teacher";
 import ScheduleSlot from "@/models/ScheduleSlot";
 export const dynamic = "force-dynamic";
 import mongoose from "mongoose";
+import TeacherWorkload from "@/models/TeacherWorkload";
 /* ---------- Helpers ---------- */
 function getUserEmail(user: any): string | null {
     return (
@@ -208,6 +209,10 @@ export async function DELETE(
             { organisationId },
             { session }
         );
+        await TeacherWorkload.deleteMany(
+            { organisationId },
+            { session }
+        )
 
         await session.commitTransaction();
         session.endSession();
