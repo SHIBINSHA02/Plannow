@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import ClassroomSection from "./_components/ClassroomSection";
 import TeachersSection from "./_components/Teachers/TeachersSection";
 
-import { Edit, Sparkles, Loader2 } from "lucide-react";
+import { Edit, Sparkles, Loader2, Delete, Trash2 } from "lucide-react";
 import AlertModal from "@/app/(protected)/_component/alert/AlertModel";
 import { AlertConfig } from "@/types/alert";
 /* ---------- Types ---------- */
@@ -305,7 +305,7 @@ export default function OrganisationPage() {
     return (
         <div className="space-y-8">
             {/* ---------- Organisation Header ---------- */}
-            <div className={`flex flex-col rounded-4xl overflow-hidden border border-gray-300 ${organisation.allowParallelAssignments ? "shadow-lg shadow-blue-400" : "shadow-lg shadow-gray-600"}`}>
+            <div className={`flex flex-col rounded-xl overflow-hidden border border-gray-300 ${organisation.allowParallelAssignments ? "shadow-md shadow-blue-400" : "shadow-md shadow-gray-300"}`}>
                 {/* Background */}
                 {organisation.backgroundImageUrl ? (
                     <div
@@ -319,7 +319,14 @@ export default function OrganisationPage() {
                 )}
 
                 {/* Content */}
-                <div className={`flex flex-col px-6 pb-6 -mt-12 items-start gap-4   ${organisation.allowParallelAssignments ? "bg-gradient-to-bl from-blue-600 via-blue-500 via-20% to-blue-600 " : "bg-white"}`}>
+                <div className={`flex flex-col px-6 pb-6 -mt-12 items-start gap-4   ${organisation.allowParallelAssignments ? "bg-gradient-to-bl from-blue-600 via-blue-500 via-20% to-blue-600 " : "bg-white"}`}
+                    >
+                    <div
+                        className="absolute inset-0 opacity-50 pointer-events-none mix-blend-overlay"
+                        style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 450 450' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                        }}
+                    />
                     {/* Profile */}
                     {organisation.profileImageUrl ? (
                         <img
@@ -336,24 +343,24 @@ export default function OrganisationPage() {
                     {/* Text */}
                     <div className="w-full flex items-center justify-between ">
                         <div>
-                            <h1 className={`text-3xl font-bold   ${organisation.allowParallelAssignments ? "text-white " : "text-blue-600"}`}>
+                            <h1 className={`text-3xl font-semibold  ${organisation.allowParallelAssignments ? "text-white " : "text-blue-600"}`}>
                                 {organisation.organisationName}
                             </h1>
-                            <p className="text-sm text-gray-700">
+                            <p className={`text-sm text-gray-700 my-3 ${organisation.allowParallelAssignments ? "text-white/50":"text-blue-600"}`}>
                                 Organisation ID: {organisationId}
                             </p>
                             <div className="flex items-center gap-3">
-                                <h1 className="text-gray-800 text-base">Enable Parallel Assignment</h1>
+                                <h1 className={`text-gray-800 text-base " ${organisation.allowParallelAssignments ? "text-white" : "text-blue-600"}`}>Enable Parallel Assignment</h1>
                                 <button
                                     onClick={handleToggleParallelAssignment}
                                     className={`w-10 h-5 flex items-center rounded-full p-1 transition ${organisation.allowParallelAssignments
-                                            ? "bg-blue-500 shadow-md shadow-blue-200 shadow-inner"
+                                            ? "bg-white  shadow-blue-200 shadow-inner"
                                             : "bg-white border border-gray-300  shadow-xl"
                                         }`}
                                 >
                                     <div
                                         className={` w-4 h-4 rounded-full shadow-md transform transition ${organisation.allowParallelAssignments
-                                                ? "translate-x-4 border border-blue-500 bg-white shadow-lg shadow-inner"
+                                                ? "translate-x-4 border border-blue-500 bg-blue-600 shadow-lg shadow-inner"
                                                 : "translate-x-0 border border-blue-600 bg-blue-600 shadow-lg shadow-inner"
                                             }`}
                                     />
@@ -411,7 +418,7 @@ export default function OrganisationPage() {
                                                 setAllowParallel(organisation.allowParallelAssignments ?? false);
                                                 setShowEdit(true);
                                             }}
-                                            className="text-gray-400 p-2 rounded-xl hover:bg-gray-100 transition bg-white border border-gray-200"
+                                            className="text-gray-400 p-3 rounded-full hover:bg-gray-100 transition bg-white border border-gray-200"
                                         >
                                             <Edit className="w-4 h-4" />
                                         </button>
@@ -420,16 +427,9 @@ export default function OrganisationPage() {
                                         <button
                                             onClick={handleDeleteOrganisation}
                                             disabled={deleting}
-                                            className="
-                                        px-3 py-2 rounded-xl text-sm font-medium
-                                        bg-red-50 text-red-500 border border-red-500
-                                        hover:bg-red-600 hover:text-white
-                                        active:scale-95
-                                        transition-all
-                                        disabled:opacity-50
-                                    "
+                                            className="px-3 py-3 rounded-full text-sm font-medium bg-red-50 text-red-500 border border-red-500 hover:bg-red-600 hover:text-white active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            {deleting ? "Deleting..." : "Delete"}
+                                            {deleting ? "Deleting..." : <Trash2 className="w-4 h-4" />}
                                         </button>
                                     </div>
                                 </div>

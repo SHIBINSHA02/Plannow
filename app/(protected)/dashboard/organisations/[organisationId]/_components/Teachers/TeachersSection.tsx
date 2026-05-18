@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import TeacherOnboardingModal from "./TeacherOnboardingModal";
 import { useRouter } from "next/navigation";
 import TeacherCard, { TeacherSkeleton } from "./TeacherCard";
+import { Info } from "lucide-react";
 
 /* ---------- Types ---------- */
 
@@ -53,7 +54,12 @@ export default function TeachersSection({ organisationId }: Props) {
             <div className="flex items-center justify-between">
                 <div>
                 <h2 className="text-xl font-semibold">Teachers</h2>
-                <p className="text-xs text-blue-600 mx-5 ">Note:Make sure to enter Teacher profile first before creating Classroom profile</p>
+                    <div className="flex items-start gap-2 px-5 py-3 text-xs text-blue-700 bg-blue-50/50 rounded-xl border border-blue-100">
+                        <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-blue-500" />
+                        <p>
+                            <span className="font-semibold">Note:</span> Make sure to create teacher profiles before setting up classrooms.
+                        </p>
+                    </div>
                 </div>
 
                 <button
