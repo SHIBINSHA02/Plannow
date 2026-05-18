@@ -69,6 +69,14 @@ export default function Home() {
             {/* HERO */}
             <Navbar />
             <section className="relative overflow-hidden flex flex-col items-center justify-center min-h-screen pt-32 pb-20 px-4 transition-colors duration-1000 ease-out bg-blue-700">
+
+                {/* Noise Layer */}
+                <div
+                    className="absolute inset-0 opacity-70 pointer-events-none mix-blend-overlay"
+                    style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 350 350' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                    }}
+                />
                 {/* 
                   ====================================================
                   DENSE ABSTRACT BACKGROUND ECOSYSTEM & SPOTLIGHT
@@ -144,7 +152,7 @@ export default function Home() {
 
                     {/* RIGHT HERO DYNAMIC ECOSYSTEM - 6 Cols */}
                     <div
-                        className="lg:col-span-6 relative hidden lg:flex justify-center items-center h-[600px] animate-in fade-in zoom-in-95 duration-1000 delay-300 pointer-events-none bg-blue-700"
+                        className="lg:col-span-6 relative hidden lg:flex justify-center items-center h-[600px] animate-in fade-in zoom-in-95 duration-1000 delay-300 pointer-events-none "
                         style={{ perspective: '1000px' }}
                     >
                         {/* 3D Wrapper responding to mouse */}

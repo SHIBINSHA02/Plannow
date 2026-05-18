@@ -267,11 +267,11 @@ export default function OrganisationPage() {
                         }}
                     />
                 ) : (
-                    <div className="h-48 bg-gradient-to-r from-blue-100 to-blue-200" />
+                    <div className="h-48 bg-gradient-to-br from-blue-300 via-blue-50 to-blue-300" />
                 )}
 
                 {/* Content */}
-                <div className="flex flex-col px-6 pb-6 -mt-12 items-start gap-4">
+                <div className={`flex flex-col px-6 pb-6 -mt-12 items-start gap-4   ${organisation.allowParallelAssignments ? "bg-gradient-to-bl from-blue-600 via-blue-500 via-20% to-blue-600 " : "bg-white"}`}>
                     {/* Profile */}
                     {organisation.profileImageUrl ? (
                         <img
@@ -286,9 +286,9 @@ export default function OrganisationPage() {
                     )}
 
                     {/* Text */}
-                    <div className="w-full flex items-center justify-between">
+                    <div className="w-full flex items-center justify-between ">
                         <div>
-                            <h1 className="text-3xl font-bold text-blue-600">
+                            <h1 className={`text-3xl font-bold   ${organisation.allowParallelAssignments ? "text-white " : "text-blue-600"}`}>
                                 {organisation.organisationName}
                             </h1>
                             <p className="text-sm text-gray-700">
@@ -314,7 +314,7 @@ export default function OrganisationPage() {
                         </div>
 
                         <div>
-                            <div className="flex items-center gap-2 w-full justify-end">
+                            <div className="flex items-center gap-2 w-full justify-end ">
                                 <button
                                     onClick={handleAutoAssign}
                                     disabled={isAutoAssigning || !canEdit}
@@ -326,7 +326,7 @@ export default function OrganisationPage() {
                                     ) : (
                                         <div className="flex items-center gap-2 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all px-2 py-1 rounded-xl w-full">
                                             <Sparkles className="w-5 h-5" />
-                                            <p>Auto Assign</p>
+                                            
                                         </div>
                                     )}
                                 </button>
@@ -392,8 +392,9 @@ export default function OrganisationPage() {
             </div>
 
             {/* ---------- Sections ---------- */}
-            <ClassroomSection organisationId={organisationId} />
+            
             <TeachersSection organisationId={organisationId} />
+            <ClassroomSection organisationId={organisationId} />
 
             {/* ---------- Link Gen Modal ---------- */}
             {showLinkModal && canEdit && (

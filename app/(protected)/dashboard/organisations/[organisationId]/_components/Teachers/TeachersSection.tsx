@@ -51,7 +51,10 @@ export default function TeachersSection({ organisationId }: Props) {
         <div className="rounded-xl border border-gray-300 bg-white p-6 space-y-5">
             {/* Header */}
             <div className="flex items-center justify-between">
+                <div>
                 <h2 className="text-xl font-semibold">Teachers</h2>
+                <p className="text-xs text-blue-600 mx-5 ">Note:Make sure to enter Teacher profile first before creating Classroom profile</p>
+                </div>
 
                 <button
                     onClick={() => setOpen(true)}
