@@ -6,7 +6,8 @@ import ClassroomSection from "./_components/ClassroomSection";
 import TeachersSection from "./_components/Teachers/TeachersSection";
 
 import { Edit, Sparkles, Loader2 } from "lucide-react";
-
+import AlertModal from "@/app/(protected)/_component/alert/AlertModel";
+import { AlertConfig } from "@/types/alert";
 /* ---------- Types ---------- */
 
 type Organisation = {
@@ -50,6 +51,15 @@ export default function OrganisationPage() {
 
     /* Auto Assign state */
     const [isAutoAssigning, setIsAutoAssigning] = useState(false);
+    /* Alert Modal state */
+    const [alertConfig, setAlertConfig] = useState<AlertConfig>({
+        isOpen: false,
+        title: "",
+        message: "",
+        type: "info",
+    });
+
+    const closeAlert = () => setAlertConfig((prev) => ({ ...prev, isOpen: false }));
 
     /* ---------- Fetch Organisation ---------- */
     useEffect(() => {
@@ -148,20 +158,58 @@ export default function OrganisationPage() {
     };
 
     /* ---------- Auto Assign ---------- */
-    const handleAutoAssign = async () => {
+    const handleAlertConfirm = () => {
+        const currentType = alertConfig.type;
+
+        // Close the modal first
+        setAlertConfig((prev) => ({ ...prev, isOpen: false }));
+
+        // If it was a confirmation prompt, run the assignment
+        if (currentType === "confirm_auto_assign") {
+            executeAutoAssign();
+        }
+    };
+    /* ---------- Step 1: Open the Confirmation Modal ---------- */
+    const handleAutoAssign = () => {
         if (!canEdit) return;
+
+        setAlertConfig({
+            isOpen: true,
+            title: "Confirm Auto-Assign",
+            message: "Do you wish to auto-assign the schedule? This may overwrite existing un-locked entries.",
+            type: "confirm_auto_assign",
+        });
+    };
+   
+    /* ---------- Step 2: Actually run the API call if they click Yes ---------- */
+    const executeAutoAssign = async () => {
         setIsAutoAssigning(true);
         try {
             const res = await fetch(`/api/organisation/${organisationId}/auto-assign`, {
                 method: "POST",
             });
+
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Failed to auto-assign");
-            alert(data.message || "Schedules auto-assigned successfully!");
-            window.location.reload();
+
+            // Success Alert
+            setAlertConfig({
+                isOpen: true,
+                title: "Success",
+                message: data.message || "Schedules auto-assigned successfully!",
+                type: "info",
+            });
+
+            // Optional: reload or refresh data here if needed
         } catch (error: any) {
             console.error(error);
-            alert(error.message);
+            // Error Alert (Catches network issues and backend errors)
+            setAlertConfig({
+                isOpen: true,
+                title: "Error",
+                message: error.message || "An unexpected error occurred.",
+                type: "error",
+            });
         } finally {
             setIsAutoAssigning(false);
         }
@@ -531,6 +579,15 @@ export default function OrganisationPage() {
                     </div>
                 </div>
             )}
+            <AlertModal
+                isOpen={alertConfig.isOpen}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                confirmText={alertConfig.type === "confirm_auto_assign" ? "Yes, Assign" : "OK"}
+                cancelText={alertConfig.type === "confirm_auto_assign" ? "Cancel" : undefined}
+                onConfirm={handleAlertConfirm}
+                onClose={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+            />
         </div>
     );
 }
