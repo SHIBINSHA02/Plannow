@@ -7,7 +7,8 @@ import { AlertConfig } from "@/types/alert";
 import AlertModal from "@/app/(protected)/_component/alert/AlertModel";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-
+import { OrganisationEditWindow } from './windows/organisationEdit';
+import { LinkModel } from './windows/LinkModel';
 /* ---------- Types ---------- */
 type Organisation = {
     organisationId: string;
@@ -71,36 +72,6 @@ export const Submissions: React.FC<SubmissionsProps> = ({
         }
     }, [organisation]);
 
-    /* ---------- Save Images (Added back) ---------- */
-    const handleSaveImages = async () => {
-        if (!canEdit) return;
-        setSaving(true);
-        try {
-            const res = await fetch(`/api/organisation/${organisationId}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    profileImageUrl: profileUrl || null,
-                    backgroundImageUrl: bgUrl || null,
-                    allowParallelAssignments: allowParallel,
-                }),
-            });
-
-            if (!res.ok) {
-                router.replace("/unauthorized");
-                return;
-            }
-
-            const data = await res.json();
-            setOrganisation(data.organisation);
-            setShowEdit(false);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setSaving(false);
-        }
-    };
-
     /* ---------- Delete Organisation ---------- */
     const handleDeleteOrganisation = () => {
         setAlertConfig({
@@ -133,33 +104,6 @@ export const Submissions: React.FC<SubmissionsProps> = ({
         }
     };
 
-    /* ---------- Link Generation ---------- */
-    const handleGenerateLink = async () => {
-        if (!showLinkModal) return;
-        setGeneratingLink(true);
-        try {
-            const res = await fetch(`/api/organisation/${organisationId}/onboarding-tokens`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    type: showLinkModal,
-                    expiresInHours: parseInt(linkTimer),
-                    instructions: linkInstructions,
-                }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Failed to generate link");
-
-            const baseUrl = window.location.origin;
-            const link = `${baseUrl}/onboarding/${data.token.tokenId}`;
-            setGeneratedLink(link);
-        } catch (error: any) {
-            console.error(error);
-            alert(error.message);
-        } finally {
-            setGeneratingLink(false);
-        }
-    };
 
     /* ---------- Auto Assign ---------- */
     const handleAutoAssign = () => {
@@ -310,114 +254,24 @@ export const Submissions: React.FC<SubmissionsProps> = ({
                 )}
 
                 {/* Modals Code remains structurally identical but states now work smoothly... */}
-                {showLinkModal && canEdit && (
-                    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4">
-                            <h2 className="text-xl font-semibold">
-                                Generate {showLinkModal === "TEACHER" ? "Teacher" : "Classroom"} Link
-                            </h2>
-                            <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">Valid for (in hours)</label>
-                                <input
-                                    type="number"
-                                    value={linkTimer}
-                                    onChange={e => setLinkTimer(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none transition"
-                                    placeholder="24"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">Custom Instructions</label>
-                                <textarea
-                                    value={linkInstructions}
-                                    onChange={e => setLinkInstructions(e.target.value)}
-                                    rows={3}
-                                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none transition resize-none"
-                                />
-                            </div>
-                            {generatedLink && (
-                                <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm break-all font-mono text-gray-800">
-                                    {generatedLink}
-                                </div>
-                            )}
-                            <div className="flex justify-end gap-3 pt-2">
-                                <button
-                                    onClick={() => { setShowLinkModal(null); setGeneratedLink(""); setLinkInstructions(""); }}
-                                    className="px-5 py-2.5 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition"
-                                >
-                                    Close
-                                </button>
-                                {!generatedLink ? (
-                                    <button
-                                        disabled={generatingLink}
-                                        onClick={handleGenerateLink}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded font-medium disabled:opacity-50 hover:bg-blue-700 transition"
-                                    >
-                                        {generatingLink ? "Generating..." : "Generate"}
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={() => {
-                                            navigator.clipboard.writeText(generatedLink);
-                                            alert("Link copied!");
-                                        }}
-                                        className="px-4 py-2 bg-green-600 text-white rounded font-medium hover:bg-green-700 transition"
-                                    >
-                                        Copy Link
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
+                    {showLinkModal && canEdit && (
+                        <LinkModel
+                            organisationId={organisationId}
+                            type={showLinkModal} // Sends either "TEACHER" or "CLASSROOM"
+                            onClose={() => setShowLinkModal(null)}
+                        />
+                    )}
 
-                {showEdit && canEdit && (
-                    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4">
-                            <h2 className="text-xl font-semibold">Organisation Settings</h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700">Profile Image URL</label>
-                                    <input
-                                        value={profileUrl}
-                                        onChange={e => setProfileUrl(e.target.value)}
-                                        className="w-full border rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700">Background Image URL</label>
-                                    <input
-                                        value={bgUrl}
-                                        onChange={e => setBgUrl(e.target.value)}
-                                        className="w-full border rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
-                                    />
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-100">
-                                    <div>
-                                        <p className="text-sm font-semibold text-blue-900">Allow Parallel Assignments</p>
-                                    </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            className="sr-only peer"
-                                            checked={allowParallel}
-                                            onChange={(e) => setAllowParallel(e.target.checked)}
-                                        />
-                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                    </label>
-                                </div>
-                            </div>
-                            <div className="flex justify-end gap-3 pt-2">
-                                <button onClick={() => setShowEdit(false)} className="px-5 py-2.5 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition">
-                                    Cancel
-                                </button>
-                                <button disabled={saving} onClick={handleSaveImages} className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-medium disabled:opacity-50 hover:bg-blue-700 transition">
-                                    {saving ? "Saving..." : "Save Settings"}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                    {showEdit && canEdit && (
+                        <OrganisationEditWindow
+                            organisationId={organisationId}
+                            initialProfileUrl={organisation?.profileImageUrl}
+                            initialBgUrl={organisation?.backgroundImageUrl}
+                            initialAllowParallel={organisation?.allowParallelAssignments}
+                            onClose={() => setShowEdit(false)}
+                            onSuccess={(updatedOrg) => setOrganisation(updatedOrg)}
+                        />
+                    )}
                 </div>
             </div>
             
