@@ -102,13 +102,17 @@ export const Submissions: React.FC<SubmissionsProps> = ({
     };
 
     /* ---------- Delete Organisation ---------- */
-    const handleDeleteOrganisation = async () => {
-        const confirmed = confirm(
-            "Are you sure you want to delete this organisation?\nThis will delete all classrooms, teachers, and schedules."
-        );
+    const handleDeleteOrganisation = () => {
+        setAlertConfig({
+            isOpen: true,
+            title: "Delete Organisation",
+            message:
+                "Are you sure you want to delete this organisation? This will permanently delete all classrooms, teachers, and schedules.",
+            type: "confirm_delete",
+        });
+    };
 
-        if (!confirmed) return;
-
+    const executeDeleteOrganisation = async () => {
         setDeleting(true);
 
         try {
@@ -200,31 +204,41 @@ export const Submissions: React.FC<SubmissionsProps> = ({
 
     const handleAlertConfirm = () => {
         const currentType = alertConfig.type;
-        setAlertConfig((prev) => ({ ...prev, isOpen: false }));
+
+        setAlertConfig((prev) => ({
+            ...prev,
+            isOpen: false,
+        }));
 
         if (currentType === "confirm_auto_assign") {
             executeAutoAssign();
+        }
+
+        if (currentType === "confirm_delete") {
+            executeDeleteOrganisation();
         }
     };
 
     return (
         <div className='space-y-8'>
-            <div className='flex  rounded-xl overflow-hidden border border-gray-300 p-4 bg-white'>
-                <div className="flex items-center gap-2 w-full justify-end ">
+            <div className='flex  flex-col rounded-xl overflow-hidden border border-gray-300 p-4 bg-white'>
+                <h2 className='text-blue-700 font-semibold mx-3 my-5  '>Tools Section</h2>
+                <div className='flex'>
+                <div className="flex items-center gap-2 w-full justify- ">
                     <button
-                        onClick={handleAutoAssign}
-                        disabled={isAutoAssigning || !canEdit}
-                        title="Auto-assign schedules"
-                        className="text-blue-600 p-2 rounded-xl hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isAutoAssigning ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                            <div className="flex items-center gap-2 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all px-3 py-1.5 rounded-xl w-full">
-                                <Sparkles className="w-5 h-5" />
-                                <span className="text-sm font-medium">Auto Assign</span>
-                            </div>
-                        )}
+                            onClick={handleAutoAssign}
+                            disabled={isAutoAssigning || !canEdit}
+                            title="Auto-assign schedules"
+                            className="text-blue-600 p-2 rounded-xl hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed "
+                        >
+                            {isAutoAssigning ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <div className="flex items-center gap-2 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all px-3 py-1.5 rounded-xl w-full">
+                                    <Sparkles className="w-5 h-5" />
+                                    <span className="text-sm font-medium">Auto Assign</span>
+                                </div>
+                            )}
                     </button>
                 </div>
                 {canEdit && (
@@ -232,12 +246,12 @@ export const Submissions: React.FC<SubmissionsProps> = ({
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={() => setShowLinkModal("TEACHER")}
-                                className="px-3 py-3 rounded-full text-sm font-medium hover:bg-white bg-gray-100 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all"
+                                    className="px-3 py-3 rounded-full text-sm font-medium hover:bg-white bg-gray-50 text-blue-600 border border-blue-600 hover:bg-blue-100 transition-all hover:invert"
                             >
                                 <Image
                                     src="/icons/teacher.png"
                                     alt="Teacher icon"
-                                    width={25}
+                                    width={40}
                                     height={25}
                                     className="inline-block "
                                 />
@@ -245,24 +259,25 @@ export const Submissions: React.FC<SubmissionsProps> = ({
 
                             <button
                                 onClick={() => setShowLinkModal("CLASSROOM")}
-                                className="px-2 py-2 rounded-full text-sm font-medium hover:bg-white bg-gray-100 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all"
+                                    className="px-3 py-3 rounded-full text-sm font-medium hover:bg-white bg-gray-50 text-blue-600 border border-blue-600 hover:bg-blue-100 transition-all hover:invert"
                             >
                                 <Image
                                     src="/icons/classroom.png"
                                     alt="Classroom icon"
-                                    width={25}
+                                    width={40}
                                     height={25}
-                                    className="inline-block"
+                                    
+                                    className="inline-block cover"
                                 />
                             </button>
                             <button
                                 onClick={() => router.push(`/dashboard/organisations/${organisationId}/verify`)}
-                                className="px-2 py-2 rounded-full text-sm font-medium hover:bg-white bg-gray-100 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-all"
+                                    className="px-3 py-3 rounded-full text-sm font-medium hover:bg-white bg-gray-50 text-blue-600 border border-blue-600 hover:bg-blue-100 transition-all hover:invert"
                             >
                                 <Image
                                     src="/icons/resume.png"
                                     alt="Classroom icon"
-                                    width={25}
+                                    width={40}
                                     height={25}
                                     className="inline-block"
                                 />
@@ -403,15 +418,33 @@ export const Submissions: React.FC<SubmissionsProps> = ({
                         </div>
                     </div>
                 )}
+                </div>
             </div>
+            
             <AlertModal
                 isOpen={alertConfig.isOpen}
                 title={alertConfig.title}
                 message={alertConfig.message}
-                confirmText={alertConfig.type === "confirm_auto_assign" ? "Yes, Assign" : "OK"}
-                cancelText={alertConfig.type === "confirm_auto_assign" ? "Cancel" : undefined}
+                confirmText={
+                    alertConfig.type === "confirm_auto_assign"
+                        ? "Yes, Assign"
+                        : alertConfig.type === "confirm_delete"
+                            ? "Delete"
+                            : "OK"
+                }
+                cancelText={
+                    alertConfig.type === "confirm_auto_assign" ||
+                        alertConfig.type === "confirm_delete"
+                        ? "Cancel"
+                        : undefined
+                }
                 onConfirm={handleAlertConfirm}
-                onClose={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+                onClose={() =>
+                    setAlertConfig((prev) => ({
+                        ...prev,
+                        isOpen: false,
+                    }))
+                }
             />
         </div>
     );

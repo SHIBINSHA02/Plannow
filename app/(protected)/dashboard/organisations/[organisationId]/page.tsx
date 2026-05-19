@@ -181,17 +181,17 @@ export default function OrganisationPage() {
     return (
         <div className="space-y-8">
             {/* ---------- Organisation Header ---------- */}
-            <div className={`flex flex-col rounded-xl overflow-hidden border border-gray-300 ${organisation.allowParallelAssignments ? "shadow-md shadow-blue-400" : "shadow-md shadow-gray-300"}`}>
+            <div className={`flex flex-col rounded-xl relative overflow-hidden border border-gray-300 ${organisation.allowParallelAssignments ? "shadow-md shadow-blue-400" : "shadow-md shadow-gray-300"}`}>
                 {/* Background */}
                 {organisation.backgroundImageUrl ? (
                     <div
-                        className="h-48 bg-cover bg-center"
+                        className="h-48 bg-cover bg-center "
                         style={{
                             backgroundImage: `url(${organisation.backgroundImageUrl})`,
                         }}
                     />
                 ) : (
-                    <div className="h-48 bg-gradient-to-br from-blue-300 via-blue-50 to-blue-300" />
+                    <div className="h-48 bg-gradient-to-br from-blue-300 via-blue-50 to-blue-300  " />
                 )}
 
                 {/* Content */}
@@ -203,7 +203,9 @@ export default function OrganisationPage() {
                             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 450 450' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
                         }}
                     />
+                    
                     {/* Profile */}
+                    <div className="relative -top-10">
                     {organisation.profileImageUrl ? (
                         <img
                             src={organisation.profileImageUrl}
@@ -215,6 +217,7 @@ export default function OrganisationPage() {
                             {organisation.organisationName.charAt(0)}
                         </div>
                     )}
+                    </div>
 
                     {/* Text */}
                     <div className="w-full flex items-center justify-between ">
