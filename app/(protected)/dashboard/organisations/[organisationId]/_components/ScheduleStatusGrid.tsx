@@ -62,13 +62,19 @@ const ScheduleStatusGrid: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="grid grid-cols-1 lg:grid-cols-4 gap-4"
             >
-                <div className="lg:col-span-3 p-6 bg-linear-to-br from-blue-700 via-blue-600 to-blue-700 rounded-3xl shadow-2xl shadow-blue-900/20 text-white overflow-hidden relative">
+                <div className="lg:col-span-3 p-6 bg-linear-to-br from-blue-700 via-blue-800 via-[80%] to-blue-600 rounded-3xl shadow-2xl shadow-blue-900/20 text-white overflow-hidden relative">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-400/20 rounded-full -ml-10 -mb-10 blur-2xl"></div>
+                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-700 rounded-full -ml-10 -mb-10 blur-2xl"></div>
+                    <div
+                        className="absolute inset-0 opacity-60 pointer-events-none mix-blend-overlay"
+                        style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 350 350' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                        }}
+                    />
 
                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="space-y-2">
-                            <h2 className="text-2xl font-bold flex items-center gap-2">
+                            <h2 className="text-2xl font-semibold flex items-center gap-2">
                                 <CalendarCheck2 className="w-7 h-7" />
                                 Schedule Progress
                             </h2>
@@ -107,6 +113,12 @@ const ScheduleStatusGrid: React.FC = () => {
                 </div>
 
                 <div className="p-6  rounded-3xl  shadow-blue-900/5 flex flex-col justify-center items-center text-center space-y-2 bg-blue-700">
+                    <div
+                        className="absolute inset-0 opacity-60 pointer-events-none mix-blend-overlay"
+                        style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 450 450' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                        }}
+                    />
                     <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-2">
                         <TrendingUp className="w-6 h-6" />
                     </div>

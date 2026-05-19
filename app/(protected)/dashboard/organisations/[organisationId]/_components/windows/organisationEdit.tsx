@@ -104,6 +104,11 @@ export const OrganisationEditWindow: React.FC<OrganisationEditWindowProps> = ({
                         </label>
                     </div>
                 </div>
+                <button className="px-auto w-full py-3 bg-red-100 border border-red-600 rounded-xl text-red-600"
+                    onClick={onClose}
+                >
+                    Delete Organisation
+                </button>
                 <div className="flex justify-end gap-3 pt-2">
                     <button
                         onClick={onClose}

@@ -135,6 +135,12 @@ export default function VerifySubmissionsPage() {
             <div className="max-w-6xl mx-auto w-full px-4">
                 {submissions.length === 0 ? (
                     <div className="p-16 text-center bg-gradient-to-br from-blue-600 to-blue-700 border border-blue-600 rounded-3xl shadow-sm">
+                        <div
+                            className="absolute inset-0 opacity-50 pointer-events-none mix-blend-overlay"
+                            style={{
+                                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 450 450' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                            }}
+                        />
                         <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
                             <svg className="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
