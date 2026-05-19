@@ -71,7 +71,6 @@ export default function AdminMasterSchedule({ organisationId, teachersMap }: Pro
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
             <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900">Organisation Master Schedule</h3>
                 <p className="text-sm text-gray-500 mt-1">Full view of all classes across the organisation</p>
             </div>
 

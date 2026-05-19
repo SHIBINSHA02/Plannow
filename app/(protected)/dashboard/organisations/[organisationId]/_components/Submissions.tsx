@@ -1,15 +1,14 @@
 "use client";
 
-import React from 'react';
-import { MouseEventHandler, useEffect, useState } from "react";
-import { Edit, Sparkles, Loader2, Delete, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Edit, Sparkles, Loader2 } from "lucide-react";
 import { AlertConfig } from "@/types/alert";
 import AlertModal from "@/app/(protected)/_component/alert/AlertModel";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
-import { OrganisationEditWindow } from './windows/organisationEdit';
-import { LinkModel } from './windows/LinkModel';
-/* ---------- Types ---------- */
+import { useRouter } from "next/navigation";
+import { LinkModel } from "./windows/LinkModel";
+import { OrganisationEditWindow } from "./windows/organisationEdit";
+
 type Organisation = {
     organisationId: string;
     organisationName: string;
@@ -19,7 +18,6 @@ type Organisation = {
     allowParallelAssignments?: boolean;
 };
 
-// Define an interface for the component props
 interface SubmissionsProps {
     canEdit: boolean;
     organisationId: string;
@@ -36,24 +34,13 @@ export const Submissions: React.FC<SubmissionsProps> = ({
     const router = useRouter();
 
     const [showLinkModal, setShowLinkModal] = useState<"TEACHER" | "CLASSROOM" | null>(null);
-    const [deleting, setDeleting] = useState(false);
     const [isAutoAssigning, setIsAutoAssigning] = useState(false);
-    const [loading, setLoading] = useState(true);
 
-    /* Missing Link Gen states added back */
-    const [linkTimer, setLinkTimer] = useState("24");
-    const [linkInstructions, setLinkInstructions] = useState("");
-    const [generatedLink, setGeneratedLink] = useState("");
-    const [generatingLink, setGeneratingLink] = useState(false);
-
-    /* Edit state */
     const [showEdit, setShowEdit] = useState(false);
     const [profileUrl, setProfileUrl] = useState(organisation?.profileImageUrl ?? "");
     const [bgUrl, setBgUrl] = useState(organisation?.backgroundImageUrl ?? "");
     const [allowParallel, setAllowParallel] = useState(organisation?.allowParallelAssignments ?? false);
-    const [saving, setSaving] = useState(false);
 
-    /* Alert Modal state */
     const [alertConfig, setAlertConfig] = useState<AlertConfig>({
         isOpen: false,
         title: "",
@@ -61,9 +48,6 @@ export const Submissions: React.FC<SubmissionsProps> = ({
         type: "info",
     });
 
-    const closeAlert = () => setAlertConfig((prev) => ({ ...prev, isOpen: false }));
-
-    /* Sync state when organization updates */
     useEffect(() => {
         if (organisation) {
             setProfileUrl(organisation.profileImageUrl ?? "");
@@ -72,40 +56,6 @@ export const Submissions: React.FC<SubmissionsProps> = ({
         }
     }, [organisation]);
 
-    /* ---------- Delete Organisation ---------- */
-    const handleDeleteOrganisation = () => {
-        setAlertConfig({
-            isOpen: true,
-            title: "Delete Organisation",
-            message:
-                "Are you sure you want to delete this organisation? This will permanently delete all classrooms, teachers, and schedules.",
-            type: "confirm_delete",
-        });
-    };
-
-    const executeDeleteOrganisation = async () => {
-        setDeleting(true);
-
-        try {
-            const res = await fetch(`/api/organisation/${organisationId}`, {
-                method: "DELETE",
-            });
-
-            if (!res.ok) {
-                router.replace("/unauthorized");
-                return;
-            }
-
-            router.push("/dashboard/organisations");
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setDeleting(false);
-        }
-    };
-
-
-    /* ---------- Auto Assign ---------- */
     const handleAutoAssign = () => {
         if (!canEdit) return;
 
@@ -147,29 +97,39 @@ export const Submissions: React.FC<SubmissionsProps> = ({
     };
 
     const handleAlertConfirm = () => {
-        const currentType = alertConfig.type;
-
         setAlertConfig((prev) => ({
             ...prev,
             isOpen: false,
         }));
 
-        if (currentType === "confirm_auto_assign") {
+        if (alertConfig.type === "confirm_auto_assign") {
             executeAutoAssign();
-        }
-
-        if (currentType === "confirm_delete") {
-            executeDeleteOrganisation();
         }
     };
 
     return (
-        <div className='space-y-8'>
-            <div className='flex  flex-col rounded-xl overflow-hidden border border-gray-300 p-4 bg-white'>
-                <h2 className='text-blue-700 font-semibold mx-3 my-5  '>Tools Section</h2>
-                <div className='flex'>
-                <div className="flex items-center gap-2 w-full justify- ">
+        <div className="space-y-8">
+            <div className="flex flex-col rounded-xl overflow-hidden border border-blue-300 p-4 bg-white">
+                <div className="flex justify-between m-3 my-4">
+                    <h2 className="text-blue-700 font-semibold mx-3 my-1 text-2xl ">Automate, Teachers and Classrooms</h2>
                     <button
+                        onClick={() => {
+                            if (organisation) {
+                                setProfileUrl(organisation.profileImageUrl ?? "");
+                                setBgUrl(organisation.backgroundImageUrl ?? "");
+                                setAllowParallel(organisation.allowParallelAssignments ?? false);
+                            }
+                            setShowEdit(true);
+                        }}
+                        className="text-gray-400 p-3 rounded-full hover:bg-gray-100 transition bg-white border border-gray-200"
+                    >
+                        <Edit className="w-4 h-4" />
+                    </button>
+                </div>
+
+                <div className="flex">
+                    <div className="flex items-center gap-2 w-full">
+                        <button
                             onClick={handleAutoAssign}
                             disabled={isAutoAssigning || !canEdit}
                             title="Auto-assign schedules"
@@ -183,81 +143,58 @@ export const Submissions: React.FC<SubmissionsProps> = ({
                                     <span className="text-sm font-medium">Auto Assign</span>
                                 </div>
                             )}
-                    </button>
-                </div>
-                {canEdit && (
-                    <div className="flex gap-3">
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={() => setShowLinkModal("TEACHER")}
-                                    className="px-3 py-3 rounded-full text-sm font-medium hover:bg-white bg-gray-50 text-blue-600 border border-blue-600 hover:bg-blue-100 transition-all hover:invert"
-                            >
-                                <Image
-                                    src="/icons/teacher.png"
-                                    alt="Teacher icon"
-                                    width={40}
-                                    height={25}
-                                    className="inline-block "
-                                />
-                            </button>
-
-                            <button
-                                onClick={() => setShowLinkModal("CLASSROOM")}
-                                    className="px-3 py-3 rounded-full text-sm font-medium hover:bg-white bg-gray-50 text-blue-600 border border-blue-600 hover:bg-blue-100 transition-all hover:invert"
-                            >
-                                <Image
-                                    src="/icons/classroom.png"
-                                    alt="Classroom icon"
-                                    width={40}
-                                    height={25}
-                                    
-                                    className="inline-block cover"
-                                />
-                            </button>
-                            <button
-                                onClick={() => router.push(`/dashboard/organisations/${organisationId}/verify`)}
-                                    className="px-3 py-3 rounded-full text-sm font-medium hover:bg-white bg-gray-50 text-blue-600 border border-blue-600 hover:bg-blue-100 transition-all hover:invert"
-                            >
-                                <Image
-                                    src="/icons/resume.png"
-                                    alt="Classroom icon"
-                                    width={40}
-                                    height={25}
-                                    className="inline-block"
-                                />
-                            </button>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => {
-                                    if (organisation) {
-                                        setProfileUrl(organisation.profileImageUrl ?? "");
-                                        setBgUrl(organisation.backgroundImageUrl ?? "");
-                                        setAllowParallel(organisation.allowParallelAssignments ?? false);
-                                    }
-                                    setShowEdit(true);
-                                }}
-                                className="text-gray-400 p-3 rounded-full hover:bg-gray-100 transition bg-white border border-gray-200"
-                            >
-                                <Edit className="w-4 h-4" />
-                            </button>
-
-                            <button
-                                onClick={handleDeleteOrganisation}
-                                disabled={deleting}
-                                className="px-3 py-3 rounded-full text-sm font-medium bg-red-50 text-red-500 border border-red-500 hover:bg-red-600 hover:text-white active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {deleting ? "Deleting..." : <Trash2 className="w-4 h-4" />}
-                            </button>
-                        </div>
+                        </button>
                     </div>
-                )}
 
-                {/* Modals Code remains structurally identical but states now work smoothly... */}
+                    {canEdit && (
+                        <div className="flex gap-3">
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => setShowLinkModal("TEACHER")}
+                                    className="px-3 py-3 rounded-full text-sm font-medium bg-gray-50 text-blue-600 border border-blue-600 hover:bg-blue-100 transition-all hover:invert"
+                                >
+                                    <Image
+                                        src="/icons/teacher.png"
+                                        alt="Teacher icon"
+                                        width={30}
+                                        height={25}
+                                        className="inline-block "
+                                    />
+                                </button>
+
+                                <button
+                                    onClick={() => setShowLinkModal("CLASSROOM")}
+                                    className="px-3 py-3 rounded-full text-sm font-medium bg-gray-50 text-blue-600 border border-blue-600 hover:bg-blue-100 transition-all hover:invert"
+                                >
+                                    <Image
+                                        src="/icons/classroom.png"
+                                        alt="Classroom icon"
+                                        width={30}
+                                        height={25}
+                                        className="inline-block cover"
+                                    />
+                                </button>
+
+                                <button
+                                    onClick={() => router.push(`/dashboard/organisations/${organisationId}/verify`)}
+                                    className="px-3 py-3 rounded-full text-sm font-medium bg-gray-50 text-blue-600 border border-blue-600 hover:bg-blue-100 transition-all hover:invert"
+                                >
+                                    <Image
+                                        src="/icons/resume.png"
+                                        alt="Classroom icon"
+                                        width={30}
+                                        height={25}
+                                        className="inline-block"
+                                    />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     {showLinkModal && canEdit && (
                         <LinkModel
                             organisationId={organisationId}
-                            type={showLinkModal} // Sends either "TEACHER" or "CLASSROOM"
+                            type={showLinkModal}
                             onClose={() => setShowLinkModal(null)}
                         />
                     )}
@@ -269,29 +206,18 @@ export const Submissions: React.FC<SubmissionsProps> = ({
                             initialBgUrl={organisation?.backgroundImageUrl}
                             initialAllowParallel={organisation?.allowParallelAssignments}
                             onClose={() => setShowEdit(false)}
-                            onSuccess={(updatedOrg) => setOrganisation(updatedOrg)}
+                            onSuccess={(updatedOrg: Organisation) => setOrganisation(updatedOrg)}
                         />
                     )}
                 </div>
             </div>
-            
+
             <AlertModal
                 isOpen={alertConfig.isOpen}
                 title={alertConfig.title}
                 message={alertConfig.message}
-                confirmText={
-                    alertConfig.type === "confirm_auto_assign"
-                        ? "Yes, Assign"
-                        : alertConfig.type === "confirm_delete"
-                            ? "Delete"
-                            : "OK"
-                }
-                cancelText={
-                    alertConfig.type === "confirm_auto_assign" ||
-                        alertConfig.type === "confirm_delete"
-                        ? "Cancel"
-                        : undefined
-                }
+                confirmText={alertConfig.type === "confirm_auto_assign" ? "Yes, Assign" : "OK"}
+                cancelText={alertConfig.type === "confirm_auto_assign" ? "Cancel" : undefined}
                 onConfirm={handleAlertConfirm}
                 onClose={() =>
                     setAlertConfig((prev) => ({

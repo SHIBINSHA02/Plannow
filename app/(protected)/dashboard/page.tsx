@@ -175,8 +175,6 @@ export default function DashboardPage() {
                             />
                         </div>
                     </div>
-
-                    {/* Master Schedule Bottom Row */}
                     
                 </section>
             )}

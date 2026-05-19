@@ -169,7 +169,7 @@ export default function AdminSubstitutionOverview({
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-xl font-bold text-black">
+                    <h3 className="text-xl font-semibold text-black">
                         Substitution Overview
                     </h3>
                     <p className="text-sm text-gray-600">

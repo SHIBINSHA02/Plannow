@@ -272,6 +272,12 @@ export default function Home() {
 
                     {/* BENTO ITEM 1 - Large Span */}
                     <div className="md:col-span-2 lg:col-span-2 shadow-lg shadow-blue-700/20 row-span-2 group relative p-8 rounded-4xl bg-blue-600 border border-gray-100/50 backdrop-blur-xl overflow-hidden transition-all duration-700 hover:shadow-[0_20px_40px_-20px_rgba(59,130,246,0.15)] hover:border-blue-100 hover:-translate-y-1" >
+                        <div
+                            className="absolute inset-0 opacity-60 pointer-events-none mix-blend-overlay"
+                            style={{
+                                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 350 350' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                            }}
+                        />
                         <div className="relative z-10 flex flex-col h-full justify-between ">
                             <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform duration-500">
                                 {features[0].icon.props.children ? features[0].icon :
@@ -301,7 +307,7 @@ export default function Home() {
                             </div>
 
                             <div className="space-y-4">
-                                <h3 className="text-2xl font-semibold text-gray-800 tracking-tight leading-tight">
+                                <h3 className="text-2xl font-semibold text-gray-700 tracking-tight leading-tight">
                                     {features[1].title}
                                 </h3>
                                 <p className="text-sm text-gray-500 font-extralight leading-relaxed">
@@ -321,7 +327,7 @@ export default function Home() {
                                     {features[2].icon.props.children ? features[2].icon :
                                         Object.assign({}, features[2].icon, { props: { ...features[2].icon.props, className: features[2].icon.props.className.replace('text-blue-600 group-hover:text-white', 'w-5 h-5') } })}
                                 </div>
-                                <h3 className="text-xl font-semibold text-gray-800 tracking-tight">
+                                <h3 className="text-xl font-semibold text-gray-700 tracking-tight">
                                     {features[2].title}
                                 </h3>
                             </div>
@@ -339,7 +345,7 @@ export default function Home() {
                                     {features[3].icon.props.children ? features[3].icon :
                                         Object.assign({}, features[3].icon, { props: { ...features[3].icon.props, className: features[3].icon.props.className.replace('text-blue-600 group-hover:text-white', 'w-5 h-5') } })}
                                 </div>
-                                <h3 className="text-xl font-semibold text-gray-800 tracking-tight">
+                                <h3 className="text-xl font-semibold text-gray-700 tracking-tight">
                                     {features[3].title}
                                 </h3>
                             </div>

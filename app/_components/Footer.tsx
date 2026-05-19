@@ -5,7 +5,7 @@ import { Calendar, Heart } from "lucide-react";
 
 const Footer: React.FC = () => {
     return (
-        <footer className="pt-32 pb-16 mt-32 relative overflow-hidden bg-white border-t border-gray-100">
+        <footer className="pt-32 pb-16  relative overflow-hidden bg-white border-t border-gray-100">
             {/* Ethereal Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-linear-to-r from-transparent via-blue-200 to-transparent opacity-50" />
             <div className="absolute top-[-50%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-50/50 rounded-full blur-[100px] pointer-events-none -z-10" />

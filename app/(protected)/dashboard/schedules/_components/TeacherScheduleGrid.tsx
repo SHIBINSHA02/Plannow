@@ -55,6 +55,12 @@ export default function TeacherScheduleGrid({
                 <thead>
                     <tr className="bg-white">
                         <th className="border border-gray-300 px-4 py-2 text-left font-medium bg-blue-800 text-white">
+                            <div
+                                className="absolute inset-0 opacity-60 pointer-events-none mix-blend-overlay"
+                                style={{
+                                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 350 350' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                                }}
+                            />
                             Day / Period
                         </th>
                         {periods.map(p => (
@@ -90,12 +96,12 @@ export default function TeacherScheduleGrid({
                                                 {slots.map((s, index) => (
                                                     <div
                                                         key={`${s.className}-${s.subject}-${index}`}
-                                                        className="bg-indigo-100 p-2 rounded text-xs text-left"
+                                                        className="bg-blue-100 p-2 rounded text-xs text-left"
                                                     >
-                                                        <div className="font-semibold text-indigo-800">
+                                                        <div className="font-semibold text-blue-800">
                                                             {s.subject}
                                                         </div>
-                                                        <div className="text-indigo-600">
+                                                        <div className="text-blue-800">
                                                             {s.className}
                                                         </div>
                                                     </div>

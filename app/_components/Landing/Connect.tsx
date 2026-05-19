@@ -32,9 +32,15 @@ export default function Connect() {
 
   return (
     <section className="relative py-32  bg-blue-100  lg:rounded-t-[5rem] rounded-2xl border-t-2 border-blue-200">
+      <div
+        className="absolute inset-0 opacity-80 pointer-events-none mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 350 350' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+        }}
+      />
       {/* Abstract Animated Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 right-[20%] w-[400px] h-[400px] bg-blue-500/20 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-pulse-slow"></div>
+        <div className="absolute top-0 right-[20%] w-[400px] h-[400px] bg-blue-500/10 rounded-full mix-blend-multiply filter blur-[80px] opacity-50 animate-pulse-slow"></div>
         <div className="absolute bottom-[10%] left-[10%] w-[500px] h-[500px]  rounded-full mix-blend-multiply filter blur-[100px] opacity-50 animate-pulse-slow animation-delay-2000"></div>
         <div className="absolute inset-0  backdrop-blur-[50px]"></div>
       </div>
@@ -67,7 +73,7 @@ export default function Connect() {
                   <label className="text-xs font-light tracking-[0.15em] text-gray-500 uppercase ml-1">
                     Your Identity
                   </label>
-                  <div className="relative group/input">
+                  <div className="relative group/input shadow-sm rounded-xl">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700 group-focus-within/input:text-blue-400 transition-colors duration-500" />
                     <input
                       type="text"
@@ -76,7 +82,7 @@ export default function Connect() {
                       value={formData.name}
                       onChange={handleChange}
                       placeholder="Jane Doe"
-                      className="w-full pl-12 pr-4 py-4 bg-[#fcfcfc] border-b border-gray-200 outline-none text-gray-800 font-light placeholder-gray-400 focus:border-blue-400 focus:bg-white transition-all duration-500 rounded-t-xl"
+                      className="w-full pl-12 pr-4 py-4 bg-[#fcfcfc] border-b border-gray-200 outline-none text-gray-800 font-light placeholder-gray-400 focus:border-blue-400 focus:bg-white transition-all duration-500  shadow-sm rounded-xl"
                     />
                   </div>
                 </div>
@@ -86,7 +92,7 @@ export default function Connect() {
                   <label className="text-xs font-light tracking-[0.15em] text-gray-500 uppercase ml-1">
                     Electronic Mail
                   </label>
-                  <div className="relative group/input">
+                  <div className="relative group/input shadow-sm rounded-xl">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within/input:text-blue-400 transition-colors duration-500" />
                     <input
                       type="email"
@@ -95,7 +101,7 @@ export default function Connect() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="jane@institution.edu"
-                      className="w-full pl-12 pr-4 py-4 bg-[#fcfcfc] border-b border-gray-200 outline-none text-gray-800 font-light placeholder-gray-400 focus:border-blue-400 focus:bg-white transition-all duration-500 rounded-t-xl"
+                      className="w-full pl-12 pr-4 py-4 bg-[#fcfcfc] border-b border-gray-200 outline-none text-gray-800 font-light placeholder-gray-400 focus:border-blue-400 focus:bg-white transition-all duration-500 shadow-sm rounded-xl"
                     />
                   </div>
                 </div>
@@ -114,7 +120,7 @@ export default function Connect() {
                     value={formData.message}
                     onChange={handleChange}
                     placeholder="Describe your current scheduling challenges..."
-                    className="w-full p-6 bg-[#fcfcfc] border border-gray-100 outline-none text-gray-800 font-light placeholder-gray-400 focus:border-blue-200 focus:bg-white focus:shadow-[0_10px_30px_-15px_rgba(59,130,246,0.1)] transition-all duration-500 rounded-3xl resize-none"
+                    className="w-full p-6 bg-[#fcfcfc] border border-gray-100 outline-none text-gray-800 font-light placeholder-gray-400 focus:border-blue-200 focus:bg-white focus:shadow-[0_10px_30px_-15px_rgba(59,130,246,0.1)] transition-all duration-500 shadow-sm rounded-xl resize-none"
                   ></textarea>
                 </div>
               </div>
@@ -122,7 +128,7 @@ export default function Connect() {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="group relative w-full sm:w-auto inline-flex items-center justify-center px-10 py-5 bg-gray-900 text-white rounded-full overflow-hidden transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                className="group relative w-full sm:w-auto inline-flex items-center justify-center px-10 py-5 bg-gray-900 text-white rounded-full overflow-hidden transition-transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
               >
                 <div className="absolute inset-0 bg-linear-to-r from-indigo-500/0 via-indigo-500/20 to-indigo-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 <span className="relative flex items-center text-sm tracking-widest uppercase font-light">
