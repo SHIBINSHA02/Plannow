@@ -47,12 +47,12 @@ export default function CreateOrganisationModal({
                     placeholder="Organisation name"
                 />
 
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-4">
                     <button onClick={onClose}>Cancel</button>
                     <button
                         onClick={submit}
                         disabled={loading}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded"
+                        className="bg-blue-700 text-white px-5 py-2 rounded-xl ml-3"
                     >
                         {loading ? "Creating..." : "Create"}
                     </button>

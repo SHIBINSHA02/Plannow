@@ -307,7 +307,7 @@ export default function Home() {
                             </div>
 
                             <div className="space-y-4">
-                                <h3 className="text-2xl font-semibold text-gray-700 tracking-tight leading-tight">
+                                <h3 className="text-xl font-semibold text-gray-700 tracking-tight leading-tight">
                                     {features[1].title}
                                 </h3>
                                 <p className="text-sm text-gray-500 font-extralight leading-relaxed">
