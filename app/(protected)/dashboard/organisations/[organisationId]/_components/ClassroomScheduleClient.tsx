@@ -5,7 +5,7 @@ import ClassroomScheduleTable from "./ClassroomScheduleTable";
 import ScheduleStatusGrid from "./ScheduleStatusGrid";
 import { ScheduleGridProvider } from "../../../../dashboard/context/ScheduleGridContext";
 import { Assignment } from "../../../../dashboard/_types/schedule";
-import {Edit3 } from "lucide-react";
+import {Edit, Edit3, Sparkle, Sparkles } from "lucide-react";
 
 
 type Props = {
@@ -54,14 +54,18 @@ export default function ClassroomScheduleClient({
                 <ClassroomScheduleTable />
 
                 {/* Editor for Classroom Details moved to separate page */}
-                <div className="mt-8 flex justify-end px-0 pb-20">
+                <div className="mt-8 flex justify-end px-0 pb-20 gap-6">
                     <button
                         onClick={() => router.push(`/dashboard/organisations/${organisationId}/classrooms/${classroomId}/edit`)}
-                        className="px-6 py-3 flex gap-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors shadow-sm"
+                        className="text-gray-400 p-3 rounded-full hover:bg-gray-100 transition bg-white border border-gray-200"
                     >
-                        <Edit3/>
-                        Edit Classroom
+                        <Edit/>
                     </button>
+                    <button className="text-white flex  gap-3 p-3 bg-blue-700 rounded-xl hover:bg-blue-700/90 transition  border border-gray-200   ">
+                        <Sparkles/>
+                        Auto Schedule
+                    </button>
+                    
                 </div>
             </ScheduleGridProvider>
         </div>
