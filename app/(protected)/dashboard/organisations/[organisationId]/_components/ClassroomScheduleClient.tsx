@@ -5,6 +5,7 @@ import ClassroomScheduleTable from "./ClassroomScheduleTable";
 import ScheduleStatusGrid from "./ScheduleStatusGrid";
 import { ScheduleGridProvider } from "../../../../dashboard/context/ScheduleGridContext";
 import { Assignment } from "../../../../dashboard/_types/schedule";
+import {Edit3 } from "lucide-react";
 
 
 type Props = {
@@ -56,9 +57,10 @@ export default function ClassroomScheduleClient({
                 <div className="mt-8 flex justify-end px-0 pb-20">
                     <button
                         onClick={() => router.push(`/dashboard/organisations/${organisationId}/classrooms/${classroomId}/edit`)}
-                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors shadow-sm"
+                        className="px-6 py-3 flex gap-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors shadow-sm"
                     >
-                        Edit Classroom Details
+                        <Edit3/>
+                        Edit Classroom
                     </button>
                 </div>
             </ScheduleGridProvider>

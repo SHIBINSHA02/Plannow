@@ -23,7 +23,8 @@ type Teacher = {
 type Props = {
     organisationId: string;
     classroomId: string;
-    currentClassroom: any; // We receive the basic data from page.tsx
+    currentClassroom: any; 
+    adminEmail?: string; 
     onSuccess?: () => void;
 };
 
@@ -42,6 +43,8 @@ export default function EditClassOnboarding({
 
     const [className, setClassName] = useState(currentClassroom?.className || "");
     const [department, setDepartment] = useState(currentClassroom?.department || "");
+    // 1. Added explicit state for the Admin's Email
+    const [adminEmail, setAdminEmail] = useState(currentClassroom?.adminEmail || "");
 
     /* ---------- Teachers ---------- */
 
@@ -139,6 +142,12 @@ export default function EditClassOnboarding({
         setSubjects(prev => prev.filter((_, i) => i !== index));
     };
 
+    // Added clear all handler for the layout button
+    const clearAllSubjects = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setSubjects([]);
+    };
+
     const updateSubject = (index: number, updates: Partial<SubjectInput>) => {
         setSubjects(prev =>
             prev.map((s, i) => {
@@ -166,21 +175,22 @@ export default function EditClassOnboarding({
         setError(null);
         setSuccessMsg(null);
 
-        if (!className || subjects.length === 0) {
-            setError("Class name & at least one subject required");
+        // Validating both missing values and matching the schema requirements
+        if (!className || !adminEmail || subjects.length === 0) {
+            setError("Class name, admin email, & at least one subject are required");
             return;
         }
 
         try {
             setLoading(true);
 
-            // PUT to the existing endpoint
             const res = await fetch(`/api/classrooms/classroom/${classroomId}?organisationId=${organisationId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     className,
                     department,
+                    adminEmail, // 2. Fixed: Correctly appending adminEmail to payload
                     subjects,
                 }),
             });
@@ -196,7 +206,6 @@ export default function EditClassOnboarding({
 
             router.push(`/dashboard/organisations/${organisationId}/classrooms/${classroomId}/schedule`);
 
-            // Clear success message after 3 seconds
             setTimeout(() => setSuccessMsg(null), 3000);
 
         } catch (err: any) {
@@ -209,9 +218,9 @@ export default function EditClassOnboarding({
     /* ---------- UI ---------- */
 
     return (
-        <form onSubmit={submit} className="space-y-5 text-gray-700 mt-8 border-t pt-8 w-full max-w-7xl mx-auto">
+        <form onSubmit={submit} className="space-y-5 text-gray-700 mt-8 border-t border-blue-700 pt-10 w-full max-w-7xl mx-auto">
             <div className="mb-4">
-                <h2 className="text-xl font-semibold mb-1">Edit Classroom Details</h2>
+                <h2 className="font-medium text-xl text-blue-700 mb-4">Classroom Details</h2>
                 <p className="text-sm text-gray-500">Update the class name, department, or subjects.</p>
             </div>
 
@@ -255,9 +264,26 @@ export default function EditClassOnboarding({
                 </div>
             </div>
 
+            {/* 3. Fixed Admin Input Row Fields and Target References */}
+            <div>
+                <label className="block text-sm font-medium mb-1 text-gray-600">
+                    Admin Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                    type="email"
+                    placeholder="admin@school.com"
+                    value={adminEmail}
+                    onChange={e => setAdminEmail(e.target.value)}
+                    className="w-full p-2 bg-white border border-gray-200 rounded-xl"
+                    required
+                />
+            </div>
+
+            <div className="border-b my-10 border-blue-800 " />
+
             {/* ---------- Teacher Search ---------- */}
             <div className="bg-gray-50/50 py-4 rounded-2xl space-y-4 text-sm mt-4">
-                <h3 className="font-medium text-gray-800">Add Subjects</h3>
+                <h3 className="font-medium text-xl text-blue-700">Add Subjects</h3>
                 <div className="relative">
                     <label className="text-sm font-medium text-gray-600 mb-1 block">
                         Search & Select Teacher
@@ -438,6 +464,16 @@ export default function EditClassOnboarding({
                         </div>
                     </div>
                 ))}
+
+                <div className="flex justify-end">
+                    <button
+                        type="button"
+                        onClick={clearAllSubjects}
+                        className="px-4 rounded-xl py-3 bg-black text-white mt-4 border border-gray-700 "
+                    >
+                        Clear All
+                    </button>
+                </div>
             </div>
 
             <button

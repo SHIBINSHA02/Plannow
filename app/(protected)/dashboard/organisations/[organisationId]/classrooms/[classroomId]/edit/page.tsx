@@ -46,6 +46,7 @@ export default async function Page({
                     organisationId={organisationId}
                     classroomId={classroomId}
                     currentClassroom={currentClassroom}
+                    adminEmail={currentClassroom.adminEmail}
                 />
             </ScheduleGridProvider>
         </div>
