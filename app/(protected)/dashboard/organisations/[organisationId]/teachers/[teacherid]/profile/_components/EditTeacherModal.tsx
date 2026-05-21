@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { updateTeacherAction } from "./actions";
 import { useRouter } from "next/navigation";
-import { Pencil, X, Loader2 } from "lucide-react";
+import { Pencil, X, Loader2, Trash2 } from "lucide-react";
 
 export default function EditTeacherModal({
     teacher,
@@ -14,6 +14,7 @@ export default function EditTeacherModal({
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
 
@@ -54,6 +55,33 @@ export default function EditTeacherModal({
         }
     };
 
+    const handleDeleteTeacher = async () => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this teacher?");
+        if (!confirmDelete) return;
+
+        setIsDeleting(true);
+        setError("");
+
+        try {
+            const res = await fetch(`/api/teachers/${teacher.teacherId}`, {
+                method: "DELETE",
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to delete teacher");
+            }
+
+            setIsOpen(false);
+            // Redirect the user back to the teachers list view after deletion
+            router.push(`/dashboard/organisations/${organisationId}/teachers`);
+            router.refresh();
+        } catch (err: any) {
+            setError(err.message || "An unexpected error occurred while deleting.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     if (!isOpen) {
         return (
             <button
@@ -76,6 +104,7 @@ export default function EditTeacherModal({
                     <button
                         onClick={() => setIsOpen(false)}
                         className="text-gray-400 hover:text-gray-600 transition-colors"
+                        disabled={loading || isDeleting}
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -96,7 +125,8 @@ export default function EditTeacherModal({
                             name="teacherName"
                             value={formData.teacherName}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            disabled={loading || isDeleting}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:opacity-50"
                         />
                     </div>
 
@@ -108,7 +138,8 @@ export default function EditTeacherModal({
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            disabled={loading || isDeleting}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:opacity-50"
                         />
                     </div>
 
@@ -119,29 +150,55 @@ export default function EditTeacherModal({
                             name="subjects"
                             value={formData.subjects}
                             onChange={handleChange}
+                            disabled={loading || isDeleting}
                             placeholder="Math, English, Science"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:opacity-50"
                         />
                         <p className="text-xs text-gray-500">
                             Separate subjects with commas.
                         </p>
                     </div>
 
-                    <div className="pt-4 flex justify-end gap-3">
+                    {/* Action Buttons Container */}
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-100 gap-3">
+                        {/* Delete Button (Left Aligned) */}
                         <button
                             type="button"
-                            onClick={() => setIsOpen(false)}
-                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                            onClick={handleDeleteTeacher}
+                            disabled={loading || isDeleting}
+                            className="px-4 py-2 flex items-center gap-2 border border-red-200 rounded-lg text-sm bg-red-50 text-red-700 font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
                         >
-                            Cancel
+                            {isDeleting ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                                <Trash2 className="w-4 h-4" />
+                            )}
+                            Delete
                         </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center justify-center min-w-[100px]"
-                        >
-                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
-                        </button>
+
+                        {/* Cancel / Save Buttons (Right Aligned) */}
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setIsOpen(false)}
+                                disabled={loading || isDeleting}
+                                className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={loading || isDeleting}
+                                className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center justify-center min-w-[100px] disabled:opacity-50"
+                            >
+                                {loading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    "Save Changes"
+                                )
+                                }
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
