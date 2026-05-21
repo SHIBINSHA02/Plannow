@@ -1,5 +1,6 @@
 import SyncUserOnce from "./_component/SyncUserOnce";
 import Footer from "../_components/Footer";
+import { ThemeProvider } from "../theme-provider";
 
 export default function DashboardLayout({
     children,
@@ -9,7 +10,9 @@ export default function DashboardLayout({
     return (
         <>
             <SyncUserOnce />
+            <ThemeProvider>
             {children}
+            </ThemeProvider>
             <Footer />
         </>
     );
