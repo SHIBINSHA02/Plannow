@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import TeacherScheduleGrid from "../schedules/_components/TeacherScheduleGrid";
+import { useTheme } from "@/app/theme-provider"; 
 
 type ScheduleSlot = {
     _id: string;
@@ -11,7 +12,7 @@ type ScheduleSlot = {
     className: string;
     classroomId: string;
     organisationId: string;
-    teacherId?: string; // We might need to map this to teacher name
+    teacherId?: string;
 };
 
 type Props = {
@@ -22,6 +23,7 @@ type Props = {
 export default function AdminMasterSchedule({ organisationId, teachersMap }: Props) {
     const [schedule, setSchedule] = useState<ScheduleSlot[]>([]);
     const [loading, setLoading] = useState(true);
+    const { theme } = useTheme(); // Subscribed to current theme
 
     useEffect(() => {
         if (!organisationId) return;
@@ -65,23 +67,57 @@ export default function AdminMasterSchedule({ organisationId, teachersMap }: Pro
         fetchData();
     }, [organisationId]);
 
-    // TeacherScheduleGrid expects the schedule items to have classroom details
-    // We can reuse it for the master schedule, as it groups by day and period
-
     return (
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <div className="mb-6">
-                <p className="text-sm text-gray-500 mt-1">Full view of all classes across the organisation</p>
+        <div
+            className={`p-6 md:p-8 rounded-3xl border transition-colors duration-200
+                ${theme === "light"
+                    ? "bg-white border-slate-100"
+                    : "bg-[#0f172a] border-slate-800"
+                }`}
+        >
+            {/* Header / Sub-title Section */}
+            <div
+                className={`flex items-center justify-between gap-4 mb-6 pb-4 border-b transition-colors duration-200
+                    ${theme === "light"
+                        ? "border-slate-50"
+                        : "border-slate-800/60"
+                    }`}
+            >
+                <div className="space-y-1">
+                    <h2
+                        className={`text-lg font-medium tracking-tight transition-colors duration-200
+                            ${theme === "light" ? "text-slate-900" : "text-white"}`}
+                    >
+                        Master Timetable Grid
+                    </h2>
+                    <p
+                        className={`text-xs font-light transition-colors duration-200
+                            ${theme === "light" ? "text-slate-400" : "text-slate-400"}`}
+                    >
+                        Full view of all distributed classes and active sessions across the organization.
+                    </p>
+                </div>
+
+                {/* Status Indicator */}
+                <div
+                    className={`shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full border transition-colors duration-200
+                        ${theme === "light"
+                            ? "bg-blue-50/60 border-blue-100/50 text-blue-600"
+                            : "bg-blue-950/40 border-blue-900/50 text-blue-400"
+                        }`}
+                >
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                    <span className="text-[11px] font-medium tracking-wide uppercase">Live Sync</span>
+                </div>
             </div>
 
-            {/* Note: TeacherScheduleGrid expects a slightly different data shape for a single teacher, 
-                but we can use it to render a full grid if we pass the raw slots.
-                We will pass the teachers map down if we need to show teacher names instead of just subjects.
-               */}
-            <TeacherScheduleGrid
-                schedule={schedule}
-                loading={loading}
-            />
+            {/* Grid component container */}
+            <div className="overflow-hidden rounded-xl">
+                <TeacherScheduleGrid
+                    schedule={schedule}
+                    loading={loading}
+                />
+            </div>
         </div>
     );
 }

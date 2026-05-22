@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { useTheme } from "@/app/theme-provider"; // Imported theme hook
 
 type SubstitutionRequest = {
     _id: string;
@@ -28,8 +29,7 @@ export default function AdminSubstitutionOverview({
 }: Props) {
     const [requests, setRequests] = useState<SubstitutionRequest[]>([]);
     const [loading, setLoading] = useState(true);
-    const [manageRequest, setManageRequest] =
-        useState<SubstitutionRequest | null>(null);
+    const [manageRequest, setManageRequest] = useState<SubstitutionRequest | null>(null);
     const [teacherOptions, setTeacherOptions] = useState<
         { teacherId: string; teacherName: string; subjects?: string[] }[]
     >([]);
@@ -37,6 +37,7 @@ export default function AdminSubstitutionOverview({
     const [selectedTeacherId, setSelectedTeacherId] = useState("");
     const [savingManage, setSavingManage] = useState(false);
     const [manageError, setManageError] = useState<string | null>(null);
+    const { theme } = useTheme(); // Subscribed to current theme
 
     useEffect(() => {
         if (!organisationId) return;
@@ -74,9 +75,7 @@ export default function AdminSubstitutionOverview({
             if (!res.ok) throw new Error("Failed to load teachers");
             const data = await res.json();
             const allTeachers = [
-                ...(Array.isArray(data.inDepartment)
-                    ? data.inDepartment
-                    : []),
+                ...(Array.isArray(data.inDepartment) ? data.inDepartment : []),
                 ...(Array.isArray(data.others) ? data.others : []),
             ];
             setTeacherOptions(
@@ -146,132 +145,132 @@ export default function AdminSubstitutionOverview({
 
     if (loading) {
         return (
-            <div className="p-6 bg-white rounded-xl shadow-sm animate-pulse h-64" />
+            <div
+                className={`p-6 rounded-3xl animate-pulse h-64 border transition-colors duration-200
+                    ${theme === "light" ? "bg-white border-slate-100" : "bg-[#0f172a] border-slate-800"}`}
+            />
         );
     }
 
-    const pendingRequests = requests.filter(
-        (r) => r.status === "pending"
-    );
+    const pendingRequests = requests.filter((r) => r.status === "pending");
 
     const statusStyle = (status: SubstitutionRequest["status"]) => {
-        if (status === "accepted")
-            return "bg-blue-600 text-white";
-        if (status === "rejected")
-            return "border-red-500 bg-red-100 text-red-500";
-        if (status === "cancelled")
-            return "border-gray-400 bg-gray-100 text-gray-500";
-        return "bg-blue-100 text-blue-700";
+        if (status === "accepted") {
+            return theme === "light" ? "bg-blue-600 text-white" : "bg-blue-500 text-white";
+        }
+        if (status === "rejected") {
+            return theme === "light"
+                ? "border border-red-200 bg-red-50 text-red-600"
+                : "border border-red-950 bg-red-950/30 text-red-400";
+        }
+        if (status === "cancelled") {
+            return theme === "light"
+                ? "border border-slate-200 bg-slate-50 text-slate-500"
+                : "border border-slate-800 bg-slate-900/50 text-slate-400";
+        }
+        return theme === "light"
+            ? "bg-blue-50 text-blue-600"
+            : "bg-blue-950/30 text-blue-400";
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-md p-6 flex flex-col gap-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
+        <div
+            className={`border p-6 rounded-3xl shadow-sm flex flex-col gap-6 transition-all duration-200
+                ${theme === "light"
+                    ? "bg-white border-slate-100 shadow-blue-500/5"
+                    : "bg-[#0f172a] border-slate-800 shadow-none"}`}
+        >
+            {/* Header Content */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h3 className="text-xl font-semibold text-black">
+                    <h3 className={`text-lg font-medium tracking-tight transition-colors duration-200
+                        ${theme === "light" ? "text-slate-900" : "text-white"}`}>
                         Substitution Overview
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className={`text-xs font-light transition-colors duration-200
+                        ${theme === "light" ? "text-slate-400" : "text-slate-500"}`}>
                         Organisation-wide summary
                     </p>
                 </div>
 
-                <div className="flex gap-4">
-                    <div className="bg-blue-600 text-white px-5 py-3 rounded-lg text-center">
-                        <p className="text-2xl font-bold">
-                            {requests.length}
-                        </p>
-                        <p className="text-xs font-medium tracking-wide">
-                            TOTAL
-                        </p>
+                <div className="flex gap-3">
+                    <div className={`px-5 py-2.5 rounded-2xl text-center min-w-[76px] transition-colors duration-200
+                        ${theme === "light" ? "bg-blue-600 text-white" : "bg-blue-500 text-white"}`}>
+                        <p className="text-xl font-semibold tracking-tight">{requests.length}</p>
+                        <p className="text-[9px] font-medium tracking-wider opacity-80 uppercase mt-0.5">Total</p>
                     </div>
 
-                    <div className="bg-blue-100 text-blue-700 px-5 py-3 rounded-lg text-center">
-                        <p className="text-2xl font-bold">
-                            {pendingRequests.length}
-                        </p>
-                        <p className="text-xs font-medium tracking-wide">
-                            PENDING
-                        </p>
+                    <div className={`px-5 py-2.5 rounded-2xl text-center min-w-[76px] transition-colors duration-200
+                        ${theme === "light" ? "bg-blue-50 text-blue-600" : "bg-blue-950/40 text-blue-400"}`}>
+                        <p className="text-xl font-semibold tracking-tight">{pendingRequests.length}</p>
+                        <p className="text-[9px] font-medium tracking-wider uppercase mt-0.5">Pending</p>
                     </div>
                 </div>
             </div>
 
-            {/* List */}
-            <div className="flex-1 overflow-auto">
+            {/* Substitution Requests Pipeline */}
+            <div className="flex-1 overflow-auto max-h-[500px] pr-1">
                 {requests.length === 0 ? (
-                    <div className="text-center text-gray-500 py-10">
+                    <div className={`text-center text-xs font-light py-12 transition-colors duration-200
+                        ${theme === "light" ? "text-slate-400" : "text-slate-500"}`}>
                         No substitution requests found.
                     </div>
                 ) : (
                     <ul className="space-y-3">
                         {requests.slice(0, 10).map((req) => {
-                            const originalTeacher =
-                                teachersMap[
-                                req.originalTeacherId
-                                ] || "Unknown";
-                            const requestedTeacher =
-                                teachersMap[
-                                req.requestedTeacherId
-                                ] || "Unknown";
+                            const originalTeacher = teachersMap[req.originalTeacherId] || "Unknown";
+                            const requestedTeacher = teachersMap[req.requestedTeacherId] || "Unknown";
 
                             return (
                                 <li
                                     key={req._id}
-                                    className="p-4 border border-blue-100 rounded-lg hover:shadow-sm transition"
+                                    className={`p-4 border rounded-2xl transition-all duration-200
+                                        ${theme === "light"
+                                            ? "border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm"
+                                            : "border-slate-800/80 bg-[#0c1222] hover:border-slate-700/60"}`}
                                 >
-                                    <div className="flex justify-between gap-4">
-                                        <div>
-                                            <p className="font-semibold text-black text-sm">
-                                                {originalTeacher} →{" "}
-                                                {requestedTeacher}
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div className="space-y-1">
+                                            <p className={`font-medium text-sm tracking-tight transition-colors duration-200
+                                                ${theme === "light" ? "text-slate-800" : "text-slate-200"}`}>
+                                                {originalTeacher} <span className="text-blue-500 font-light mx-1">→</span> {requestedTeacher}
                                             </p>
-                                            <p className="text-xs text-gray-600 mt-1">
-                                                Day {req.day}, P
-                                                {req.period} •{" "}
-                                                {req.subject}
+                                            <p className={`text-xs font-light transition-colors duration-200
+                                                ${theme === "light" ? "text-slate-400" : "text-slate-500"}`}>
+                                                Day {req.day}, Period {req.period} • <span className="font-normal">{req.subject}</span>
                                             </p>
                                         </div>
 
-                                        <div className="flex flex-col items-end gap-2">
-                                            <span
-                                                className={`px-2 py-0.5 text-xs  rounded ${statusStyle(
-                                                    req.status
-                                                )}`}
-                                            >
-                                                {req.status.toUpperCase()}
+                                        <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 shrink-0">
+                                            <span className={`px-2 py-0.5 text-[10px] font-medium tracking-wider rounded-md uppercase ${statusStyle(req.status)}`}>
+                                                {req.status}
                                             </span>
 
-                                            <p className="text-[11px] text-gray-500">
-                                                {format(
-                                                    new Date(
-                                                        req.createdAt
-                                                    ),
-                                                    "MMM d, h:mm a"
-                                                )}
+                                            <p className={`text-[10px] font-light transition-colors duration-200
+                                                ${theme === "light" ? "text-slate-400" : "text-slate-500"}`}>
+                                                {format(new Date(req.createdAt), "MMM d, h:mm a")}
                                             </p>
 
                                             {req.status !== "rejected" && req.status !== "cancelled" && (
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-2 pt-0.5">
                                                     <button
-                                                        onClick={() =>
-                                                            openReassign(
-                                                                req
-                                                            )
-                                                        }
-                                                        className="text-xs px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50"
+                                                        onClick={() => openReassign(req)}
+                                                        className={`text-[11px] font-medium px-3 py-1 border rounded-xl transition-all duration-150
+                                                            ${theme === "light"
+                                                                ? "border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                                                                : "border-blue-900/60 text-blue-400 hover:bg-blue-950/30 hover:border-blue-800"
+                                                            }`}
                                                     >
                                                         Reassign
                                                     </button>
 
                                                     <button
-                                                        onClick={() =>
-                                                            handleCancel(
-                                                                req
-                                                            )
-                                                        }
-                                                        className="text-xs px-3 py-1 border border-black text-black rounded hover:bg-black hover:text-white"
+                                                        onClick={() => handleCancel(req)}
+                                                        className={`text-[11px] font-medium px-3 py-1 border rounded-xl transition-all duration-150
+                                                            ${theme === "light"
+                                                                ? "border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300"
+                                                                : "border-slate-800 text-slate-400 hover:bg-slate-900 hover:text-slate-200 hover:border-slate-700"
+                                                            }`}
                                                     >
                                                         Cancel
                                                     </button>
@@ -286,67 +285,81 @@ export default function AdminSubstitutionOverview({
                 )}
             </div>
 
-            {/* Modal */}
+            {/* Management Portal Modal Frame */}
             {manageRequest && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
-                        <h4 className="font-bold text-black text-sm">
-                            Reassign substitution
-                        </h4>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
+                    <div
+                        className={`border rounded-3xl shadow-xl max-w-md w-full p-6 space-y-5 transition-all duration-200
+                            ${theme === "light" ? "bg-white border-slate-100" : "bg-[#0f172a] border-slate-800"}`}
+                    >
+                        <div>
+                            <h4 className={`text-base font-medium tracking-tight ${theme === "light" ? "text-slate-900" : "text-white"}`}>
+                                Reassign Substitution
+                            </h4>
+                            <p className={`text-xs font-light mt-0.5 ${theme === "light" ? "text-slate-400" : "text-slate-500"}`}>
+                                Update the resource node fallback route configuration safely.
+                            </p>
+                        </div>
 
                         {manageError && (
-                            <p className="text-xs text-black">
+                            <div className={`p-3 rounded-xl text-xs font-light border
+                                ${theme === "light"
+                                    ? "bg-red-50 border-red-100 text-red-600"
+                                    : "bg-red-950/20 border-red-900/50 text-red-400"}`}>
                                 {manageError}
-                            </p>
+                            </div>
                         )}
 
                         {manageLoading ? (
-                            <div className="h-10 bg-blue-100 rounded animate-pulse" />
+                            <div className={`h-10 rounded-xl animate-pulse ${theme === "light" ? "bg-slate-100" : "bg-slate-900"}`} />
                         ) : (
-                            <select
-                                value={selectedTeacherId}
-                                onChange={(e) =>
-                                    setSelectedTeacherId(
-                                        e.target.value
-                                    )
-                                }
-                                className="w-full px-3 py-2 border border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            >
-                                <option value="">
-                                    Select teacher
-                                </option>
-                                {teacherOptions.map((t) => (
-                                    <option
-                                        key={t.teacherId}
-                                        value={t.teacherId}
-                                    >
-                                        {t.teacherName}
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="relative">
+                                <select
+                                    value={selectedTeacherId}
+                                    onChange={(e) => setSelectedTeacherId(e.target.value)}
+                                    className={`w-full px-3.5 py-2.5 border rounded-xl text-xs font-medium focus:ring-4 outline-none transition-all appearance-none cursor-pointer
+                                        ${theme === "light"
+                                            ? "border-slate-200 bg-slate-50 text-slate-700 focus:bg-white focus:ring-blue-500/10 focus:border-blue-500"
+                                            : "border-slate-700 bg-slate-900 text-slate-300 focus:bg-[#0f172a] focus:ring-blue-500/5 focus:border-blue-400"
+                                        }`}
+                                >
+                                    <option value="">Select teacher</option>
+                                    {teacherOptions.map((t) => (
+                                        <option key={t.teacherId} value={t.teacherId}>
+                                            {t.teacherName}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className={`absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none ${theme === "light" ? "text-slate-400" : "text-slate-500"}`}>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </div>
                         )}
 
                         <div className="flex justify-end gap-3 pt-2">
                             <button
-                                onClick={() =>
-                                    setManageRequest(null)
-                                }
-                                className="px-4 py-1.5 text-xs border border-black text-black rounded hover:bg-black hover:text-white"
+                                onClick={() => setManageRequest(null)}
+                                className={`px-4 py-2 text-xs font-medium border rounded-xl transition-all
+                                    ${theme === "light"
+                                        ? "border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                        : "border-slate-800 text-slate-400 hover:bg-slate-900 hover:text-slate-200"
+                                    }`}
                             >
                                 Cancel
                             </button>
 
                             <button
-                                disabled={
-                                    !selectedTeacherId ||
-                                    savingManage
-                                }
+                                disabled={!selectedTeacherId || savingManage}
                                 onClick={handleSaveReassign}
-                                className="px-4 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                                className={`px-4 py-2 text-xs font-medium rounded-xl text-white transition-all shadow-sm disabled:opacity-40
+                                    ${theme === "light"
+                                        ? "bg-blue-600 hover:bg-blue-700 shadow-blue-500/10"
+                                        : "bg-blue-500 hover:bg-blue-600 shadow-none"
+                                    }`}
                             >
-                                {savingManage
-                                    ? "Saving..."
-                                    : "Save"}
+                                {savingManage ? "Saving..." : "Save Changes"}
                             </button>
                         </div>
                     </div>

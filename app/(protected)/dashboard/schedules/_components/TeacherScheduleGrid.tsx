@@ -1,5 +1,7 @@
 "use client";
 
+import { useTheme } from "@/app/theme-provider"; // Imported theme hook
+
 /* ---------- Types ---------- */
 
 type ScheduleSlot = {
@@ -20,12 +22,24 @@ export default function TeacherScheduleGrid({
     schedule: ScheduleSlot[];
     loading: boolean;
 }) {
+    const { theme } = useTheme(); // Subscribed to current theme
+
     if (loading) {
-        return <p className="text-gray-400">Loading schedule…</p>;
+        return (
+            <div
+                className={`p-6 rounded-3xl animate-pulse h-64 border transition-colors duration-200
+                    ${theme === "light" ? "bg-white border-slate-100" : "bg-[#0f172a] border-slate-800"}`}
+            />
+        );
     }
 
     if (!schedule || schedule.length === 0) {
-        return <p className="text-sm text-gray-500">No schedule assigned.</p>;
+        return (
+            <div className={`text-center text-xs font-light py-12 transition-colors duration-200
+                ${theme === "light" ? "text-slate-400" : "text-slate-500"}`}>
+                No schedule assigned.
+            </div>
+        );
     }
 
     /* ---------- Build grid map ---------- */
@@ -40,7 +54,7 @@ export default function TeacherScheduleGrid({
     const days = [1, 2, 3, 4, 5];
     const periods = [1, 2, 3, 4, 5, 6];
 
-    /* ---------- Day labels (display only) ---------- */
+    /* ---------- Day labels ---------- */
     const dayLabels: Record<number, string> = {
         1: "Monday",
         2: "Tuesday",
@@ -50,77 +64,92 @@ export default function TeacherScheduleGrid({
     };
 
     return (
-        <div className="overflow-x-auto shadow-lg rounded-lg">
-            <table className="min-w-full border-collapse border border-gray-300 text-sm rounded-3xl">
-                <thead>
-                    <tr className="bg-white">
-                        <th className="border border-gray-300 px-4 py-2 text-left font-medium bg-blue-800 text-white">
-                            <div
-                                className="absolute inset-0 opacity-60 pointer-events-none mix-blend-overlay"
-                                style={{
-                                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 350 350' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
-                                }}
-                            />
-                            Day / Period
-                        </th>
-                        {periods.map(p => (
-                            <th
-                                key={p}
-                                className="border border-gray-300 px-4 py-2 text-center font-medium bg-blue-700 text-white"
-                            >
-                                Period {p}
+        <div
+            className={`border rounded-3xl shadow-sm overflow-hidden transition-all duration-200
+                ${theme === "light"
+                    ? "bg-white border-slate-100 shadow-blue-500/5"
+                    : "bg-[#0f172a] border-slate-800 shadow-none"}`}
+        >
+            <div className="overflow-x-auto">
+                <table className="min-w-full border-collapse text-xs">
+                    <thead>
+                        <tr className={theme === "light" ? "bg-slate-50/70" : "bg-slate-900/40"}>
+                            <th className={`px-4 py-3.5 text-left font-medium border-b transition-colors duration-200
+                                ${theme === "light" ? "text-slate-400 border-slate-100" : "text-slate-500 border-slate-800"}`}>
+                                Day / Period
                             </th>
-                        ))}
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {days.map(day => (
-                        <tr key={day} className="odd:bg-white even:bg-gray-50">
-                            <td className="border border-gray-300 px-4 py-2 font-semibold bg-blue-700">
-                                <div className="b p-2 rounded-lg text-white">
-                                    {dayLabels[day]}
-                                </div>
-                            </td>
-
-                            {periods.map(period => {
-                                const slots = grid[`${day}-${period}`] ?? [];
-
-                                return (
-                                    <td
-                                        key={period}
-                                        className="border border-gray-300 p-2 align-top text-center"
-                                    >
-                                        {slots.length > 0 ? (
-                                            <div className="space-y-1">
-                                                {slots.map((s, index) => (
-                                                    <div
-                                                        key={`${s.className}-${s.subject}-${index}`}
-                                                        className="bg-blue-100 p-2 rounded text-xs text-left"
-                                                    >
-                                                        <div className="font-semibold text-blue-800">
-                                                            {s.subject}
-                                                        </div>
-                                                        <div className="text-blue-800">
-                                                            {s.className}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-1">
-                                                <div className="rounded bg-green-100 px-3 py-1 text-xs text-green-700 flex items-center justify-center">
-                                                    Free
-                                                </div>
-                                            </div>
-                                        )}
-                                    </td>
-                                );
-                            })}
+                            {periods.map(p => (
+                                <th
+                                    key={p}
+                                    className={`px-4 py-3.5 text-center font-medium border-b transition-colors duration-200
+                                        ${theme === "light" ? "text-slate-800 border-slate-100" : "text-slate-200 border-slate-800"}`}
+                                >
+                                    Period {p}
+                                </th>
+                            ))}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody className={`divide-y transition-colors duration-200 ${theme === "light" ? "divide-slate-100" : "divide-slate-800"}`}>
+                        {days.map(day => (
+                            <tr
+                                key={day}
+                                className={`transition-colors duration-150
+                                    ${theme === "light" ? "hover:bg-slate-50/40" : "hover:bg-slate-900/20"}`}
+                            >
+                                {/* Day Sidebar Column */}
+                                <td className={`px-4 py-3.5 font-semibold transition-colors duration-200
+                                    ${theme === "light" ? "text-slate-900 bg-slate-50/30" : "text-white bg-slate-900/10"}`}>
+                                    {dayLabels[day]}
+                                </td>
+
+                                {/* Grid Time Slots */}
+                                {periods.map(period => {
+                                    const slots = grid[`${day}-${period}`] ?? [];
+
+                                    return (
+                                        <td
+                                            key={period}
+                                            className="p-2.5 align-top text-center min-w-[120px]"
+                                        >
+                                            {slots.length > 0 ? (
+                                                <div className="space-y-1.5">
+                                                    {slots.map((s, index) => (
+                                                        <div
+                                                            key={`${s.className}-${s.subject}-${index}`}
+                                                            className={`p-2.5 rounded-xl border text-left transition-all duration-200
+                                                                ${theme === "light"
+                                                                    ? "border-blue-100 bg-blue-50/50"
+                                                                    : "border-blue-950/40 bg-blue-950/20"}`}
+                                                        >
+                                                            <div className={`font-semibold tracking-tight ${theme === "light" ? "text-blue-700" : "text-blue-400"}`}>
+                                                                {s.subject}
+                                                            </div>
+                                                            <div className={`mt-0.5 font-light ${theme === "light" ? "text-slate-500" : "text-slate-400"}`}>
+                                                                {s.className}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="h-full flex items-start pt-0.5">
+                                                    <div className={`w-full py-1.5 rounded-xl border text-center font-medium tracking-wide uppercase text-[10px] transition-all duration-200
+                                                        ${theme === "light"
+                                                            ? "border-green-100 bg-green-50/40 text-green-600"
+                                                            : "border-green-950/30 bg-green-950/10 text-green-500/90"}`}
+                                                    >
+                                                        Free
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
