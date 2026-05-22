@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Organisation } from "@/types/organisation";
+import { useTheme } from "@/app/theme-provider";
+import { Layers } from "lucide-react";
 import OrganisationPicker from "./OrganisationPicker";
 import SubstitutionWorkspace from "./SubstitutionWorkspace";
+
+/* ---------- Types ---------- */
 
 type TeacherOrg = { id: string; name: string };
 
@@ -12,6 +16,8 @@ type ClericalEntry = {
     organisationId: string;
     organisationName: string;
 };
+
+/* ---------- Utility ---------- */
 
 /** Turn a list of {id, name} / {organisationId, organisationName} into Organisation[] */
 function toOrgList(raw: { id?: string; name?: string; organisationId?: string; organisationName?: string }[]): Organisation[] {
@@ -23,124 +29,106 @@ function toOrgList(raw: { id?: string; name?: string; organisationId?: string; o
     }));
 }
 
+/* ---------- Component ---------- */
+
 export default function SubstitutionClient() {
+    const { theme } = useTheme();
     const [organisations, setOrganisations] = useState<Organisation[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchTeacher = fetch("/api/profile/teacher")
-            .then((res) => {
-                if (!res.ok) return [];
-                return res
-                    .json()
-                    .then((data) =>
-                        (data.teachers ?? []).flatMap(
-                            (t: { organisations?: TeacherOrg[] }) =>
-                                t.organisations ?? []
-                        )
-                    )
-                    .then(toOrgList)
-                    .catch(() => [] as Organisation[]);
-            })
-            .catch(() => [] as Organisation[]);
+        const fetchData = async () => {
+            try {
+                setLoading(true);
 
-        const fetchClerical = fetch("/api/profile/clerical")
-            .then((res) => {
-                if (!res.ok) return [];
-                return res
-                    .json()
-                    .then(
-                        (data: {
-                            clerical: { teacherIds: ClericalEntry[] } | null;
-                        }) => {
-                            if (!data.clerical) return [] as Organisation[];
-                            return toOrgList(
-                                data.clerical.teacherIds.map((t) => ({
-                                    id: t.organisationId,
-                                    name: t.organisationName,
-                                }))
-                            );
-                        }
-                    )
-                    .catch(() => [] as Organisation[]);
-            })
-            .catch(() => [] as Organisation[]);
+                // Fetch Teacher Orgs
+                const teacherRes = await fetch("/api/profile/teacher");
+                const teacherData = teacherRes.ok ? await teacherRes.json() : { teachers: [] };
+                const teacherOrgs = (teacherData.teachers ?? []).flatMap((t: { organisations?: TeacherOrg[] }) => t.organisations ?? []);
 
-        Promise.all([fetchTeacher, fetchClerical])
-            .then(([teacherOrgs, clericalOrgs]) => {
-                const combined = [...teacherOrgs, ...clericalOrgs];
-                const unique = Array.from(
-                    new Map(
-                        combined.map((org) => [org.organisationId, org])
-                    ).values()
-                );
+                // Fetch Clerical Orgs
+                const clericalRes = await fetch("/api/profile/clerical");
+                const clericalData = clericalRes.ok ? await clericalRes.json() : { clerical: null };
+                const clericalOrgs = clericalData.clerical ? clericalData.clerical.teacherIds.map((t: ClericalEntry) => ({
+                    id: t.organisationId,
+                    name: t.organisationName,
+                })) : [];
+
+                const combined = [...toOrgList(teacherOrgs), ...toOrgList(clericalOrgs)];
+                const unique = Array.from(new Map(combined.map((org) => [org.organisationId, org])).values());
+
                 setOrganisations(unique);
-            })
-            .catch((err) => setError(err.message))
-            .finally(() => setLoading(false));
+                if (unique.length > 0) setSelectedOrgId(unique[0].organisationId);
+            } catch (err: any) {
+                setError(err.message || "Failed to load substitution data");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
 
     if (loading) {
         return (
-            <div className="p-6 space-y-4">
-                <h1 className="text-2xl font-semibold text-gray-800 animate-pulse">
-                    Substitution
-                </h1>
+            <main className={`min-h-screen p-6 md:p-8 space-y-8 animate-pulse ${theme === "light" ? "bg-[#F8FAFC]" : "bg-[#090d16]"}`}>
+                <div className={`h-12 w-64 rounded-xl ${theme === "light" ? "bg-slate-200" : "bg-slate-800"}`} />
                 <div className="grid md:grid-cols-2 gap-4">
                     {[1, 2, 3, 4].map((i) => (
-                        <div
-                            key={i}
-                            className="h-24 bg-gray-100 rounded-xl animate-pulse"
-                        />
+                        <div key={i} className={`h-24 rounded-2xl ${theme === "light" ? "bg-slate-200" : "bg-slate-800"}`} />
                     ))}
                 </div>
-            </div>
+            </main>
         );
     }
 
-    if (error) {
+    if (error || organisations.length === 0) {
         return (
-            <div className="p-6">
-                <p className="text-red-500">{error}</p>
-                <p className="text-sm text-gray-500 mt-2">
-                    You need a teacher or clerical profile to use substitution.
-                </p>
-            </div>
-        );
-    }
-
-    if (organisations.length === 0) {
-        return (
-            <div className="p-6">
-                <h1 className="text-2xl font-semibold text-gray-800 mb-2">
-                    Substitution
-                </h1>
-                <p className="text-gray-600">
-                    You have no teacher or clerical profile in any organisation.
-                    Add yourself as a teacher or a clerical to an organisation first.
-                </p>
-            </div>
+            <main className={`min-h-screen p-6 flex items-center justify-center ${theme === "light" ? "bg-[#F8FAFC]" : "bg-[#090d16]"}`}>
+                <div className="text-center max-w-sm">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 ${theme === "light" ? "bg-blue-50" : "bg-blue-950/40"}`}>
+                        <Layers className={`w-5 h-5 ${theme === "light" ? "text-blue-500" : "text-blue-400"}`} />
+                    </div>
+                    <h2 className={`text-lg font-medium ${theme === "light" ? "text-slate-900" : "text-white"}`}>
+                        {error ? "Error Loading" : "No Organisations Found"}
+                    </h2>
+                    <p className={`text-sm mt-1.5 ${theme === "light" ? "text-slate-400" : "text-slate-500"}`}>
+                        {error || "You are not linked to any active administrative systems."}
+                    </p>
+                </div>
+            </main>
         );
     }
 
     return (
-        <div className="p-6 max-w-7xl mx-auto space-y-6">
-            <h1 className="text-2xl font-semibold text-gray-800">
-                Substitution
-            </h1>
+        <main className={`min-h-screen p-4 md:p-6 space-y-6 transition-colors duration-200 
+            ${theme === "light" ? "bg-[#F8FAFC] text-slate-800" : "bg-[#090d16] text-slate-300"}`}>
 
-            <OrganisationPicker
-                organisations={organisations}
-                selectedOrgId={selectedOrgId}
-                onSelect={setSelectedOrgId}
-            />
+            <header className={`px-8 py-8 border rounded-3xl ${theme === "light" ? "border-slate-100 bg-white" : "border-slate-800 bg-[#0f172a]"}`}>
+                <h1 className={`text-2xl font-light tracking-tight ${theme === "light" ? "text-slate-900" : "text-white"}`}>
+                    Substitution <span className={`${theme === "light" ? "text-blue-600" : "text-blue-400"} font-normal`}>Management</span>
+                </h1>
+                <p className={`text-sm font-light mt-1.5 ${theme === "light" ? "text-slate-400" : "text-slate-500"}`}>
+                    Manage staff coverage and daily session adjustments.
+                </p>
+            </header>
 
-            {selectedOrgId && (
-                <SubstitutionWorkspace organisationId={selectedOrgId} />
-            )}
-        </div>
+            <div className="max-w-7xl mx-auto space-y-6">
+                <OrganisationPicker
+                    organisations={organisations}
+                    selectedOrgId={selectedOrgId}
+                    onSelect={setSelectedOrgId}
+                />
+
+                {selectedOrgId && (
+                    <div className={`p-6 rounded-3xl border ${theme === "light" ? "bg-white border-slate-100" : "bg-[#0f172a] border-slate-800"}`}>
+                        <SubstitutionWorkspace organisationId={selectedOrgId} />
+                    </div>
+                )}
+            </div>
+        </main>
     );
 }
 
