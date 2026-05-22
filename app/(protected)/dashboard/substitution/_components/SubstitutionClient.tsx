@@ -19,7 +19,6 @@ type ClericalEntry = {
 
 /* ---------- Utility ---------- */
 
-/** Turn a list of {id, name} / {organisationId, organisationName} into Organisation[] */
 function toOrgList(raw: { id?: string; name?: string; organisationId?: string; organisationName?: string }[]): Organisation[] {
     return raw.map((o) => ({
         _id: o.id ?? o.organisationId ?? "",
@@ -43,12 +42,10 @@ export default function SubstitutionClient() {
             try {
                 setLoading(true);
 
-                // Fetch Teacher Orgs
                 const teacherRes = await fetch("/api/profile/teacher");
                 const teacherData = teacherRes.ok ? await teacherRes.json() : { teachers: [] };
                 const teacherOrgs = (teacherData.teachers ?? []).flatMap((t: { organisations?: TeacherOrg[] }) => t.organisations ?? []);
 
-                // Fetch Clerical Orgs
                 const clericalRes = await fetch("/api/profile/clerical");
                 const clericalData = clericalRes.ok ? await clericalRes.json() : { clerical: null };
                 const clericalOrgs = clericalData.clerical ? clericalData.clerical.teacherIds.map((t: ClericalEntry) => ({
@@ -73,11 +70,12 @@ export default function SubstitutionClient() {
 
     if (loading) {
         return (
-            <main className={`min-h-screen p-6 md:p-8 space-y-8 animate-pulse ${theme === "light" ? "bg-[#F8FAFC]" : "bg-[#090d16]"}`}>
-                <div className={`h-12 w-64 rounded-xl ${theme === "light" ? "bg-slate-200" : "bg-slate-800"}`} />
+            <main className={`min-h-screen p-6 md:p-8 space-y-8 transition-colors duration-200 ${theme === "light" ? "bg-[#F8FAFC]" : "bg-[#090d16]"
+                }`}>
+                <div className={`h-12 w-64 rounded-2xl animate-pulse ${theme === "light" ? "bg-slate-200" : "bg-slate-800"}`} />
                 <div className="grid md:grid-cols-2 gap-4">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className={`h-24 rounded-2xl ${theme === "light" ? "bg-slate-200" : "bg-slate-800"}`} />
+                        <div key={i} className={`h-24 rounded-2xl animate-pulse ${theme === "light" ? "bg-slate-200" : "bg-slate-800"}`} />
                     ))}
                 </div>
             </main>
@@ -86,9 +84,11 @@ export default function SubstitutionClient() {
 
     if (error || organisations.length === 0) {
         return (
-            <main className={`min-h-screen p-6 flex items-center justify-center ${theme === "light" ? "bg-[#F8FAFC]" : "bg-[#090d16]"}`}>
+            <main className={`min-h-screen p-6 flex items-center justify-center transition-colors duration-200 ${theme === "light" ? "bg-[#F8FAFC]" : "bg-[#090d16]"
+                }`}>
                 <div className="text-center max-w-sm">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 ${theme === "light" ? "bg-blue-50" : "bg-blue-950/40"}`}>
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 ${theme === "light" ? "bg-blue-50" : "bg-blue-950/40"
+                        }`}>
                         <Layers className={`w-5 h-5 ${theme === "light" ? "text-blue-500" : "text-blue-400"}`} />
                     </div>
                     <h2 className={`text-lg font-medium ${theme === "light" ? "text-slate-900" : "text-white"}`}>
@@ -103,14 +103,14 @@ export default function SubstitutionClient() {
     }
 
     return (
-        <main className={`min-h-screen p-4 md:p-6 space-y-6 transition-colors duration-200 
-            ${theme === "light" ? "bg-[#F8FAFC] text-slate-800" : "bg-[#090d16] text-slate-300"}`}>
-
-            <header className={`px-8 py-8 border rounded-3xl ${theme === "light" ? "border-slate-100 bg-white" : "border-slate-800 bg-[#0f172a]"}`}>
-                <h1 className={`text-2xl font-light tracking-tight ${theme === "light" ? "text-slate-900" : "text-white"}`}>
-                    Substitution <span className={`${theme === "light" ? "text-blue-600" : "text-blue-400"} font-normal`}>Management</span>
+        <main className={`min-h-screen p-4 md:p-8 space-y-8 transition-colors duration-200 ${theme === "light" ? "bg-[#F8FAFC] text-slate-900" : "bg-[#090d16] text-white"
+            }`}>
+            <header className={`px-8 py-8 border rounded-3xl transition-colors ${theme === "light" ? "border-slate-200 bg-white shadow-sm" : "border-slate-800 bg-[#0f172a]"
+                }`}>
+                <h1 className="text-2xl font-semibold tracking-tight">
+                    Substitution <span className={`${theme === "light" ? "text-blue-600" : "text-blue-400"}`}>Management</span>
                 </h1>
-                <p className={`text-sm font-light mt-1.5 ${theme === "light" ? "text-slate-400" : "text-slate-500"}`}>
+                <p className={`text-sm font-light mt-1.5 ${theme === "light" ? "text-slate-500" : "text-slate-400"}`}>
                     Manage staff coverage and daily session adjustments.
                 </p>
             </header>
@@ -123,7 +123,8 @@ export default function SubstitutionClient() {
                 />
 
                 {selectedOrgId && (
-                    <div className={`p-6 rounded-3xl border ${theme === "light" ? "bg-white border-slate-100" : "bg-[#0f172a] border-slate-800"}`}>
+                    <div className={`p-6 rounded-3xl border transition-colors ${theme === "light" ? "bg-white border-slate-200 shadow-sm" : "bg-[#0f172a] border-slate-800"
+                        }`}>
                         <SubstitutionWorkspace organisationId={selectedOrgId} />
                     </div>
                 )}

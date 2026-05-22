@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { SlotInfo } from "./SubstitutionWorkspace";
+import { useTheme } from "@/app/theme-provider";
 
 type Teacher = {
     teacherId: string;
@@ -25,6 +26,7 @@ export default function SlotAssignModal({
     onCreated,
     teachersMap = {},
 }: Props) {
+    const { theme } = useTheme();
     const [teachers, setTeachers] = useState<{
         inDepartment: Teacher[];
         others: Teacher[];
@@ -80,106 +82,94 @@ export default function SlotAssignModal({
     const dayLabel = dayNames[slot.day - 1] ?? `Day ${slot.day}`;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-            <div
-                className="absolute inset-0"
-                onClick={onClose}
-                aria-hidden
-            />
-            <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-                    <h3 className="font-semibold text-gray-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="absolute inset-0" onClick={onClose} aria-hidden />
+
+            <div className={`relative rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden transition-colors duration-200 ${theme === "light" ? "bg-white" : "bg-[#0f172a] border border-slate-800"
+                }`}>
+                <div className={`flex items-center justify-between px-6 py-4 border-b ${theme === "light" ? "border-slate-100" : "border-slate-800"
+                    }`}>
+                    <h3 className={`font-semibold ${theme === "light" ? "text-slate-800" : "text-white"}`}>
                         Request substitution
                     </h3>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="p-1 rounded hover:bg-gray-100 text-gray-500"
+                        className={`p-1 rounded-full transition-colors ${theme === "light" ? "hover:bg-slate-100 text-slate-500" : "hover:bg-slate-800 text-slate-400"
+                            }`}
                     >
                         <X size={20} />
                     </button>
                 </div>
 
-                <div className="px-4 py-3 text-sm text-gray-600">
+                <div className={`px-6 py-4 text-sm ${theme === "light" ? "text-slate-600" : "text-slate-400"}`}>
                     <p>
                         {slot.className} · {dayLabel} · P{slot.period}
                         {slot.subject && ` · ${slot.subject}`}
                     </p>
                     {slot.teacherId && (
-                        <p className="text-gray-500 mt-1">
+                        <p className="mt-1">
                             Current:{" "}
-                            <span className="font-medium text-gray-700">
+                            <span className={`font-medium ${theme === "light" ? "text-slate-800" : "text-slate-200"}`}>
                                 {teachersMap[slot.teacherId] ?? slot.teacherId}
                             </span>
                         </p>
                     )}
                 </div>
 
-                <form onSubmit={handleSubmit} className="px-4 pb-4">
-                    {error && (
-                        <p className="text-red-500 text-sm mb-3">{error}</p>
-                    )}
+                <form onSubmit={handleSubmit} className="px-6 pb-6">
+                    {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${theme === "light" ? "text-slate-700" : "text-slate-300"}`}>
                         Assign to teacher
                     </label>
                     {loading ? (
-                        <div className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+                        <div className={`h-10 rounded-xl animate-pulse ${theme === "light" ? "bg-slate-100" : "bg-slate-800"}`} />
                     ) : (
                         <select
                             value={selectedTeacherId}
-                            onChange={(e) =>
-                                setSelectedTeacherId(e.target.value)
-                            }
+                            onChange={(e) => setSelectedTeacherId(e.target.value)}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
+                            className={`w-full px-4 py-2.5 rounded-xl border focus:ring-2 outline-none mb-6 transition-colors ${theme === "light"
+                                    ? "bg-white border-slate-300 text-slate-900 focus:ring-blue-500"
+                                    : "bg-[#1e293b] border-slate-700 text-white focus:ring-blue-500"
+                                }`}
                         >
                             <option value="">Select teacher</option>
                             {teachers.inDepartment.filter(t => t.teacherId !== slot.teacherId).length > 0 && (
                                 <optgroup label="Same department (priority)">
-                                    {teachers.inDepartment
-                                        .filter((t) => t.teacherId !== slot.teacherId)
-                                        .map((t) => (
-                                            <option
-                                                key={t.teacherId}
-                                                value={t.teacherId}
-                                            >
-                                                {t.teacherName}
-                                                {t.subjects?.length ? ` (${t.subjects.join(", ")})` : ""}
-                                            </option>
-                                        ))}
+                                    {teachers.inDepartment.filter((t) => t.teacherId !== slot.teacherId).map((t) => (
+                                        <option key={t.teacherId} value={t.teacherId}>
+                                            {t.teacherName} {t.subjects?.length ? ` (${t.subjects.join(", ")})` : ""}
+                                        </option>
+                                    ))}
                                 </optgroup>
                             )}
                             {teachers.others.filter(t => t.teacherId !== slot.teacherId).length > 0 && (
-                                <optgroup label="Other teachers in organisation">
-                                    {teachers.others
-                                        .filter((t) => t.teacherId !== slot.teacherId)
-                                        .map((t) => (
-                                            <option
-                                                key={t.teacherId}
-                                                value={t.teacherId}
-                                            >
-                                                {t.teacherName}
-                                                {t.subjects?.length ? ` (${t.subjects.join(", ")})` : ""}
-                                            </option>
-                                        ))}
+                                <optgroup label="Other teachers">
+                                    {teachers.others.filter((t) => t.teacherId !== slot.teacherId).map((t) => (
+                                        <option key={t.teacherId} value={t.teacherId}>
+                                            {t.teacherName} {t.subjects?.length ? ` (${t.subjects.join(", ")})` : ""}
+                                        </option>
+                                    ))}
                                 </optgroup>
                             )}
                         </select>
                     )}
 
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex gap-3 justify-end">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                            className={`px-4 py-2 rounded-xl font-medium transition-colors ${theme === "light" ? "text-slate-600 hover:bg-slate-100" : "text-slate-400 hover:bg-slate-800"
+                                }`}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={!selectedTeacherId || submitting}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
                             {submitting ? "Creating…" : "Create request"}
                         </button>
