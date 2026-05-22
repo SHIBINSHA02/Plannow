@@ -1,10 +1,16 @@
+"use client";
+
+import { useTheme } from "@/app/theme-provider";
+
 export default function Loading() {
+    const { theme } = useTheme();
+
     return (
-        <div className="min-h-screen p-10 space-y-10">
+        <div className={`min-h-screen p-10 space-y-10 ${theme === "light" ? "bg-[#F8FAFC]" : "bg-[#090d16]"}`}>
             {/* Header */}
             <div className="space-y-4">
-                <div className="h-10 w-1/2 bg-gray-200 rounded-lg animate-pulse" />
-                <div className="h-6 w-1/3 bg-gray-200 rounded-lg animate-pulse" />
+                <div className={`h-10 w-1/2 rounded-lg animate-pulse ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`} />
+                <div className={`h-6 w-1/3 rounded-lg animate-pulse ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`} />
             </div>
 
             {/* Stats / Cards */}
@@ -12,20 +18,20 @@ export default function Loading() {
                 {[1, 2, 3].map((i) => (
                     <div
                         key={i}
-                        className="h-40 bg-gray-200 rounded-xl animate-pulse"
+                        className={`h-40 rounded-xl animate-pulse ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`}
                     />
                 ))}
             </div>
 
             {/* Content Section */}
             <div className="space-y-6">
-                <div className="h-8 w-1/4 bg-gray-200 rounded-lg animate-pulse" />
+                <div className={`h-8 w-1/4 rounded-lg animate-pulse ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`} />
 
                 <div className="space-y-4">
-                    <div className="h-5 w-full bg-gray-200 rounded animate-pulse" />
-                    <div className="h-5 w-11/12 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-5 w-10/12 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-5 w-9/12 bg-gray-200 rounded animate-pulse" />
+                    <div className={`h-5 w-full rounded animate-pulse ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`} />
+                    <div className={`h-5 w-11/12 rounded animate-pulse ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`} />
+                    <div className={`h-5 w-10/12 rounded animate-pulse ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`} />
+                    <div className={`h-5 w-9/12 rounded animate-pulse ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`} />
                 </div>
             </div>
 
@@ -34,7 +40,7 @@ export default function Loading() {
                 {[1, 2, 3, 4, 5].map((i) => (
                     <div
                         key={i}
-                        className="h-16 w-full bg-gray-200 rounded-xl animate-pulse"
+                        className={`h-16 w-full rounded-xl animate-pulse ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`}
                     />
                 ))}
             </div>
