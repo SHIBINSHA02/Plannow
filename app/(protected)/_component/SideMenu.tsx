@@ -78,7 +78,7 @@ export default function Sidebar() {
             {/* ---------- Sidebar ---------- */}
             <aside
                 className={`
-                    fixed z-50 top-0 left-0 h-screen w-64
+                    fixed z-50 top-0 left-0  w-64
                     transform transition-transform duration-300
                     ${theme === "light"
                         ? "bg-white border-r border-gray-200"

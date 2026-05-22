@@ -7,6 +7,8 @@ import TeachersSection from "./_components/Teachers/TeachersSection";
 import { Edit, Sparkles, Loader2, Delete, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { Submissions } from "./_components/Submissions";
+import { useTheme } from "@/app/theme-provider"; // Hook integrated safely
+
 /* ---------- Types ---------- */
 
 type Organisation = {
@@ -32,8 +34,6 @@ export default function OrganisationPage() {
     const [canEdit, setCanEdit] = useState(false);
     const [loading, setLoading] = useState(true);
 
-
-
     /* Edit state */
     const [showEdit, setShowEdit] = useState(false);
     const [profileUrl, setProfileUrl] = useState("");
@@ -48,6 +48,7 @@ export default function OrganisationPage() {
     const [generatedLink, setGeneratedLink] = useState("");
     const [generatingLink, setGeneratingLink] = useState(false);
 
+    const { theme } = useTheme();
 
     /* ---------- Fetch Organisation ---------- */
     useEffect(() => {
@@ -61,7 +62,6 @@ export default function OrganisationPage() {
                 );
 
                 if (!res.ok) {
-                    // layout already protects, this is fallback
                     router.replace("/unauthorized");
                     return;
                 }
@@ -83,8 +83,6 @@ export default function OrganisationPage() {
         fetchOrganisation();
     }, [organisationId, router]);
 
-  
- 
     /* ---------- Save Images ---------- */
     const handleSaveImages = async () => {
         if (!canEdit) return;
@@ -117,16 +115,14 @@ export default function OrganisationPage() {
         }
     };
 
-    
-
     /* ---------- GATED RENDERING ---------- */
 
     if (loading) {
         return (
             <div className="p-8 space-y-6 animate-pulse">
-                <div className="h-48 bg-gray-200 rounded-xl" />
-                <div className="h-8 w-64 bg-gray-200 rounded-lg" />
-                <div className="h-4 w-40 bg-gray-200 rounded-md" />
+                <div className={`h-48 rounded-xl ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`} />
+                <div className={`h-8 w-64 rounded-lg ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`} />
+                <div className={`h-4 w-40 rounded-md ${theme === "light" ? "bg-gray-200" : "bg-slate-800"}`} />
             </div>
         );
     }
@@ -181,72 +177,118 @@ export default function OrganisationPage() {
     return (
         <div className="space-y-8">
             {/* ---------- Organisation Header ---------- */}
-            <div className={`flex flex-col rounded-xl relative overflow-hidden border border-gray-300 ${organisation.allowParallelAssignments ? "shadow-md shadow-blue-400" : "shadow-md shadow-gray-300"}`}>
-                {/* Background */}
+            <div
+                className={`flex flex-col rounded-xl relative overflow-hidden border transition-all duration-200
+                    ${theme === "light"
+                        ? "border-gray-300"
+                        : "border-slate-800"} 
+                    ${organisation.allowParallelAssignments
+                        ? (theme === "light" ? "shadow-md shadow-blue-400" : "shadow-md shadow-blue-950/50")
+                        : (theme === "light" ? "shadow-md shadow-gray-300" : "shadow-none")}`}
+            >
+                {/* Background Banner */}
                 {organisation.backgroundImageUrl ? (
                     <div
-                        className="h-48 bg-cover bg-center "
+                        className="h-48 bg-cover bg-center"
                         style={{
                             backgroundImage: `url(${organisation.backgroundImageUrl})`,
                         }}
                     />
                 ) : (
-                    <div className="h-48 bg-gradient-to-br from-blue-300 via-blue-50 to-blue-300  " />
+                    <div
+                        className={`h-48 bg-gradient-to-br 
+                            ${theme === "light"
+                                ? "from-blue-300 via-blue-50 to-blue-300"
+                                : "from-slate-900 via-blue-950/30 to-slate-900"}`}
+                    />
                 )}
 
-                {/* Content */}
-                <div className={`flex flex-col px-6 pb-6 -mt-12 items-start gap-4   ${organisation.allowParallelAssignments ? "bg-gradient-to-bl from-blue-600 via-blue-500 via-20% to-blue-600 " : "bg-white"}`}
-                    >
+                {/* Info Bar Panel Content */}
+                <div
+                    className={`flex flex-col px-6 pb-6 -mt-12 items-start gap-4 relative z-10
+                        ${organisation.allowParallelAssignments
+                            ? (theme === "light"
+                                ? "bg-gradient-to-bl from-blue-600 via-blue-500 via-20% to-blue-600"
+                                : "bg-gradient-to-bl from-blue-950 via-slate-900 via-20% to-blue-950")
+                            : (theme === "light" ? "bg-white" : "bg-[#0f172a]")}`}
+                >
+                    {/* SVG Noise Overlay */}
                     <div
-                        className="absolute inset-0 opacity-50 pointer-events-none mix-blend-overlay"
+                        className="absolute inset-0 opacity-[0.15] pointer-events-none mix-blend-overlay"
                         style={{
                             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 450 450' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
                         }}
                     />
-                    
-                    {/* Profile */}
+
+                    {/* Profile Avatar Shell */}
                     <div className="relative -top-10">
-                    {organisation.profileImageUrl ? (
-                        <img
-                            src={organisation.profileImageUrl}
-                            alt="Organisation Profile"
-                            className="w-24 h-24 rounded-full border-4 border-white object-cover bg-white"
-                        />
-                    ) : (
-                        <div className="w-24 h-24 rounded-full border-4 border-white bg-blue-600 flex items-center justify-center text-white text-2xl font-bold">
-                            {organisation.organisationName.charAt(0)}
-                        </div>
-                    )}
+                        {organisation.profileImageUrl ? (
+                            <img
+                                src={organisation.profileImageUrl}
+                                alt="Organisation Profile"
+                                className={`w-24 h-24 rounded-full border-4 object-cover
+                                    ${theme === "light" ? "border-white bg-white" : "border-slate-900 bg-slate-900"}`}
+                            />
+                        ) : (
+                            <div
+                                className={`w-24 h-24 rounded-full border-4 flex items-center justify-center text-2xl font-bold
+                                    ${theme === "light"
+                                        ? "border-white bg-blue-600 text-white"
+                                        : "border-slate-900 bg-blue-500 text-slate-900"}`}
+                            >
+                                {organisation.organisationName.charAt(0)}
+                            </div>
+                        )}
                     </div>
 
-                    {/* Text */}
-                    <div className="w-full flex items-center justify-between ">
+                    {/* Meta Fields Block */}
+                    <div className="w-full flex items-center justify-between relative z-10">
                         <div>
-                            <h1 className={`text-3xl font-semibold  ${organisation.allowParallelAssignments ? "text-white " : "text-blue-600"}`}>
+                            <h1
+                                className={`text-3xl font-semibold 
+                                    ${organisation.allowParallelAssignments
+                                        ? "text-white"
+                                        : (theme === "light" ? "text-blue-600" : "text-slate-100")}`}
+                            >
                                 {organisation.organisationName}
                             </h1>
-                            <p className={`text-sm text-gray-700 my-3 ${organisation.allowParallelAssignments ? "text-white/50":"text-blue-600"}`}>
+                            <p
+                                className={`text-sm my-3 
+                                    ${organisation.allowParallelAssignments
+                                        ? (theme === "light" ? "text-white/50" : "text-slate-400/60")
+                                        : (theme === "light" ? "text-blue-600" : "text-blue-400")}`}
+                            >
                                 Organisation ID: {organisationId}
                             </p>
+
+                            {/* Toggle Configuration Control */}
                             <div className="flex items-center gap-3">
-                                <h1 className={`text-gray-800 text-base " ${organisation.allowParallelAssignments ? "text-white" : "text-blue-600"}`}>Enable Parallel Assignment</h1>
+                                <h1
+                                    className={`text-base font-medium
+                                        ${organisation.allowParallelAssignments
+                                            ? "text-white"
+                                            : (theme === "light" ? "text-blue-600" : "text-slate-300")}`}
+                                >
+                                    Enable Parallel Assignment
+                                </h1>
                                 <button
                                     onClick={handleToggleParallelAssignment}
-                                    className={`w-10 h-5 flex items-center rounded-full p-1 transition ${organisation.allowParallelAssignments
-                                            ? "bg-white  shadow-blue-200 shadow-inner"
-                                            : "bg-white border border-gray-300  shadow-xl"
+                                    className={`w-10 h-5 flex items-center rounded-full p-1 transition-all duration-200
+                                        ${organisation.allowParallelAssignments
+                                            ? (theme === "light" ? "bg-white shadow-blue-200 shadow-inner" : "bg-blue-500")
+                                            : (theme === "light" ? "bg-white border border-gray-300 shadow-xl" : "bg-slate-800 border border-slate-700")
                                         }`}
                                 >
                                     <div
-                                        className={` w-4 h-4 rounded-full shadow-md transform transition ${organisation.allowParallelAssignments
-                                                ? "translate-x-4 border border-blue-500 bg-blue-600 shadow-lg shadow-inner"
-                                                : "translate-x-0 border border-blue-600 bg-blue-600 shadow-lg shadow-inner"
+                                        className={`w-4 h-4 rounded-full shadow-md transform transition-transform duration-200
+                                            ${organisation.allowParallelAssignments
+                                                ? `translate-x-4 border shadow-inner ${theme === "light" ? "border-blue-500 bg-blue-600" : "border-slate-900 bg-slate-900"}`
+                                                : `translate-x-0 border shadow-md ${theme === "light" ? "border-blue-600 bg-blue-600" : "border-slate-600 bg-slate-500"}`
                                             }`}
                                     />
                                 </button>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -259,7 +301,7 @@ export default function OrganisationPage() {
                 setOrganisation={setOrganisation}
             />
             <TeachersSection organisationId={organisationId} />
-            <ClassroomSection organisationId={organisationId} /> 
+            <ClassroomSection organisationId={organisationId} />
         </div>
     );
 }

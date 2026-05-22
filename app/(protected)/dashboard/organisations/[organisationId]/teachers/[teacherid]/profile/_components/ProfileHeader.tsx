@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Mail, Building2, Camera, Upload, X } from "lucide-react";
+import { Mail, Building2, Camera } from "lucide-react";
 import EditTeacherModal from "./EditTeacherModal";
+import { useTheme } from "@/app/theme-provider";
 
 type Teacher = {
     teacherId: string;
@@ -18,6 +19,7 @@ type Props = {
 };
 
 export default function ProfileHeader({ teacher, organisationId }: Props) {
+    const { theme } = useTheme();
     const [uploading, setUploading] = useState(false);
     const [currentImage, setCurrentImage] = useState(teacher.profileImageUrl);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,21 +56,41 @@ export default function ProfileHeader({ teacher, organisationId }: Props) {
     };
 
     return (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 sm:p-8">
+        <div
+            className={`border rounded-lg shadow-sm p-6 sm:p-8 transition-colors duration-300
+            ${theme === "light"
+                    ? "bg-white border-gray-200 shadow-blue-700/5"
+                    : "bg-[#0d1527] border-gray-800 shadow-none"}
+        `}
+        >
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
                 {/* Profile Image Section */}
                 <div className="relative group">
-                    <div className="w-32 h-32 rounded-2xl border-4 border-white bg-gray-50 overflow-hidden shadow-lg flex items-center justify-center transition-all group-hover:border-blue-100">
+                    <div
+                        className={`w-32 h-32 rounded-2xl border-4 overflow-hidden shadow-lg flex items-center justify-center transition-all duration-300
+                        ${theme === "light"
+                                ? "border-white bg-gray-50 group-hover:border-blue-100"
+                                : "border-[#1e293b] bg-[#090f1c] group-hover:border-blue-950"}
+                    `}
+                    >
                         {currentImage ? (
                             <img src={currentImage} alt={teacher.teacherName} className="w-full h-full object-cover" />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center text-4xl font-bold bg-blue-50 text-blue-400">
+                            <div
+                                className={`w-full h-full flex items-center justify-center text-4xl font-bold transition-colors duration-300
+                                ${theme === "light" ? "bg-blue-50 text-blue-400" : "bg-blue-950/40 text-blue-500"}
+                            `}
+                            >
                                 {teacher.teacherName[0]}
                             </div>
                         )}
 
                         {uploading && (
-                            <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                            <div
+                                className={`absolute inset-0 flex items-center justify-center transition-colors duration-300
+                                ${theme === "light" ? "bg-white/60" : "bg-[#020817]/60"}
+                            `}
+                            >
                                 <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                             </div>
                         )}
@@ -76,7 +98,11 @@ export default function ProfileHeader({ teacher, organisationId }: Props) {
 
                     <button
                         onClick={() => fileInputRef.current?.click()}
-                        className="absolute -bottom-2 -right-2 p-2 bg-white text-blue-600 rounded-lg shadow-md border border-blue-50 hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110"
+                        className={`absolute -bottom-2 -right-2 p-2 rounded-lg shadow-md border transition-all transform hover:scale-110 duration-300
+                        ${theme === "light"
+                                ? "bg-white text-blue-600 border-blue-50 hover:bg-blue-600 hover:text-white"
+                                : "bg-[#16223f] text-blue-400 border-gray-800 hover:bg-blue-600 hover:text-white"}
+                    `}
                         title="Change photo"
                     >
                         <Camera className="w-4 h-4" />
@@ -93,19 +119,35 @@ export default function ProfileHeader({ teacher, organisationId }: Props) {
                 <div className="flex-1 w-full flex flex-col sm:flex-row sm:items-start justify-between gap-6">
                     <div className="space-y-3 text-center md:text-left">
                         <div className="space-y-1">
-                            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+                            <h1
+                                className={`text-2xl sm:text-4xl font-bold tracking-tight transition-colors duration-300
+                                ${theme === "light" ? "text-gray-900" : "text-gray-100"}
+                            `}
+                            >
                                 {teacher.teacherName}
                             </h1>
-                            <p className="text-blue-600 font-medium text-sm">Professional Educator</p>
+                            <p className="text-blue-500 font-medium text-sm">Professional Educator</p>
                         </div>
 
-                        <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-600 pt-2">
-                            <span className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
-                                <Mail className="size-4 text-blue-400" />
+                        <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm pt-2">
+                            <span
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-colors duration-300
+                                ${theme === "light"
+                                        ? "bg-gray-50 text-gray-600 border-gray-100"
+                                        : "bg-[#090f1c] text-gray-300 border-gray-800"}
+                            `}
+                            >
+                                <Mail className="size-4 text-blue-500" />
                                 {teacher.email}
                             </span>
-                            <span className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100 font-mono">
-                                <Building2 className="size-4 text-blue-400" />
+                            <span
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-mono transition-colors duration-300
+                                ${theme === "light"
+                                        ? "bg-gray-50 text-gray-600 border-gray-100"
+                                        : "bg-[#090f1c] text-gray-300 border-gray-800"}
+                            `}
+                            >
+                                <Building2 className="size-4 text-blue-500" />
                                 {teacher.teacherId}
                             </span>
                         </div>
@@ -127,7 +169,11 @@ export default function ProfileHeader({ teacher, organisationId }: Props) {
                                 {teacher.subjects.map((s: string) => (
                                     <span
                                         key={s}
-                                        className="px-3 py-1 bg-blue-50 text-blue-700 text-[11px] font-semibold rounded-md border border-blue-100 uppercase tracking-wider"
+                                        className={`px-3 py-1 text-[11px] font-semibold rounded-md border uppercase tracking-wider transition-colors duration-300
+                                        ${theme === "light"
+                                                ? "bg-blue-50 text-blue-700 border-blue-100"
+                                                : "bg-blue-950/40 text-blue-400 border-blue-900/60"}
+                                    `}
                                     >
                                         {s}
                                     </span>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { updateTeacherAction } from "./actions";
 import { useRouter } from "next/navigation";
 import { Pencil, X, Loader2, Trash2 } from "lucide-react";
+import { useTheme } from "@/app/theme-provider";
 
 export default function EditTeacherModal({
     teacher,
@@ -12,6 +13,7 @@ export default function EditTeacherModal({
     teacher: any;
     organisationId: string;
 }) {
+    const { theme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -72,7 +74,6 @@ export default function EditTeacherModal({
             }
 
             setIsOpen(false);
-            // Redirect the user back to the teachers list view after deletion
             router.push(`/dashboard/organisations/${organisationId}/teachers`);
             router.refresh();
         } catch (err: any) {
@@ -86,7 +87,11 @@ export default function EditTeacherModal({
         return (
             <button
                 onClick={() => setIsOpen(true)}
-                className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium"
+                className={`flex items-center gap-1.5 px-4 py-2 text-sm rounded-lg border shadow-sm font-medium transition-colors duration-300
+                ${theme === "light"
+                        ? "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                        : "bg-[#16223f] border-gray-800 text-gray-200 hover:bg-[#1d2d54]"}
+            `}
             >
                 <Pencil className="w-4 h-4" />
                 Edit Profile
@@ -95,30 +100,55 @@ export default function EditTeacherModal({
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white rounded-xl shadow-xl border border-gray-200 w-full max-w-md overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-                <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+            <div
+                className={`rounded-xl shadow-xl border w-full max-w-md overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 transition-colors duration-300
+                ${theme === "light"
+                        ? "bg-white border-gray-200"
+                        : "bg-[#0d1527] border-gray-800"}
+            `}
+            >
+                {/* Header */}
+                <div
+                    className={`flex justify-between items-center px-6 py-4 border-b transition-colors duration-300
+                    ${theme === "light" ? "border-gray-100" : "border-gray-800/60"}
+                `}
+                >
+                    <h3
+                        className={`text-lg font-semibold transition-colors duration-300
+                        ${theme === "light" ? "text-gray-900" : "text-gray-100"}
+                    `}
+                    >
                         Edit Teacher Profile
                     </h3>
                     <button
                         onClick={() => setIsOpen(false)}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        className={`transition-colors ${theme === "light" ? "text-gray-400 hover:text-gray-600" : "text-gray-500 hover:text-gray-300"}`}
                         disabled={loading || isDeleting}
                     >
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
+                {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-5">
                     {error && (
-                        <div className="bg-red-50 text-red-600 border border-red-200 p-3 rounded-lg text-sm">
+                        <div
+                            className={`p-3 rounded-lg text-sm border transition-colors duration-300
+                            ${theme === "light"
+                                    ? "bg-red-50 text-red-600 border-red-200"
+                                    : "bg-red-950/20 text-red-400 border-red-900/40"}
+                        `}
+                        >
                             {error}
                         </div>
                     )}
 
+                    {/* Name Input */}
                     <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-gray-700">Name</label>
+                        <label className={`text-sm font-medium transition-colors duration-300 ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                            Name
+                        </label>
                         <input
                             required
                             type="text"
@@ -126,12 +156,19 @@ export default function EditTeacherModal({
                             value={formData.teacherName}
                             onChange={handleChange}
                             disabled={loading || isDeleting}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:opacity-50"
+                            className={`w-full px-3 py-2 rounded-lg text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 duration-300
+                            ${theme === "light"
+                                    ? "border border-gray-300 bg-white text-gray-900"
+                                    : "border border-gray-800 bg-[#090f1c] text-gray-100 focus:bg-[#0d1527]"}
+                        `}
                         />
                     </div>
 
+                    {/* Email Input */}
                     <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-gray-700">Email</label>
+                        <label className={`text-sm font-medium transition-colors duration-300 ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                            Email
+                        </label>
                         <input
                             required
                             type="email"
@@ -139,12 +176,19 @@ export default function EditTeacherModal({
                             value={formData.email}
                             onChange={handleChange}
                             disabled={loading || isDeleting}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:opacity-50"
+                            className={`w-full px-3 py-2 rounded-lg text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 duration-300
+                            ${theme === "light"
+                                    ? "border border-gray-300 bg-white text-gray-900"
+                                    : "border border-gray-800 bg-[#090f1c] text-gray-100 focus:bg-[#0d1527]"}
+                        `}
                         />
                     </div>
 
+                    {/* Subjects Input */}
                     <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-gray-700">Subjects</label>
+                        <label className={`text-sm font-medium transition-colors duration-300 ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}>
+                            Subjects
+                        </label>
                         <input
                             type="text"
                             name="subjects"
@@ -152,21 +196,33 @@ export default function EditTeacherModal({
                             onChange={handleChange}
                             disabled={loading || isDeleting}
                             placeholder="Math, English, Science"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:opacity-50"
+                            className={`w-full px-3 py-2 rounded-lg text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 duration-300
+                            ${theme === "light"
+                                    ? "border border-gray-300 bg-white text-gray-900 placeholder-gray-400"
+                                    : "border border-gray-800 bg-[#090f1c] text-gray-100 placeholder-gray-600 focus:bg-[#0d1527]"}
+                        `}
                         />
-                        <p className="text-xs text-gray-500">
+                        <p className={`text-xs transition-colors duration-300 ${theme === "light" ? "text-gray-500" : "text-gray-400"}`}>
                             Separate subjects with commas.
                         </p>
                     </div>
 
-                    {/* Action Buttons Container */}
-                    <div className="flex justify-between items-center pt-2 border-t border-gray-100 gap-3">
-                        {/* Delete Button (Left Aligned) */}
+                    {/* Action Buttons Footer */}
+                    <div
+                        className={`flex justify-between items-center pt-4 border-t gap-3 transition-colors duration-300
+                        ${theme === "light" ? "border-gray-100" : "border-gray-800/60"}
+                    `}
+                    >
+                        {/* Delete Button */}
                         <button
                             type="button"
                             onClick={handleDeleteTeacher}
                             disabled={loading || isDeleting}
-                            className="px-4 py-2 flex items-center gap-2 border border-red-200 rounded-lg text-sm bg-red-50 text-red-700 font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+                            className={`px-4 py-2 flex items-center gap-2 rounded-lg text-sm font-medium border transition-colors disabled:opacity-50 duration-300
+                            ${theme === "light"
+                                    ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                                    : "bg-red-950/20 text-red-400 border-red-900/40 hover:bg-red-950/40"}
+                        `}
                         >
                             {isDeleting ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -176,27 +232,34 @@ export default function EditTeacherModal({
                             Delete
                         </button>
 
-                        {/* Cancel / Save Buttons (Right Aligned) */}
+                        {/* Cancel / Save Group */}
                         <div className="flex gap-3">
                             <button
                                 type="button"
                                 onClick={() => setIsOpen(false)}
                                 disabled={loading || isDeleting}
-                                className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors disabled:opacity-50 duration-300
+                                ${theme === "light"
+                                        ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                                        : "bg-transparent border-gray-800 text-gray-300 hover:bg-[#16223f]"}
+                            `}
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading || isDeleting}
-                                className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center justify-center min-w-[100px] disabled:opacity-50"
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center min-w-[110px] disabled:opacity-50 duration-300
+                                ${theme === "light"
+                                        ? "bg-gray-900 text-white hover:bg-gray-800"
+                                        : "bg-blue-600 text-white hover:bg-blue-500"}
+                            `}
                             >
                                 {loading ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : (
                                     "Save Changes"
-                                )
-                                }
+                                )}
                             </button>
                         </div>
                     </div>
