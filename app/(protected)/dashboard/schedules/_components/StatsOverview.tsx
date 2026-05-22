@@ -1,5 +1,7 @@
 "use client";
 
+import { useTheme } from "@/app/theme-provider";
+
 type ScheduleSlot = {
     _id: string;
     day: number;
@@ -10,17 +12,17 @@ type ScheduleSlot = {
 };
 
 export default function StatsOverview({ schedule }: { schedule: ScheduleSlot[] }) {
+    const { theme } = useTheme();
+
     if (!schedule || schedule.length === 0) return null;
 
     const totalClasses = schedule.length;
     const uniqueSubjects = new Set(schedule.map(s => s.subject)).size;
     const uniqueClasses = new Set(schedule.map(s => s.className)).size;
 
-    // Find busiest day
     const dayCounts: Record<number, number> = {};
     schedule.forEach(s => {
-        if (!dayCounts[s.day]) dayCounts[s.day] = 0;
-        dayCounts[s.day]++;
+        dayCounts[s.day] = (dayCounts[s.day] || 0) + 1;
     });
 
     let busiestDay = 1;
@@ -37,36 +39,54 @@ export default function StatsOverview({ schedule }: { schedule: ScheduleSlot[] }
         1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday"
     };
 
+    // Helper classes to make the code cleaner
+    const cardBase = `p-5 rounded-2xl shadow-sm border transition-all hover:shadow-md ${theme === "light"
+        ? "bg-white border-gray-100"
+        : "bg-[#0f172a] border-slate-800"
+        }`;
+
+    const textPrimary = theme === "light" ? "text-blue-700" : "text-blue-400";
+    const textSecondary = theme === "light" ? "text-gray-500" : "text-slate-400";
+    const progressBg = theme === "light" ? "bg-blue-50" : "bg-slate-800";
+    const progressBar = "bg-blue-500";
+
     return (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center transition-all hover:shadow-md hover:border-blue-200">
-                <span className="text-gray-500 text-sm font-medium mb-1">Total Weekly Classes</span>
-                <span className="text-3xl font-bold text-blue-700">{totalClasses}</span>
-                <div className="mt-2 h-1 w-full bg-blue-50 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500 w-full"></div>
+            {/* Total Classes */}
+            <div className={cardBase}>
+                <span className={`text-sm font-medium mb-1 block ${textSecondary}`}>Total Weekly Classes</span>
+                <span className={`text-3xl font-bold ${textPrimary}`}>{totalClasses}</span>
+                <div className={`mt-2 h-1 w-full ${progressBg} rounded-full overflow-hidden`}>
+                    <div className={`h-full ${progressBar} w-full`}></div>
                 </div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center transition-all hover:shadow-md hover:indigo-200">
-                <span className="text-gray-500 text-sm font-medium mb-1">Subjects Taught</span>
-                <span className="text-3xl font-bold text-blue-700">{uniqueSubjects}</span>
-                <div className="mt-2 h-1 w-full bg-blue-50 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500" style={{ width: '70%' }}></div>
+            {/* Subjects */}
+            <div className={cardBase}>
+                <span className={`text-sm font-medium mb-1 block ${textSecondary}`}>Subjects Taught</span>
+                <span className={`text-3xl font-bold ${textPrimary}`}>{uniqueSubjects}</span>
+                <div className={`mt-2 h-1 w-full ${progressBg} rounded-full overflow-hidden`}>
+                    <div className={`h-full ${progressBar}`} style={{ width: '70%' }}></div>
                 </div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center transition-all hover:shadow-md hover:teal-200">
-                <span className="text-gray-500 text-sm font-medium mb-1">Distinct Classes</span>
-                <span className="text-3xl font-bold text-blue-700">{uniqueClasses}</span>
-                <div className="mt-2 h-1 w-full bg-blue-50 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500" style={{ width: '85%' }}></div>
+            {/* Classes */}
+            <div className={cardBase}>
+                <span className={`text-sm font-medium mb-1 block ${textSecondary}`}>Distinct Classes</span>
+                <span className={`text-3xl font-bold ${textPrimary}`}>{uniqueClasses}</span>
+                <div className={`mt-2 h-1 w-full ${progressBg} rounded-full overflow-hidden`}>
+                    <div className={`h-full ${progressBar}`} style={{ width: '85%' }}></div>
                 </div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center transition-all hover:shadow-md hover:purple-200">
-                <span className="text-gray-500 text-sm font-medium mb-1">Busiest Day</span>
-                <span className="text-3xl font-bold text-blue-700 truncate">{dayLabels[busiestDay] || "N/A"}</span>
-                <span className="text-xs font-medium text-blue-600 mt-2 bg-blue-50 self-start px-2 py-1 rounded-md">{maxClasses} classes</span>
+            {/* Busiest Day */}
+            <div className={cardBase}>
+                <span className={`text-sm font-medium mb-1 block ${textSecondary}`}>Busiest Day</span>
+                <span className={`text-3xl font-bold ${textPrimary} truncate`}>{dayLabels[busiestDay] || "N/A"}</span>
+                <span className={`text-xs font-medium mt-2 self-start px-2 py-1 rounded-md block ${theme === "light" ? "bg-blue-50 text-blue-600" : "bg-blue-950/40 text-blue-400"
+                    }`}>
+                    {maxClasses} classes
+                </span>
             </div>
         </div>
     );
