@@ -1,6 +1,7 @@
+// app/(protected)/dashboard/organisations/[organisationId]/page.tsx
 "use client";
 
-import { MouseEventHandler, useEffect, useState } from "react";
+
 import { useParams, useRouter } from "next/navigation";
 import ClassroomSection from "./_components/ClassroomSection";
 import TeachersSection from "./_components/Teachers/TeachersSection";
@@ -8,6 +9,8 @@ import { Edit, Sparkles, Loader2, Delete, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { Submissions } from "./_components/Submissions";
 import { useTheme } from "@/app/theme-provider"; // Hook integrated safely
+import { createToggleParallelAssignment} from "./_functions/tools";
+import { useEffect, useState } from "react";
 
 /* ---------- Types ---------- */
 
@@ -131,46 +134,12 @@ export default function OrganisationPage() {
         return null;
     }
 
-    const handleToggleParallelAssignment: MouseEventHandler<HTMLButtonElement> = async () => {
-        try {
-            setLoading(true);
-
-            const updatedValue = !organisation.allowParallelAssignments;
-
-            const res = await fetch(`/api/organisation/${organisationId}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    allowParallelAssignments: updatedValue,
-                }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.error || "Failed to update setting");
-            }
-
-            setOrganisation((prev) => {
-                if (!prev) return null;
-
-                return {
-                    ...prev,
-                    allowParallelAssignments: updatedValue,
-                };
-            });
-
-            console.log(data.message);
-
-        } catch (error: any) {
-            console.error(error);
-            alert(error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const handleToggleParallelAssignment = createToggleParallelAssignment({
+        organisationId,
+        organisation,
+        setOrganisation,
+        setLoading
+    });
 
     /* ---------- FULL CONTENT ---------- */
 
@@ -209,7 +178,7 @@ export default function OrganisationPage() {
                         ${organisation.allowParallelAssignments
                             ? (theme === "light"
                                 ? "bg-gradient-to-bl from-blue-600 via-blue-500 via-20% to-blue-600"
-                                : "bg-gradient-to-bl from-blue-950 via-slate-900 via-20% to-blue-950")
+                                : "bg-gradient-to-bl from-blue-600 via-blue-500 via-20% to-blue-750")
                             : (theme === "light" ? "bg-white" : "bg-[#0f172a]")}`}
                 >
                     {/* SVG Noise Overlay */}
