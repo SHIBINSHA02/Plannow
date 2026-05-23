@@ -51,10 +51,35 @@ type ScheduleGridContextType = {
     deleteAssignment: (day: number, period: number, index: number) => Promise<void>;
     saveSlot: (day: number, period: number, index: number, slot: Assignment) => void;
     refreshTeachers: () => Promise<void>;
+    reloadSchedule: () => Promise<void>;
     allOrganisationAssignments: any[];
     allowParallelAssignments: boolean;
     refreshOrganisationData: () => Promise<void>;
 };
+
+function scheduleToGrid(
+    schedule: { day: number; period: number; _id?: string; teacherId?: string; subject?: string }[],
+    dayCount: number,
+    periodCount: number
+): Assignment[][][] {
+    const grid: Assignment[][][] = Array.from({ length: dayCount }, () =>
+        Array.from({ length: periodCount }, () => [])
+    );
+
+    schedule.forEach((slot) => {
+        const d = slot.day - 1;
+        const p = slot.period - 1;
+        if (grid[d]?.[p]) {
+            grid[d][p].push({
+                _id: slot._id,
+                teacherId: slot.teacherId ?? "",
+                subject: slot.subject ?? "",
+            });
+        }
+    });
+
+    return grid;
+}
 
 const ScheduleGridContext =
     createContext<ScheduleGridContextType | null>(null);
@@ -86,6 +111,10 @@ export function ScheduleGridProvider({
     const [subjectsConfig, setSubjectsConfig] = useState<SubjectConfig[]>(initialSubjectsConfig);
     const [allOrganisationAssignments, setAllOrganisationAssignments] = useState<any[]>([]);
     const [allowParallelAssignments, setAllowParallelAssignments] = useState(false);
+
+    useEffect(() => {
+        setGrid(initialGrid);
+    }, [initialGrid]);
 
     useEffect(() => {
         if (initialSubjectsConfig) {
@@ -188,6 +217,32 @@ export function ScheduleGridProvider({
         loadOrganisationData();
     }, [organisationId]);
 
+    const reloadSchedule = async () => {
+        if (!organisationId || !classroomId) return;
+
+        const scheduleRes = await fetch(
+            `/api/schedule/classroom/${classroomId}?organisationId=${organisationId}`
+        );
+        if (scheduleRes.ok) {
+            const schedule = await scheduleRes.json();
+            setGrid(scheduleToGrid(schedule, days.length, periods.length));
+        }
+
+        const classroomRes = await fetch(
+            `/api/classrooms?organisationId=${organisationId}`
+        );
+        if (classroomRes.ok) {
+            const classrooms = await classroomRes.json();
+            const current = classrooms.find(
+                (c: { classroomId: string }) => c.classroomId === classroomId
+            );
+            if (current?.subjects) {
+                setSubjectsConfig(current.subjects);
+            }
+        }
+
+        await loadOrganisationData();
+    };
 
     /* ---------- Grid Mutations ---------- */
 
@@ -351,6 +406,7 @@ export function ScheduleGridProvider({
                 saveSlot: (d, p, i, s) =>
                     debouncedSave(debounceKey(s, d, p, i), d, p, i, s),
                 refreshTeachers: loadTeachers,
+                reloadSchedule,
                 allOrganisationAssignments,
                 allowParallelAssignments,
                 refreshOrganisationData: loadOrganisationData,

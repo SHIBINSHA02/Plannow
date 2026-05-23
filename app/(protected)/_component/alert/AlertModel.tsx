@@ -19,7 +19,8 @@ export default function AlertModal({
     cancelText = "Cancel" 
 }: AlertModalProps) {
     if (!isOpen) return null;
-    if (!isOpen) return null;
+
+    const isConfirm = Boolean(cancelText);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -52,14 +53,22 @@ export default function AlertModal({
                     </p>
                 </div>
 
-                {/* Action Button */}
-                <div className="mt-6 flex justify-end">
+                <div className={`mt-6 flex justify-end gap-3 ${isConfirm ? "" : ""}`}>
+                    {isConfirm && (
+                        <button
+                            type="button"
+                            className="inline-flex justify-center rounded-xl border border-zinc-200 px-5 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors"
+                            onClick={onClose}
+                        >
+                            {cancelText}
+                        </button>
+                    )}
                     <button
                         type="button"
                         className="inline-flex justify-center rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-                        onClick={onClose}
+                        onClick={isConfirm ? onConfirm : onClose}
                     >
-                        Got it, thanks!
+                        {isConfirm ? confirmText : confirmText || "Got it, thanks!"}
                     </button>
                 </div>
             </div>
