@@ -31,11 +31,38 @@ function sortTeachersByWorkload(
     });
 }
 
+/** Remove teachers already assigned to another slot at this day/period. */
+function excludeBusyTeachers(
+    sortedIds: string[],
+    busyAtSlot: Set<string> | undefined
+): string[] {
+    if (!busyAtSlot?.size) return sortedIds;
+    return sortedIds.filter((id) => !busyAtSlot.has(id));
+}
+
+function pickTeacherForSlot(
+    availableSortedIds: string[],
+    previousTeacherId: string | undefined
+): string | null {
+    if (availableSortedIds.length === 0) return null;
+
+    const preferred = previousTeacherId
+        ? availableSortedIds.filter((id) => id !== previousTeacherId)
+        : availableSortedIds;
+
+    if (preferred.length > 0) return preferred[0];
+
+    // No other teacher left — allow same teacher as previous period
+    return availableSortedIds[0];
+}
+
 /**
  * Auto-fill schedule slots for a single classroom.
  * - Scans day 1..N and period 1..M for empty classroom slots
  * - Picks teachers with lowest TeacherWorkload at that day/period (tie-break: teacherId)
- * - Skips a teacher if they already teach the previous period in this classroom
+ * - Excludes teachers already assigned elsewhere at the same day/period
+ * - Prefers a different teacher than the previous period in this classroom
+ * - Falls back to the same teacher when no other qualified teacher is available
  */
 export async function performClassroomAutoAssignment(
     organisationId: string,
@@ -120,15 +147,17 @@ export async function performClassroomAutoAssignment(
                     .map((t) => t.teacherId);
 
                 const sortedIds = sortTeachersByWorkload(candidateIds, workloadByTeacher);
+                const availableSortedIds = excludeBusyTeachers(
+                    sortedIds,
+                    teacherBusy[day]?.[period]
+                );
 
-                for (const teacherId of sortedIds) {
-                    if (previousTeacherId && teacherId === previousTeacherId) continue;
+                const teacherId = pickTeacherForSlot(
+                    availableSortedIds,
+                    previousTeacherId
+                );
 
-                    const isBusy =
-                        !org.allowParallelAssignments &&
-                        teacherBusy[day]?.[period]?.has(teacherId);
-                    if (isBusy) continue;
-
+                if (teacherId) {
                     await ScheduleSlot.create(
                         [
                             {
@@ -172,7 +201,6 @@ export async function performClassroomAutoAssignment(
                     sub.currentWeeklyHoursLeft = (sub.currentWeeklyHoursLeft ?? 0) - 1;
                     assignedCount++;
                     assigned = true;
-                    break;
                 }
 
                 if (assigned) break;
