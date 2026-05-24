@@ -41,9 +41,53 @@ export async function PATCH(
             );
         }
 
-        const { profileImageUrl, backgroundImageUrl, allowParallelAssignments } = await req.json();
+        const body = await req.json();
+        const {
+            profileImageUrl,
+            backgroundImageUrl,
+            allowParallelAssignments,
+            organisationName,
+            workingDays,
+            periodsPerDay,
+            editors,
+        } = body ?? {};
 
         await connectDB();
+
+        const existingOrganisation = await Organisation.findOne({
+            organisationId,
+            $or: [{ adminName: email }, { editors: email }],
+        }).lean();
+
+        if (!existingOrganisation) {
+            return NextResponse.json(
+                { message: "Forbidden" },
+                { status: 403 }
+            );
+        }
+
+        const isAdmin = existingOrganisation.adminName === email;
+
+        const setUpdates: Record<string, any> = {};
+
+        if (profileImageUrl !== undefined) setUpdates.profileImageUrl = profileImageUrl;
+        if (backgroundImageUrl !== undefined) setUpdates.backgroundImageUrl = backgroundImageUrl;
+        if (allowParallelAssignments !== undefined) setUpdates.allowParallelAssignments = allowParallelAssignments;
+
+        if (organisationName !== undefined) setUpdates.organisationName = organisationName;
+        if (workingDays !== undefined) setUpdates.workingDays = workingDays;
+        if (periodsPerDay !== undefined) setUpdates.periodsPerDay = periodsPerDay;
+
+        // Editors list is admin-only (prevents editors from escalating privileges)
+        if (editors !== undefined) {
+            if (!isAdmin) {
+                return NextResponse.json(
+                    { message: "Forbidden" },
+                    { status: 403 }
+                );
+            }
+            setUpdates.editors = editors;
+        }
 
         // ✅ AUTHORISATION CHECK (ADMIN / EDITOR ONLY)
         const organisation = await Organisation.findOneAndUpdate(
@@ -56,9 +100,7 @@ export async function PATCH(
             },
             {
                 $set: {
-                    profileImageUrl: profileImageUrl ?? undefined,
-                    backgroundImageUrl: backgroundImageUrl ?? undefined,
-                    allowParallelAssignments: allowParallelAssignments ?? undefined,
+                    ...setUpdates,
                 },
             },
             { new: true, runValidators: true }
@@ -129,10 +171,12 @@ export async function GET(
         const canEdit =
             organisation.adminName === email ||
             organisation.editors.includes(email);
+        const isAdmin = organisation.adminName === email;
 
         return NextResponse.json({
             organisation,
             canEdit,
+            isAdmin,
         });
     } catch (error) {
         console.error("organisation GET error:", error);
