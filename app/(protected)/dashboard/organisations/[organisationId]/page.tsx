@@ -2,7 +2,7 @@
 "use client";
 
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import ClassroomSection from "./_components/ClassroomSection";
 import TeachersSection from "./_components/Teachers/TeachersSection";
 import { Edit, Sparkles, Loader2, Delete, Trash2, FolderKanban } from "lucide-react";
@@ -11,7 +11,6 @@ import { Submissions } from "./_components/Submissions";
 import { useTheme } from "@/app/theme-provider"; // Hook integrated safely
 import { createToggleParallelAssignment} from "./_functions/tools";
 import { useEffect, useState } from "react";
-
 /* ---------- Types ---------- */
 
 type Organisation = {
@@ -31,6 +30,8 @@ type OrganisationResponse = {
 export default function OrganisationPage() {
     const params = useParams();
     const router = useRouter();
+    const pathname = usePathname();
+    
     const organisationId = params.organisationId as string;
 
     const [organisation, setOrganisation] = useState<Organisation | null>(null);
@@ -50,6 +51,10 @@ export default function OrganisationPage() {
     const [linkInstructions, setLinkInstructions] = useState("");
     const [generatedLink, setGeneratedLink] = useState("");
     const [generatingLink, setGeneratingLink] = useState(false);
+
+
+
+    
 
     const { theme } = useTheme();
 
@@ -141,6 +146,11 @@ export default function OrganisationPage() {
         setLoading
     });
 
+    const handleNavigate = () => {
+       
+        const cleanPath = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+        router.push(`${cleanPath}/manage`);
+    };
     /* ---------- FULL CONTENT ---------- */
 
     return (
@@ -260,16 +270,15 @@ export default function OrganisationPage() {
                         </div>
                         <div>
                             <button
-                                onClick={() => setShowEdit(true)}
+                                onClick={handleNavigate}
                                 disabled={!canEdit}
-                                className={`ml-4 p-2 px-3  rounded-lg transition  flex items-center gap-1 border border-slate-500
-                                    ${canEdit
+                                className={`ml-4 p-2 px-3 rounded-lg transition flex items-center gap-1 border border-slate-500
+    ${canEdit
                                         ? (theme === "light" ? "text-gray-600 hover:bg-gray-100" : "text-slate-400 hover:bg-slate-700")
                                         : (theme === "light" ? "text-gray-300 cursor-not-allowed" : "text-slate-700 cursor-not-allowed")
                                     }`}
                             >
-                              
-                                <FolderKanban  size={18} />
+                                <FolderKanban size={18} />
                                 Manage Organisation
                             </button>
                         </div>
