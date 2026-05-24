@@ -1,3 +1,4 @@
+// app/(protected)/dashboard/organisations/[organisationId]/_components/ClassroomScheduleTable.tsx
 "use client";
 
 /* cspell:disable-next-line */

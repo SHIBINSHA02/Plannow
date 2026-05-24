@@ -1,3 +1,4 @@
+// app/(protected)/dashboard/organisations/[organisationId]/classrooms/[classroomId]/schedule/page.tsx
 import ClassroomScheduleClient from "./../../../_components/ClassroomScheduleClient";
 import { Assignment } from "@/app/(protected)/dashboard/_types/schedule";
 import { headers } from "next/headers";

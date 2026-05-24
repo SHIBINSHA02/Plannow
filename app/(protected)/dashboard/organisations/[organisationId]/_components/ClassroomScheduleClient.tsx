@@ -1,3 +1,4 @@
+// app/(protected)/dashboard/organisations/[organisationId]/_components/ClassroomScheduleClient.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -130,6 +131,49 @@ function ClassroomScheduleActions({
                         <Sparkles size={18} />
                     )}
                     {isAutoScheduling ? "Scheduling…" : "Auto Schedule"}
+                </button>
+                <button
+                    onClick={async () => {
+                        try {
+                            const res = await fetch(
+                                `/api/classrooms/classroom/${classroomId}/clear`,
+                                {
+                                    method: "DELETE",
+                                }
+                            );
+
+                            const data = await res.json();
+
+                            if (!res.ok) {
+                                throw new Error(data.error || "Failed to clear schedule");
+                            }
+
+                            await reloadSchedule();
+
+                            setAlertConfig({
+                                isOpen: true,
+                                title: "Success",
+                                message: "Schedule cleared successfully.",
+                                type: "info",
+                            });
+                        } catch (error: unknown) {
+                            setAlertConfig({
+                                isOpen: true,
+                                title: "Error",
+                                message:
+                                    error instanceof Error
+                                        ? error.message
+                                        : "Something went wrong",
+                                type: "error",
+                            });
+                        }
+                    }}
+                    className={`p-3 rounded-xl border transition-all active:scale-95 shadow-sm
+                        ${theme === "light"
+                            ? "bg-white border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                            : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-200"}`}
+                >
+                    Clear All Schedule
                 </button>
             </div>
 

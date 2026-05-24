@@ -1,3 +1,4 @@
+// app/api/classrooms/route.ts
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Classroom from "@/models/Classroom";
