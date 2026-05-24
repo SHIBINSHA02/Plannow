@@ -1,6 +1,5 @@
-import EditClassOnboarding from "../../_components/EditClassOnboarding";
+import EditClassroomClient from "../../_components/EditClassroomClient";
 import { headers } from "next/headers";
-import { ScheduleGridProvider } from "../../../../../context/ScheduleGridContext";
 
 export default async function Page({
     params,
@@ -29,26 +28,19 @@ export default async function Page({
     const classrooms = await classroomRes.json();
     const currentClassroom = classrooms.find((c: any) => c.classroomId === classroomId);
 
-    if (!currentClassroom) return <div className="p-6">Classroom not found</div>;
+    if (!currentClassroom) {
+        return (
+            <div className="p-6 text-gray-500 dark:text-slate-400">
+                Classroom not found
+            </div>
+        );
+    }
 
     return (
-        <div className="p-6 max-w-7xl mx-auto">
-            <h1 className="text-2xl font-semibold mb-6 text-gray-800">
-                Edit Classroom – <span className="text-blue-600">{currentClassroom.className}</span>
-            </h1>
-            <ScheduleGridProvider
-                initialGrid={[]}
-                days={[]}
-                periods={[]}
-                subjectsConfig={currentClassroom?.subjects || []}
-            >
-                <EditClassOnboarding
-                    organisationId={organisationId}
-                    classroomId={classroomId}
-                    currentClassroom={currentClassroom}
-                    adminEmail={currentClassroom.adminEmail}
-                />
-            </ScheduleGridProvider>
-        </div>
+        <EditClassroomClient
+            organisationId={organisationId}
+            classroomId={classroomId}
+            currentClassroom={currentClassroom}
+        />
     );
 }

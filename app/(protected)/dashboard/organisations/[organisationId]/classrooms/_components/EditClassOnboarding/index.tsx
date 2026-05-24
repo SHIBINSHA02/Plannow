@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "@/app/theme-provider";
 import AddSubjectSection from "./AddSubjectSection";
 import ClassroomDetailsSection from "./ClassroomDetailsSection";
 import SubjectListSection from "./SubjectListSection";
@@ -7,6 +8,7 @@ import type { EditClassOnboardingProps } from "./types";
 import { useEditClassOnboarding } from "./useEditClassOnboarding";
 
 export default function EditClassOnboarding(props: EditClassOnboardingProps) {
+    const { theme } = useTheme();
     const {
         className,
         setClassName,
@@ -42,7 +44,8 @@ export default function EditClassOnboarding(props: EditClassOnboardingProps) {
     return (
         <form
             onSubmit={submit}
-            className="space-y-5 text-gray-700 mt-8 border-t border-blue-700 pt-10 w-full max-w-7xl mx-auto"
+            className={`space-y-5 transition-colors duration-200 mt-8 border-t pt-10 w-full max-w-7xl mx-auto
+                ${theme === "light" ? "text-gray-700 border-blue-700" : "text-slate-200 border-slate-700"}`}
         >
             <ClassroomDetailsSection
                 className={className}
@@ -83,7 +86,7 @@ export default function EditClassOnboarding(props: EditClassOnboardingProps) {
             <button
                 type="submit"
                 disabled={loading}
-                className="w-full p-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors disabled:opacity-70 mt-6"
+                className="w-full p-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all active:scale-[0.99] disabled:opacity-50 mt-6 shadow-md shadow-blue-500/10"
             >
                 {loading ? "Saving Changes..." : "Save Classroom Details"}
             </button>

@@ -1,3 +1,4 @@
+import { useTheme } from "@/app/theme-provider";
 import type { SubjectInput, Teacher } from "./types";
 
 type Props = {
@@ -8,6 +9,12 @@ type Props = {
     clearAllSubjects: (e: React.MouseEvent) => void;
 };
 
+const rowFieldClass = (theme: string) =>
+    `w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium appearance-none
+        ${theme === "light"
+            ? "bg-gray-50 border-gray-200 text-gray-900"
+            : "bg-slate-900 border-slate-800 text-slate-100"}`;
+
 export default function SubjectListSection({
     subjects,
     teachers,
@@ -15,14 +22,20 @@ export default function SubjectListSection({
     removeSubject,
     clearAllSubjects,
 }: Props) {
+    const { theme } = useTheme();
+
     return (
         <div className="space-y-2 mt-4">
-            <label className="text-sm font-medium text-gray-600 block">
+            <label className={`text-sm font-medium block ${theme === "light" ? "text-gray-600" : "text-slate-400"}`}>
                 Current Subjects ({subjects.length})
             </label>
 
             {subjects.length === 0 && (
-                <div className="text-sm text-gray-500 italic p-4 border border-dashed rounded-xl text-center">
+                <div className={`text-sm italic p-4 border border-dashed rounded-xl text-center transition-colors
+                    ${theme === "light"
+                        ? "text-gray-500 border-gray-300"
+                        : "text-slate-500 border-slate-700"}`}
+                >
                     No subjects added yet.
                 </div>
             )}
@@ -30,16 +43,19 @@ export default function SubjectListSection({
             {subjects.map((s, idx) => (
                 <div
                     key={idx}
-                    className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-white p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+                    className={`grid grid-cols-1 md:grid-cols-12 gap-3 items-end p-4 rounded-2xl shadow-sm hover:shadow-md transition-all
+                        ${theme === "light"
+                            ? "bg-white"
+                            : "bg-slate-900/60 border border-slate-800"}`}
                 >
                     <div className="md:col-span-5 space-y-1">
-                        <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-1">
+                        <label className={`text-[11px] font-bold uppercase tracking-wider px-1 ${theme === "light" ? "text-gray-400" : "text-slate-500"}`}>
                             Subject Name
                         </label>
                         <select
                             value={s.subject}
                             onChange={e => updateSubject(idx, { subject: e.target.value })}
-                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium appearance-none"
+                            className={rowFieldClass(theme)}
                         >
                             <option value="">Select Subject</option>
                             {teachers
@@ -53,26 +69,26 @@ export default function SubjectListSection({
                     </div>
 
                     <div className="md:col-span-2 space-y-1">
-                        <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-1">
+                        <label className={`text-[11px] font-bold uppercase tracking-wider px-1 ${theme === "light" ? "text-gray-400" : "text-slate-500"}`}>
                             Hrs/Wk
                         </label>
                         <input
                             type="number"
                             value={s.weeklyHours}
                             onChange={e => updateSubject(idx, { weeklyHours: Number(e.target.value) })}
-                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium"
+                            className={rowFieldClass(theme)}
                             min="1"
                         />
                     </div>
 
                     <div className="md:col-span-4 space-y-1">
-                        <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-1">
+                        <label className={`text-[11px] font-bold uppercase tracking-wider px-1 ${theme === "light" ? "text-gray-400" : "text-slate-500"}`}>
                             Assigned Teacher
                         </label>
                         <select
                             value={s.defaultTeacherId}
                             onChange={e => updateSubject(idx, { defaultTeacherId: e.target.value })}
-                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium appearance-none"
+                            className={rowFieldClass(theme)}
                         >
                             <option value="">Select Teacher</option>
                             {teachers.map(t => (
@@ -87,7 +103,10 @@ export default function SubjectListSection({
                         <button
                             type="button"
                             onClick={() => removeSubject(idx)}
-                            className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2.5 rounded-xl transition-all group"
+                            className={`p-2.5 rounded-xl transition-all group
+                                ${theme === "light"
+                                    ? "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                                    : "text-slate-500 hover:text-red-400 hover:bg-red-950/30"}`}
                             aria-label="Remove subject"
                         >
                             <svg
@@ -115,7 +134,10 @@ export default function SubjectListSection({
                 <button
                     type="button"
                     onClick={clearAllSubjects}
-                    className="px-4 rounded-xl py-3 bg-black text-white mt-4 border border-gray-700"
+                    className={`px-4 rounded-xl py-3 mt-4 border font-medium transition-colors
+                        ${theme === "light"
+                            ? "bg-black text-white border-gray-700 hover:bg-gray-900"
+                            : "bg-slate-800 text-slate-100 border-slate-700 hover:bg-slate-700"}`}
                 >
                     Clear All
                 </button>

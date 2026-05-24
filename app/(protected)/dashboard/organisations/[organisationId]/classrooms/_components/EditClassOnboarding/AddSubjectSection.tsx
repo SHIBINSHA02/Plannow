@@ -1,3 +1,4 @@
+import { useTheme } from "@/app/theme-provider";
 import type { Teacher } from "./types";
 
 type Props = {
@@ -17,6 +18,12 @@ type Props = {
     addSubject: () => void;
 };
 
+const fieldClass = (theme: string) =>
+    `w-full p-2 border rounded-xl outline-none transition-all focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+        ${theme === "light"
+            ? "border-gray-200 bg-white text-gray-900"
+            : "border-slate-800 bg-slate-900 text-slate-100"}`;
+
 export default function AddSubjectSection({
     teacherSearch,
     setTeacherSearch,
@@ -33,11 +40,15 @@ export default function AddSubjectSection({
     setWeeklyHours,
     addSubject,
 }: Props) {
+    const { theme } = useTheme();
+
     return (
-        <div className="bg-gray-50/50 py-4 rounded-2xl space-y-4 text-sm mt-4">
-            <h3 className="font-medium text-xl text-blue-700">Add Subjects</h3>
+        <div className={`py-4 rounded-2xl space-y-4 text-sm mt-4 transition-colors duration-200
+            ${theme === "light" ? "bg-gray-50/50" : "bg-slate-900/40"}`}
+        >
+            <h3 className="font-medium text-xl text-blue-600">Add Subjects</h3>
             <div className="relative">
-                <label className="text-sm font-medium text-gray-600 mb-1 block">
+                <label className={`text-sm font-medium mb-1 block ${theme === "light" ? "text-gray-600" : "text-slate-400"}`}>
                     Search & Select Teacher
                 </label>
 
@@ -52,19 +63,23 @@ export default function AddSubjectSection({
                     }}
                     onFocus={() => setShowTeacherList(true)}
                     placeholder="Type teacher name..."
-                    className="w-full p-2 border border-gray-200 rounded-xl bg-white"
+                    className={fieldClass(theme)}
                 />
 
                 {showTeacherList && teacherSearch && (
-                    <div className="absolute left-0 right-0 mt-1 bg-white border rounded-xl shadow-lg max-h-52 overflow-y-auto z-50">
+                    <div className={`absolute left-0 right-0 mt-1 border rounded-xl shadow-xl max-h-52 overflow-y-auto z-50 divide-y transition-all
+                            ${theme === "light"
+                                ? "bg-white border-gray-200 divide-gray-100"
+                                : "bg-slate-950 border-slate-800 divide-slate-900"}`}
+                    >
                         {teachersLoading && (
-                            <div className="p-3 text-sm text-gray-400 text-center">
+                            <div className={`p-3 text-sm text-center ${theme === "light" ? "text-gray-400" : "text-slate-500"}`}>
                                 Loading teachers...
                             </div>
                         )}
 
                         {!teachersLoading && filteredTeachers.length === 0 && (
-                            <div className="p-3 text-sm text-gray-400 text-center">
+                            <div className={`p-3 text-sm text-center ${theme === "light" ? "text-gray-400" : "text-slate-500"}`}>
                                 No teachers found
                             </div>
                         )}
@@ -73,7 +88,10 @@ export default function AddSubjectSection({
                             <div
                                 key={t.teacherId}
                                 onClick={() => selectTeacher(t)}
-                                className="p-3 cursor-pointer hover:bg-blue-50 border-b last:border-0"
+                                className={`p-3 cursor-pointer border-b last:border-0 transition-colors
+                                    ${theme === "light"
+                                        ? "hover:bg-blue-50 text-gray-700"
+                                        : "hover:bg-blue-950/40 text-slate-300"}`}
                             >
                                 {t.teacherName}
                             </div>
@@ -84,12 +102,14 @@ export default function AddSubjectSection({
 
             <div className="flex gap-2">
                 <div className="flex-1">
-                    <label className="text-sm font-medium text-gray-600 mb-1 block">Subject</label>
+                    <label className={`text-sm font-medium mb-1 block ${theme === "light" ? "text-gray-600" : "text-slate-400"}`}>
+                        Subject
+                    </label>
                     <select
                         value={selectedSubject}
                         onChange={e => setSelectedSubject(e.target.value)}
                         disabled={!selectedTeacher}
-                        className="w-full p-2 border border-gray-300 rounded-xl focus:border-blue-500 bg-white disabled:opacity-50"
+                        className={`${fieldClass(theme)} disabled:opacity-50`}
                     >
                         <option value="">Select Subject</option>
                         {selectedTeacher?.subjects.map(sub => (
@@ -101,13 +121,18 @@ export default function AddSubjectSection({
                 </div>
 
                 <div>
-                    <label className="text-sm font-medium text-gray-600 mb-1 block">Hrs/Wk</label>
+                    <label className={`text-sm font-medium mb-1 block ${theme === "light" ? "text-gray-600" : "text-slate-400"}`}>
+                        Hrs/Wk
+                    </label>
                     <input
                         type="number"
                         placeholder="Hours"
                         value={weeklyHours}
                         onChange={e => setWeeklyHours(e.target.value)}
-                        className="w-20 p-2 border border-gray-300 rounded-xl bg-white"
+                        className={`w-20 p-2 border rounded-xl outline-none transition-all focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+                            ${theme === "light"
+                                ? "border-gray-200 bg-white text-gray-900"
+                                : "border-slate-800 bg-slate-900 text-slate-100"}`}
                         min="1"
                     />
                 </div>
@@ -117,7 +142,7 @@ export default function AddSubjectSection({
                         type="button"
                         onClick={addSubject}
                         disabled={!selectedTeacher || !selectedSubject || !weeklyHours}
-                        className="px-4 py-2 h-[42px] bg-blue-600 border border-gray-200 hover:bg-blue-800 text-white rounded-xl"
+                        className="px-4 py-2 h-[42px] bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium active:scale-95 transition-all disabled:opacity-50"
                     >
                         Add
                     </button>
