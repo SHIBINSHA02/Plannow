@@ -272,15 +272,22 @@ export default function OrganisationPage() {
                             <button
                                 onClick={handleNavigate}
                                 disabled={!canEdit}
-                                className={`ml-4 p-2 px-3 rounded-lg transition flex items-center gap-1 border 
-    ${canEdit
-                                    ? (theme === "light" ? "text-gray-600 hover:bg-gray-100 border-slate-500" : "text-white hover:bg-gray-100 hover:text-gray-800")
-                                        : (theme === "light" ? "text-gray-300 cursor-not-allowed" : "text-slate-700 cursor-not-allowed")
-                                    }`}
-                            >
+                                className={`ml-4 p-2 px-3 rounded-lg transition flex items-center gap-1 border ${
+                                    canEdit
+                                    ? organisation.allowParallelAssignments
+                                        ? "bg-white text-gray-700 border-blue-600 hover:bg-blue-700" 
+                                        : theme === "light"
+                                        ? "text-gray-600 hover:bg-gray-100 border-slate-500"
+                                        : "text-white hover:bg-gray-700 border-slate-500"
+                                    : theme === "light"
+                                        ? "text-gray-300 cursor-not-allowed border-gray-200"
+                                        : "text-slate-700 cursor-not-allowed border-slate-800"
+                                }`}
+                                >
                                 <FolderKanban size={18} />
                                 Manage Organisation
-                            </button>
+                                </button>
+
                         </div>
                     </div>
                 </div>
