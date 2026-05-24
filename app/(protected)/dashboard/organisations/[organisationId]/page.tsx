@@ -5,7 +5,7 @@
 import { useParams, useRouter } from "next/navigation";
 import ClassroomSection from "./_components/ClassroomSection";
 import TeachersSection from "./_components/Teachers/TeachersSection";
-import { Edit, Sparkles, Loader2, Delete, Trash2 } from "lucide-react";
+import { Edit, Sparkles, Loader2, Delete, Trash2, FolderKanban } from "lucide-react";
 import Image from "next/image";
 import { Submissions } from "./_components/Submissions";
 import { useTheme } from "@/app/theme-provider"; // Hook integrated safely
@@ -257,6 +257,21 @@ export default function OrganisationPage() {
                                     />
                                 </button>
                             </div>
+                        </div>
+                        <div>
+                            <button
+                                onClick={() => setShowEdit(true)}
+                                disabled={!canEdit}
+                                className={`ml-4 p-2 px-3  rounded-lg transition  flex items-center gap-1 border border-slate-500
+                                    ${canEdit
+                                        ? (theme === "light" ? "text-gray-600 hover:bg-gray-100" : "text-slate-400 hover:bg-slate-700")
+                                        : (theme === "light" ? "text-gray-300 cursor-not-allowed" : "text-slate-700 cursor-not-allowed")
+                                    }`}
+                            >
+                              
+                                <FolderKanban  size={18} />
+                                Manage Organisation
+                            </button>
                         </div>
                     </div>
                 </div>

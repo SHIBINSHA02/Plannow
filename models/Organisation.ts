@@ -1,3 +1,4 @@
+// models/Organisation.ts
 import mongoose, { Schema, models, model } from "mongoose";
 
 const organisationSchema = new Schema(
