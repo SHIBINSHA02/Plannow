@@ -16,9 +16,35 @@ export interface ClassroomAutoAssignResult {
 
 type ClassroomSubject = {
     subject: string;
+    weeklyHours?: number;
     defaultTeacherId?: string;
     currentWeeklyHoursLeft?: number;
 };
+
+function teacherTeachesSubject(
+    teacherSubjects: string[],
+    subjectName: string
+): boolean {
+    return teacherSubjects.some(
+        (s) => s.toString() === subjectName.toString()
+    );
+}
+
+/** Remaining hours from weekly target minus filled slots (matches schedule UI). */
+function buildHoursLeftBySubject(
+    subjects: ClassroomSubject[],
+    assignedHoursBySubject: Map<string, number>
+): Map<string, number> {
+    const hoursLeft = new Map<string, number>();
+
+    for (const sub of subjects) {
+        const weekly = sub.weeklyHours ?? 0;
+        const assigned = assignedHoursBySubject.get(sub.subject) ?? 0;
+        hoursLeft.set(sub.subject, Math.max(0, weekly - assigned));
+    }
+
+    return hoursLeft;
+}
 
 function sortTeachersByWorkload(
     teacherIds: string[],
@@ -57,6 +83,46 @@ function pickTeacherForSlot(
     return availableSortedIds[0];
 }
 
+function buildZeroAssignmentMessage(
+    subjects: ClassroomSubject[],
+    hoursLeftBySubject: Map<string, number>,
+    teachers: { subjects: string[] }[],
+    workingDays: number,
+    periodsPerDay: number,
+    classroomOccupied: Record<number, Record<number, boolean>>
+): string {
+    const totalHoursLeft = [...hoursLeftBySubject.values()].reduce(
+        (sum, h) => sum + h,
+        0
+    );
+
+    if (totalHoursLeft <= 0) {
+        return "No slots were filled: all subject weekly hours are already scheduled.";
+    }
+
+    const hasQualifiedTeacher = subjects.some((sub) =>
+        (hoursLeftBySubject.get(sub.subject) ?? 0) > 0 &&
+        teachers.some((t) => teacherTeachesSubject(t.subjects, sub.subject))
+    );
+
+    if (!hasQualifiedTeacher) {
+        return "No slots were filled: no teachers are assigned to the subjects that still need hours.";
+    }
+
+    let openCells = 0;
+    for (let day = 1; day <= workingDays; day++) {
+        for (let period = 1; period <= periodsPerDay; period++) {
+            if (!classroomOccupied[day]?.[period]) openCells++;
+        }
+    }
+
+    if (openCells <= 0) {
+        return "No slots were filled: every period in this classroom already has a schedule entry.";
+    }
+
+    return "No slots were filled: no available teacher could be placed in the open periods (they may be busy at those times).";
+}
+
 /**
  * Auto-fill schedule slots for a single classroom.
  * - Scans day 1..N and period 1..M for empty classroom slots
@@ -82,6 +148,7 @@ export async function performClassroomAutoAssignment(
 
     const workingDays = org.workingDays || 5;
     const periodsPerDay = org.periodsPerDay || 6;
+    const allowParallel = org.allowParallelAssignments ?? false;
     const subjects: ClassroomSubject[] = classroom.subjects || [];
 
     const teachers = await Teacher.find({ organisations: organisationId }).session(session);
@@ -89,25 +156,46 @@ export async function performClassroomAutoAssignment(
     const teacherBusy: Record<number, Record<number, Set<string>>> = {};
     const classroomOccupied: Record<number, Record<number, boolean>> = {};
     const classroomTeacherAtSlot: Record<number, Record<number, string>> = {};
+    const incompleteSlotIdByDayPeriod: Record<number, Record<number, string>> = {};
+    const assignedHoursBySubject = new Map<string, number>();
 
     const existingSlots = await ScheduleSlot.find({ organisationId }).session(session);
     for (const slot of existingSlots) {
-        if (slot.teacherId) {
+        if (slot.teacherId && !allowParallel) {
             if (!teacherBusy[slot.day]) teacherBusy[slot.day] = {};
-            if (!teacherBusy[slot.day][slot.period]) teacherBusy[slot.day][slot.period] = new Set();
+            if (!teacherBusy[slot.day][slot.period]) {
+                teacherBusy[slot.day][slot.period] = new Set();
+            }
             teacherBusy[slot.day][slot.period].add(slot.teacherId);
         }
 
-        if (slot.classroomId === classroomId) {
+        if (slot.classroomId !== classroomId) continue;
+
+        const isFilled = Boolean(slot.teacherId && slot.subject);
+
+        if (isFilled) {
             if (!classroomOccupied[slot.day]) classroomOccupied[slot.day] = {};
             classroomOccupied[slot.day][slot.period] = true;
 
-            if (slot.teacherId) {
-                if (!classroomTeacherAtSlot[slot.day]) classroomTeacherAtSlot[slot.day] = {};
-                classroomTeacherAtSlot[slot.day][slot.period] = slot.teacherId;
+            assignedHoursBySubject.set(
+                slot.subject!,
+                (assignedHoursBySubject.get(slot.subject!) ?? 0) + 1
+            );
+
+            if (!classroomTeacherAtSlot[slot.day]) classroomTeacherAtSlot[slot.day] = {};
+            classroomTeacherAtSlot[slot.day][slot.period] = slot.teacherId!;
+        } else if (slot._id) {
+            if (!incompleteSlotIdByDayPeriod[slot.day]) {
+                incompleteSlotIdByDayPeriod[slot.day] = {};
             }
+            incompleteSlotIdByDayPeriod[slot.day][slot.period] = slot._id.toString();
         }
     }
+
+    const hoursLeftBySubject = buildHoursLeftBySubject(
+        subjects,
+        assignedHoursBySubject
+    );
 
     let assignedCount = 0;
 
@@ -116,10 +204,11 @@ export async function performClassroomAutoAssignment(
             if (classroomOccupied[day]?.[period]) continue;
 
             const subjectsNeedingHours = subjects
-                .filter((s) => (s.currentWeeklyHoursLeft ?? 0) > 0)
+                .filter((s) => (hoursLeftBySubject.get(s.subject) ?? 0) > 0)
                 .sort(
                     (a, b) =>
-                        (b.currentWeeklyHoursLeft ?? 0) - (a.currentWeeklyHoursLeft ?? 0)
+                        (hoursLeftBySubject.get(b.subject) ?? 0) -
+                        (hoursLeftBySubject.get(a.subject) ?? 0)
                 );
 
             if (subjectsNeedingHours.length === 0) continue;
@@ -140,25 +229,37 @@ export async function performClassroomAutoAssignment(
             const previousTeacherId =
                 period > 1 ? classroomTeacherAtSlot[day]?.[period - 1] : undefined;
 
+            const busyAtSlot = allowParallel
+                ? undefined
+                : teacherBusy[day]?.[period];
+
             let assigned = false;
 
             for (const sub of subjectsNeedingHours) {
                 const candidateIds = teachers
-                    .filter((t) => t.subjects.includes(sub.subject))
+                    .filter((t) => teacherTeachesSubject(t.subjects, sub.subject))
                     .map((t) => t.teacherId);
 
                 const sortedIds = sortTeachersByWorkload(candidateIds, workloadByTeacher);
-                const availableSortedIds = excludeBusyTeachers(
-                    sortedIds,
-                    teacherBusy[day]?.[period]
-                );
+                const availableSortedIds = excludeBusyTeachers(sortedIds, busyAtSlot);
 
                 const teacherId = pickTeacherForSlot(
                     availableSortedIds,
                     previousTeacherId
                 );
 
-                if (teacherId) {
+                if (!teacherId) continue;
+
+                const incompleteSlotId =
+                    incompleteSlotIdByDayPeriod[day]?.[period];
+
+                if (incompleteSlotId) {
+                    await ScheduleSlot.findOneAndUpdate(
+                        { _id: incompleteSlotId, organisationId },
+                        { teacherId, subject: sub.subject },
+                        { session }
+                    );
+                } else {
                     await ScheduleSlot.create(
                         [
                             {
@@ -172,46 +273,66 @@ export async function performClassroomAutoAssignment(
                         ],
                         { session }
                     );
-
-                    await incrementWorkload({
-                        organisationId,
-                        teacherId,
-                        day,
-                        period,
-                        session,
-                    });
-
-                    await updateSubjectHours({
-                        organisationId,
-                        classroomId,
-                        subjectName: sub.subject,
-                        delta: -1,
-                        session,
-                    });
-
-                    if (!teacherBusy[day]) teacherBusy[day] = {};
-                    if (!teacherBusy[day][period]) teacherBusy[day][period] = new Set();
-                    teacherBusy[day][period].add(teacherId);
-
-                    if (!classroomOccupied[day]) classroomOccupied[day] = {};
-                    classroomOccupied[day][period] = true;
-
-                    if (!classroomTeacherAtSlot[day]) classroomTeacherAtSlot[day] = {};
-                    classroomTeacherAtSlot[day][period] = teacherId;
-
-                    sub.currentWeeklyHoursLeft = (sub.currentWeeklyHoursLeft ?? 0) - 1;
-                    assignedCount++;
-                    assigned = true;
                 }
+
+                await incrementWorkload({
+                    organisationId,
+                    teacherId,
+                    day,
+                    period,
+                    session,
+                });
+
+                await updateSubjectHours({
+                    organisationId,
+                    classroomId,
+                    subjectName: sub.subject,
+                    delta: -1,
+                    session,
+                });
+
+                if (!allowParallel) {
+                    if (!teacherBusy[day]) teacherBusy[day] = {};
+                    if (!teacherBusy[day][period]) {
+                        teacherBusy[day][period] = new Set();
+                    }
+                    teacherBusy[day][period].add(teacherId);
+                }
+
+                if (!classroomOccupied[day]) classroomOccupied[day] = {};
+                classroomOccupied[day][period] = true;
+
+                if (!classroomTeacherAtSlot[day]) classroomTeacherAtSlot[day] = {};
+                classroomTeacherAtSlot[day][period] = teacherId;
+
+                hoursLeftBySubject.set(
+                    sub.subject,
+                    (hoursLeftBySubject.get(sub.subject) ?? 0) - 1
+                );
+
+                assignedCount++;
+                assigned = true;
 
                 if (assigned) break;
             }
         }
     }
 
+    const message =
+        assignedCount > 0
+            ? `Successfully assigned ${assignedCount} slot(s) for classroom ${classroomId}.`
+            : buildZeroAssignmentMessage(
+                  subjects,
+                  hoursLeftBySubject,
+                  teachers,
+                  workingDays,
+                  periodsPerDay,
+                  classroomOccupied
+              );
+
     return {
         success: true,
         assignedCount,
-        message: `Successfully assigned ${assignedCount} slot(s) for classroom ${classroomId}.`,
+        message,
     };
 }
