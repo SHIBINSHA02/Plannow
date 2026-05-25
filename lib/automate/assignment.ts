@@ -16,9 +16,32 @@ interface AutoAssignResult {
     message: string;
 }
 
+/** Penalties above this are avoided in the strict pass (fallback may still apply). */
+const STRICT_PENALTY_THRESHOLD = 1000;
+
+/** Length of the consecutive teaching block if `period` were assigned. */
+function getConsecutiveBlockSize(
+    periods: Set<number>,
+    period: number
+): number {
+    let size = 1;
+    let p = period - 1;
+    while (periods.has(p)) {
+        size++;
+        p--;
+    }
+    p = period + 1;
+    while (periods.has(p)) {
+        size++;
+        p++;
+    }
+    return size;
+}
+
 /**
  * Calculates how bad a slot is for a teacher.
  * Lower score = better slot.
+ * Prioritises gaps between classes so teachers get breaks.
  */
 function calculateTeacherPenalty(
     teacherSchedule: Record<string, Record<number, Set<number>>>,
@@ -29,7 +52,7 @@ function calculateTeacherPenalty(
 
     const periods = teacherSchedule[teacherId]?.[day];
 
-    // No classes yet
+    // No classes yet — ideal for a break-friendly day
     if (!periods) return 0;
 
     let penalty = 0;
@@ -38,27 +61,44 @@ function calculateTeacherPenalty(
 
     const hasPrev = periods.has(period - 1);
     const hasNext = periods.has(period + 1);
+    const blockSize = getConsecutiveBlockSize(periods, period);
 
     /**
      * HARD PRIORITY:
      * More than 3 slots/day should be heavily penalized
      */
     if (dailyCount >= 3) {
-        penalty += 1000;
+        penalty += STRICT_PENALTY_THRESHOLD;
     }
 
     /**
-     * Avoid continuous allocations
+     * Back-to-back periods — no break before/after this slot
      */
-    if (hasPrev) penalty += 100;
-    if (hasNext) penalty += 100;
+    if (hasPrev) penalty += 400;
+    if (hasNext) penalty += 400;
 
     /**
-     * Worst case:
-     * Teacher gets sandwiched
+     * Sandwiched between two classes — no break on either side
      */
     if (hasPrev && hasNext) {
         penalty += 500;
+    }
+
+    /**
+     * Consecutive stretch: prefer isolated periods with gaps
+     */
+    if (blockSize >= 2) {
+        penalty += (blockSize - 1) * 300;
+    }
+
+    /** Three or more periods in a row — no proper break in the stretch */
+    if (blockSize >= 3) {
+        penalty += 600;
+    }
+
+    /** Four+ consecutive — treat like a hard constraint in strict pass */
+    if (blockSize >= 4) {
+        penalty += STRICT_PENALTY_THRESHOLD;
     }
 
     /**
@@ -250,7 +290,7 @@ export async function performAutoAssignment(
                                     p
                                 );
 
-                            if (penalty < 1000 && penalty < bestScore) {
+                            if (penalty < STRICT_PENALTY_THRESHOLD && penalty < bestScore) {
                                 bestScore = penalty;
                                 chosenTeacherId = preferredTeacherId;
                             }
@@ -296,7 +336,7 @@ export async function performAutoAssignment(
                         /**
                          * Lower penalty is better
                          */
-                        if (penalty < 1000 && penalty < bestScore) {
+                        if (penalty < STRICT_PENALTY_THRESHOLD && penalty < bestScore) {
                             bestScore = penalty;
                             chosenTeacherId = teacherId;
                         }
