@@ -7,6 +7,11 @@ import ScheduleSlot from "@/models/ScheduleSlot";
 import TeacherWorkload from "@/models/TeacherWorkload";
 import { incrementWorkload } from "@/lib/workload";
 import { updateSubjectHours } from "@/lib/classroom";
+import {
+    calculateTeacherPenalty,
+    STRICT_PENALTY_THRESHOLD,
+    type TeacherDaySchedule,
+} from "@/lib/automate/teacherPenalty";
 
 export interface ClassroomAutoAssignResult {
     success: boolean;
@@ -67,20 +72,57 @@ function excludeBusyTeachers(
     return sortedIds.filter((id) => !busyAtSlot.has(id));
 }
 
+type TeacherCandidateScore = {
+    id: string;
+    penalty: number;
+    workload: number;
+};
+
 function pickTeacherForSlot(
     availableSortedIds: string[],
-    previousTeacherId: string | undefined
+    teacherSchedule: TeacherDaySchedule,
+    day: number,
+    period: number,
+    previousTeacherId: string | undefined,
+    workloadByTeacher: Map<string, number>
 ): string | null {
     if (availableSortedIds.length === 0) return null;
 
-    const preferred = previousTeacherId
-        ? availableSortedIds.filter((id) => id !== previousTeacherId)
-        : availableSortedIds;
+    const candidates: TeacherCandidateScore[] = availableSortedIds.map((id) => ({
+        id,
+        penalty: calculateTeacherPenalty(teacherSchedule, id, day, period),
+        workload: workloadByTeacher.get(id) ?? 0,
+    }));
 
-    if (preferred.length > 0) return preferred[0];
+    const pickBest = (
+        pool: TeacherCandidateScore[],
+        filter: (c: TeacherCandidateScore) => boolean
+    ): string | null => {
+        let best: TeacherCandidateScore | null = null;
+        for (const c of pool) {
+            if (!filter(c)) continue;
+            if (
+                !best ||
+                c.penalty < best.penalty ||
+                (c.penalty === best.penalty && c.workload < best.workload)
+            ) {
+                best = c;
+            }
+        }
+        return best?.id ?? null;
+    };
 
-    // No other teacher left — allow same teacher as previous period
-    return availableSortedIds[0];
+    const strictPenalty = (c: TeacherCandidateScore) =>
+        c.penalty < STRICT_PENALTY_THRESHOLD;
+    const notPreviousInClassroom = (c: TeacherCandidateScore) =>
+        !previousTeacherId || c.id !== previousTeacherId;
+
+    return (
+        pickBest(candidates, (c) => strictPenalty(c) && notPreviousInClassroom(c)) ??
+        pickBest(candidates, strictPenalty) ??
+        pickBest(candidates, notPreviousInClassroom) ??
+        pickBest(candidates, () => true)
+    );
 }
 
 function buildZeroAssignmentMessage(
@@ -126,10 +168,11 @@ function buildZeroAssignmentMessage(
 /**
  * Auto-fill schedule slots for a single classroom.
  * - Scans day 1..N and period 1..M for empty classroom slots
- * - Picks teachers with lowest TeacherWorkload at that day/period (tie-break: teacherId)
+ * - Avoids back-to-back teacher slots org-wide (break-friendly penalties)
+ * - Tie-breaks with lowest TeacherWorkload at that day/period
  * - Excludes teachers already assigned elsewhere at the same day/period
  * - Prefers a different teacher than the previous period in this classroom
- * - Falls back to the same teacher when no other qualified teacher is available
+ * - Falls back when strict break rules cannot be satisfied
  */
 export async function performClassroomAutoAssignment(
     organisationId: string,
@@ -154,6 +197,7 @@ export async function performClassroomAutoAssignment(
     const teachers = await Teacher.find({ organisations: organisationId }).session(session);
 
     const teacherBusy: Record<number, Record<number, Set<string>>> = {};
+    const teacherSchedule: TeacherDaySchedule = {};
     const classroomOccupied: Record<number, Record<number, boolean>> = {};
     const classroomTeacherAtSlot: Record<number, Record<number, string>> = {};
     const incompleteSlotIdByDayPeriod: Record<number, Record<number, string>> = {};
@@ -161,12 +205,22 @@ export async function performClassroomAutoAssignment(
 
     const existingSlots = await ScheduleSlot.find({ organisationId }).session(session);
     for (const slot of existingSlots) {
-        if (slot.teacherId && !allowParallel) {
-            if (!teacherBusy[slot.day]) teacherBusy[slot.day] = {};
-            if (!teacherBusy[slot.day][slot.period]) {
-                teacherBusy[slot.day][slot.period] = new Set();
+        if (slot.teacherId) {
+            if (!allowParallel) {
+                if (!teacherBusy[slot.day]) teacherBusy[slot.day] = {};
+                if (!teacherBusy[slot.day][slot.period]) {
+                    teacherBusy[slot.day][slot.period] = new Set();
+                }
+                teacherBusy[slot.day][slot.period].add(slot.teacherId);
             }
-            teacherBusy[slot.day][slot.period].add(slot.teacherId);
+
+            if (!teacherSchedule[slot.teacherId]) {
+                teacherSchedule[slot.teacherId] = {};
+            }
+            if (!teacherSchedule[slot.teacherId][slot.day]) {
+                teacherSchedule[slot.teacherId][slot.day] = new Set();
+            }
+            teacherSchedule[slot.teacherId][slot.day].add(slot.period);
         }
 
         if (slot.classroomId !== classroomId) continue;
@@ -245,7 +299,11 @@ export async function performClassroomAutoAssignment(
 
                 const teacherId = pickTeacherForSlot(
                     availableSortedIds,
-                    previousTeacherId
+                    teacherSchedule,
+                    day,
+                    period,
+                    previousTeacherId,
+                    workloadByTeacher
                 );
 
                 if (!teacherId) continue;
