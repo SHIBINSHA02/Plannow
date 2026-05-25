@@ -29,35 +29,42 @@ function calculateTeacherPenalty(
 
     const periods = teacherSchedule[teacherId]?.[day];
 
-    // Teacher has no classes that day
+    // No classes yet
     if (!periods) return 0;
 
     let penalty = 0;
+
+    const dailyCount = periods.size;
 
     const hasPrev = periods.has(period - 1);
     const hasNext = periods.has(period + 1);
 
     /**
-     * Continuous period penalties
+     * HARD PRIORITY:
+     * More than 3 slots/day should be heavily penalized
      */
-
-    // Consecutive with previous
-    if (hasPrev) penalty += 5;
-
-    // Consecutive with next
-    if (hasNext) penalty += 5;
-
-    // Worst case:
-    // existing classes on both sides
-    // Example: assigning at period 3 when 2 and 4 already occupied
-    if (hasPrev && hasNext) {
-        penalty += 20;
+    if (dailyCount >= 3) {
+        penalty += 1000;
     }
 
     /**
-     * Daily workload balancing
+     * Avoid continuous allocations
      */
-    penalty += periods.size * 2;
+    if (hasPrev) penalty += 100;
+    if (hasNext) penalty += 100;
+
+    /**
+     * Worst case:
+     * Teacher gets sandwiched
+     */
+    if (hasPrev && hasNext) {
+        penalty += 500;
+    }
+
+    /**
+     * Balance workload slightly
+     */
+    penalty += dailyCount * 5;
 
     return penalty;
 }
@@ -127,7 +134,7 @@ export async function performAutoAssignment(
         .find({ organisationId })
         .session(session);
 
-    for (const slot of existingSlots) {
+    for (const slot of existingSlots) { 
 
         /**
          * Teacher busy tracking
@@ -178,14 +185,7 @@ export async function performAutoAssignment(
 
     let assignedCount = 0;
 
-    /**
-     * 5. Assignment Algorithm
-     *
-     * Better ordering:
-     * day -> period -> classroom -> subject
-     *
-     * This distributes slots more evenly globally.
-     */
+    
     for (let d = 1; d <= workingDays; d++) {
 
         for (let p = 1; p <= periodsPerDay; p++) {
@@ -215,9 +215,10 @@ export async function performAutoAssignment(
                      * Find qualified teachers
                      */
                     const qualifiedTeachers = teachers.filter(t =>
-                        t.subjects.includes(sub.subject)
+                        t.subjects.some(
+                            (                            s: { toString: () => any; }) => s.toString() === sub.subject.toString()
+                        )
                     );
-
                     /**
                      * Priority teacher
                      */
@@ -226,6 +227,9 @@ export async function performAutoAssignment(
 
                     let chosenTeacherId: string | null = null;
                     let bestScore = Infinity;
+
+                    let fallbackTeacherId: string | null = null;
+                    let fallbackScore = Infinity;
 
                     /**
                      * 1. Try preferred teacher first
@@ -246,8 +250,16 @@ export async function performAutoAssignment(
                                     p
                                 );
 
-                            bestScore = penalty;
-                            chosenTeacherId = preferredTeacherId;
+                            if (penalty < 1000 && penalty < bestScore) {
+                                bestScore = penalty;
+                                chosenTeacherId = preferredTeacherId;
+                            }
+
+                            if (penalty < fallbackScore) {
+                                fallbackScore = penalty;
+                                fallbackTeacherId = preferredTeacherId;
+                            }
+                            
                         }
                     }
 
@@ -284,15 +296,26 @@ export async function performAutoAssignment(
                         /**
                          * Lower penalty is better
                          */
-                        if (penalty < bestScore) {
+                        if (penalty < 1000 && penalty < bestScore) {
                             bestScore = penalty;
                             chosenTeacherId = teacherId;
+                        }
+
+                        if (penalty < fallbackScore) {
+                            fallbackScore = penalty;
+                            fallbackTeacherId = teacherId;
                         }
                     }
 
                     /**
                      * No teacher found
                      */
+                    // If strict constraints fail,
+                
+                    if (!chosenTeacherId) {
+                        chosenTeacherId = fallbackTeacherId;
+                    }
+
                     if (!chosenTeacherId) {
                         continue;
                     }
