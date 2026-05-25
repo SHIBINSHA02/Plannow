@@ -363,6 +363,14 @@ export async function performClassroomAutoAssignment(
                 if (!classroomTeacherAtSlot[day]) classroomTeacherAtSlot[day] = {};
                 classroomTeacherAtSlot[day][period] = teacherId;
 
+                if (!teacherSchedule[teacherId]) {
+                    teacherSchedule[teacherId] = {};
+                }
+                if (!teacherSchedule[teacherId][day]) {
+                    teacherSchedule[teacherId][day] = new Set();
+                }
+                teacherSchedule[teacherId][day].add(period);
+
                 hoursLeftBySubject.set(
                     sub.subject,
                     (hoursLeftBySubject.get(sub.subject) ?? 0) - 1
