@@ -109,21 +109,33 @@ export async function PATCH(
                     }], { session });
                 }
             } else if (submission.type === "CLASSROOM") {
+                let cId = data.classroomId;
+                if (!cId) {
+                    const slug = (data.className || "class").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+                    cId = `CLS-${slug}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+                }
+
                 // Check if classroom ID already exists in system
-                const existing = await Classroom.findOne({ classroomId: data.classroomId }).session(session);
+                const existing = await Classroom.findOne({ classroomId: cId }).session(session);
                 if (existing) {
                     await session.abortTransaction();
                     return NextResponse.json({ message: "Classroom ID already exists" }, { status: 400 });
                 }
 
+                const normalizedSubjects = (data.subjects || []).map((s: any) => ({
+                    subject: s.subject,
+                    weeklyHours: Number(s.weeklyHours),
+                    defaultTeacherId: s.defaultTeacherId || null,
+                }));
+
                 await Classroom.create([{
                     organisationId,
-                    classroomId: data.classroomId,
+                    classroomId: cId,
                     className: data.className,
                     department: data.department || "",
                     adminEmail: data.adminEmail,
                     editorEmails: [],
-                    subjects: []
+                    subjects: normalizedSubjects
                 }], { session });
             }
 
