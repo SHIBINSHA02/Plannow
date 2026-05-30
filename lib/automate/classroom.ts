@@ -117,19 +117,9 @@ function pickTeacherForSlot(
     const strictPenalty = (c: TeacherCandidateScore) =>
         c.penalty < STRICT_PENALTY_THRESHOLD;
 
-    const notPreviousInClassroom = (
-        c: TeacherCandidateScore
-    ) => !previousTeacherId || c.id !== previousTeacherId;
-
+    
     return (
-        pickBest(
-            candidates,
-            (c) =>
-                strictPenalty(c) &&
-                notPreviousInClassroom(c)
-        ) ??
         pickBest(candidates, strictPenalty) ??
-        pickBest(candidates, notPreviousInClassroom) ??
         pickBest(candidates, () => true)
     );
 }
@@ -333,10 +323,8 @@ export async function performClassroomAutoAssignment(
                             teacherTeachesSubject(
                                 t.subjects,
                                 s.subject
-                            ) &&
-                            !teacherSchedule[t.teacherId]?.[day]?.has(period)
+                            )
                     );
-
                     return hasAvailableTeacher;
                 })
                 .sort(
@@ -375,13 +363,15 @@ export async function performClassroomAutoAssignment(
 
             for (const sub of subjectsNeedingHours) {
                 const candidateIds = teachers
-                    .filter((t) =>
-                        teacherTeachesSubject(
-                            t.subjects,
-                            sub.subject
-                        )
+                    .filter(
+                        (t) =>
+                            teacherTeachesSubject(
+                                t.subjects,
+                                sub.subject
+                            ) &&
+                            t.teacherId !== previousTeacherId
                     )
-                    .map((t) => t.teacherId);
+                    .map((t) => t.teacherId);;
 
                 const sortedIds =
                     sortTeachersByWorkload(
