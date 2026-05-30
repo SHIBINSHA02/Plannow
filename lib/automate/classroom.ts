@@ -322,20 +322,27 @@ export async function performClassroomAutoAssignment(
             }
 
             const subjectsNeedingHours = subjects
-                .filter(
-                    (s) =>
-                        (hoursLeftBySubject.get(
-                            s.subject
-                        ) ?? 0) > 0
-                )
+                .filter((s) => {
+                    const hoursLeft =
+                        hoursLeftBySubject.get(s.subject) ?? 0;
+
+                    if (hoursLeft <= 0) return false;
+
+                    const hasAvailableTeacher = teachers.some(
+                        (t) =>
+                            teacherTeachesSubject(
+                                t.subjects,
+                                s.subject
+                            ) &&
+                            !teacherSchedule[t.teacherId]?.[day]?.has(period)
+                    );
+
+                    return hasAvailableTeacher;
+                })
                 .sort(
                     (a, b) =>
-                        (hoursLeftBySubject.get(
-                            b.subject
-                        ) ?? 0) -
-                        (hoursLeftBySubject.get(
-                            a.subject
-                        ) ?? 0)
+                        (hoursLeftBySubject.get(b.subject) ?? 0) -
+                        (hoursLeftBySubject.get(a.subject) ?? 0)
                 );
 
             if (subjectsNeedingHours.length === 0) {
