@@ -18,6 +18,7 @@ type Organisation = {
     profileImageUrl?: string | null;
     backgroundImageUrl?: string | null;
     allowParallelAssignments?: boolean;
+    minTeacherPeriodsPerDay?: number;
 };
 
 interface SubmissionsProps {
@@ -235,6 +236,7 @@ export const Submissions: React.FC<SubmissionsProps> = ({
                             initialProfileUrl={organisation?.profileImageUrl}
                             initialBgUrl={organisation?.backgroundImageUrl}
                             initialAllowParallel={organisation?.allowParallelAssignments}
+                            initialMinTeacherPeriodsPerDay={organisation?.minTeacherPeriodsPerDay}
                             onClose={() => setShowEdit(false)}
                             onSuccess={(updatedOrg: Organisation) => setOrganisation(updatedOrg)}
                         />

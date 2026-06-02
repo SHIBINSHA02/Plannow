@@ -11,6 +11,7 @@ type Organisation = {
     profileImageUrl?: string | null;
     backgroundImageUrl?: string | null;
     allowParallelAssignments?: boolean;
+    minTeacherPeriodsPerDay?: number;
 };
 
 interface OrganisationEditWindowProps {
@@ -18,6 +19,7 @@ interface OrganisationEditWindowProps {
     initialProfileUrl?: string | null;
     initialBgUrl?: string | null;
     initialAllowParallel?: boolean;
+    initialMinTeacherPeriodsPerDay?: number;
     onClose: () => void;
     onSuccess?: (updatedOrganisation: Organisation) => void;
 }
@@ -27,6 +29,7 @@ export const OrganisationEditWindow: React.FC<OrganisationEditWindowProps> = ({
     initialProfileUrl = "",
     initialBgUrl = "",
     initialAllowParallel = false,
+    initialMinTeacherPeriodsPerDay = 3,
     onClose,
     onSuccess,
 }) => {
@@ -36,6 +39,9 @@ export const OrganisationEditWindow: React.FC<OrganisationEditWindowProps> = ({
     const [profileUrl, setProfileUrl] = useState(initialProfileUrl ?? "");
     const [bgUrl, setBgUrl] = useState(initialBgUrl ?? "");
     const [allowParallel, setAllowParallel] = useState(initialAllowParallel ?? false);
+    const [minTeacherPeriodsPerDay, setMinTeacherPeriodsPerDay] = useState(
+        initialMinTeacherPeriodsPerDay ?? 3
+    );
 
     // Status flag states
     const [saving, setSaving] = useState(false);
@@ -53,6 +59,7 @@ export const OrganisationEditWindow: React.FC<OrganisationEditWindowProps> = ({
                     profileImageUrl: profileUrl || null,
                     backgroundImageUrl: bgUrl || null,
                     allowParallelAssignments: allowParallel,
+                    minTeacherPeriodsPerDay,
                 }),
             });
 
@@ -168,6 +175,22 @@ export const OrganisationEditWindow: React.FC<OrganisationEditWindowProps> = ({
                                     />
                                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">
+                                    Min Teacher Periods Per Day
+                                </label>
+                                <input
+                                    type="number"
+                                    min={0}
+                                    value={minTeacherPeriodsPerDay}
+                                    onChange={(e) =>
+                                        setMinTeacherPeriodsPerDay(
+                                            Math.max(0, Number(e.target.value) || 0)
+                                        )
+                                    }
+                                    className="w-full border rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                />
                             </div>
                         </div>
 

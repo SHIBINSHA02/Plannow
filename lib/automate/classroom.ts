@@ -70,6 +70,101 @@ type TeacherCandidateScore = {
     workload: number;
 };
 
+function getTeacherDayLoad(
+    teacherSchedule: TeacherDaySchedule,
+    teacherId: string,
+    day: number
+): number {
+    return teacherSchedule[teacherId]?.[day]?.size ?? 0;
+}
+
+function wouldExceedTwoConsecutiveClasses(
+    teacherSchedule: TeacherDaySchedule,
+    teacherId: string,
+    day: number,
+    period: number
+): boolean {
+    const periods = teacherSchedule[teacherId]?.[day];
+    if (!periods) return false;
+
+    return (
+        (periods.has(period - 2) && periods.has(period - 1)) ||
+        (periods.has(period - 1) && periods.has(period + 1)) ||
+        (periods.has(period + 1) && periods.has(period + 2))
+    );
+}
+
+function hasConsecutiveSameClassroomTeacher(
+    classroomTeacherAtSlot: Record<number, Record<number, string>>,
+    teacherId: string,
+    day: number,
+    period: number
+): boolean {
+    return (
+        classroomTeacherAtSlot[day]?.[period - 1] === teacherId ||
+        classroomTeacherAtSlot[day]?.[period + 1] === teacherId
+    );
+}
+
+function buildAvailableTeachersForSubject(
+    subject: string,
+    teachers: { teacherId: string; subjects: string[] }[],
+    teacherSchedule: TeacherDaySchedule,
+    classroomTeacherAtSlot: Record<number, Record<number, string>>,
+    day: number,
+    period: number
+): string[] {
+    return teachers
+        .filter((teacher) => {
+            if (
+                !teacherTeachesSubject(
+                    teacher.subjects,
+                    subject
+                )
+            ) {
+                return false;
+            }
+
+            const teacherId = teacher.teacherId;
+
+            // Teacher already occupied at this slot
+            if (
+                teacherSchedule[teacherId]?.[day]?.has(
+                    period
+                )
+            ) {
+                return false;
+            }
+
+            // A teacher can take at most 2 consecutive classes.
+            if (
+                wouldExceedTwoConsecutiveClasses(
+                    teacherSchedule,
+                    teacherId,
+                    day,
+                    period
+                )
+            ) {
+                return false;
+            }
+
+            // Same teacher should not be in same classroom in consecutive periods.
+            if (
+                hasConsecutiveSameClassroomTeacher(
+                    classroomTeacherAtSlot,
+                    teacherId,
+                    day,
+                    period
+                )
+            ) {
+                return false;
+            }
+
+            return true;
+        })
+        .map((teacher) => teacher.teacherId);
+}
+
 function pickTeacherForSlot(
     availableSortedIds: string[],
     teacherSchedule: TeacherDaySchedule,
@@ -209,6 +304,8 @@ export async function performClassroomAutoAssignment(
 
     const workingDays = org.workingDays || 5;
     const periodsPerDay = org.periodsPerDay || 6;
+    const minTeacherPeriodsPerDay =
+        org.minTeacherPeriodsPerDay || 3;
 
     const subjects: ClassroomSubject[] =
         classroom.subjects || [];
@@ -311,32 +408,6 @@ export async function performClassroomAutoAssignment(
                 continue;
             }
 
-            const subjectsNeedingHours = subjects
-                .filter((s) => {
-                    const hoursLeft =
-                        hoursLeftBySubject.get(s.subject) ?? 0;
-
-                    if (hoursLeft <= 0) return false;
-
-                    const hasAvailableTeacher = teachers.some(
-                        (t) =>
-                            teacherTeachesSubject(
-                                t.subjects,
-                                s.subject
-                            )
-                    );
-                    return hasAvailableTeacher;
-                })
-                .sort(
-                    (a, b) =>
-                        (hoursLeftBySubject.get(b.subject) ?? 0) -
-                        (hoursLeftBySubject.get(a.subject) ?? 0)
-                );
-
-            if (subjectsNeedingHours.length === 0) {
-                continue;
-            }
-
             const workloadRows =
                 await TeacherWorkload.find({
                     organisationId,
@@ -361,17 +432,86 @@ export async function performClassroomAutoAssignment(
                     ]
                     : undefined;
 
-            for (const sub of subjectsNeedingHours) {
-                const candidateIds = teachers
-                    .filter(
-                        (t) =>
-                            teacherTeachesSubject(
-                                t.subjects,
+            const subjectsNeedingHours = subjects
+                .filter(
+                    (s) =>
+                        (hoursLeftBySubject.get(s.subject) ?? 0) > 0
+                )
+                .map((sub) => {
+                    const candidateIds = buildAvailableTeachersForSubject(
+                        sub.subject,
+                        teachers,
+                        teacherSchedule,
+                        classroomTeacherAtSlot,
+                        day,
+                        period
+                    ).filter(
+                        (teacherId) =>
+                            getTeacherDayLoad(
+                                teacherSchedule,
+                                teacherId,
+                                day
+                            ) < minTeacherPeriodsPerDay
+                    );
+
+                    if (candidateIds.length === 0) {
+                        return null;
+                    }
+
+                    const leastWorkload = Math.min(
+                        ...candidateIds.map(
+                            (teacherId) =>
+                                workloadByTeacher.get(
+                                    teacherId
+                                ) ?? 0
+                        )
+                    );
+
+                    return {
+                        sub,
+                        candidateIds,
+                        leastWorkload,
+                        hoursLeft:
+                            hoursLeftBySubject.get(
                                 sub.subject
-                            ) &&
-                            t.teacherId !== previousTeacherId
-                    )
-                    .map((t) => t.teacherId);;
+                            ) ?? 0,
+                    };
+                })
+                .filter(
+                    (
+                        item
+                    ): item is {
+                        sub: ClassroomSubject;
+                        candidateIds: string[];
+                        leastWorkload: number;
+                        hoursLeft: number;
+                    } => Boolean(item)
+                )
+                .sort((a, b) => {
+                    if (a.leastWorkload !== b.leastWorkload) {
+                        return (
+                            a.leastWorkload -
+                            b.leastWorkload
+                        );
+                    }
+                    return b.hoursLeft - a.hoursLeft;
+                });
+
+            if (subjectsNeedingHours.length === 0) {
+                continue;
+            }
+
+            for (const subjectOption of subjectsNeedingHours) {
+                const { sub } = subjectOption;
+                const candidateIds =
+                    subjectOption.candidateIds.filter(
+                        (teacherId) =>
+                            teacherId !== previousTeacherId
+                    );
+
+                if (candidateIds.length === 0) {
+                    continue;
+                }
 
                 const sortedIds =
                     sortTeachersByWorkload(

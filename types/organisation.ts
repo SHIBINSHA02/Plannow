@@ -6,6 +6,7 @@ export interface Organisation {
 
     workingDays?: number;
     periodsPerDay?: number;
+    minTeacherPeriodsPerDay?: number;
     editors?: string[];
 
     // ✅ NEW (optional image fields)

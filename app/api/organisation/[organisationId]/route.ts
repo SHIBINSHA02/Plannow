@@ -49,6 +49,7 @@ export async function PATCH(
             organisationName,
             workingDays,
             periodsPerDay,
+            minTeacherPeriodsPerDay,
             editors,
         } = body ?? {};
 
@@ -77,6 +78,7 @@ export async function PATCH(
         if (organisationName !== undefined) setUpdates.organisationName = organisationName;
         if (workingDays !== undefined) setUpdates.workingDays = workingDays;
         if (periodsPerDay !== undefined) setUpdates.periodsPerDay = periodsPerDay;
+        if (minTeacherPeriodsPerDay !== undefined) setUpdates.minTeacherPeriodsPerDay = minTeacherPeriodsPerDay;
 
         // Editors list is admin-only (prevents editors from escalating privileges)
         if (editors !== undefined) {

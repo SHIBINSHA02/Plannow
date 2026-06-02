@@ -8,6 +8,7 @@ const organisationSchema = new Schema(
         adminName: { type: String, required: true },
         workingDays: { type: Number, default: 5 },
         periodsPerDay: { type: Number, default: 6 },
+        minTeacherPeriodsPerDay: { type: Number, default: 3 },
         editors: { type: [String], default: [] },
 
         profileImageUrl: { type: String, default: null },
