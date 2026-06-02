@@ -10,6 +10,7 @@ type ScheduleSlot = {
     period: number;     // 1–6
     subject: string;
     className: string;
+    teacherId?: string;
     organisationId: string;
 };
 
@@ -18,9 +19,11 @@ type ScheduleSlot = {
 export default function TeacherScheduleGrid({
     schedule,
     loading,
+    teachersMap,
 }: {
     schedule: ScheduleSlot[];
     loading: boolean;
+    teachersMap: Record<string, string>;
 }) {
     const { theme } = useTheme(); // Subscribed to current theme
 
@@ -123,6 +126,9 @@ export default function TeacherScheduleGrid({
                                                                     : "border-blue-950/40 bg-blue-950/20"}`}
                                                         >
                                                             <div className={`font-semibold tracking-tight ${theme === "light" ? "text-blue-700" : "text-blue-400"}`}>
+                                                                {s.teacherId ? teachersMap[s.teacherId] || "Unknown Teacher" : "Unassigned Teacher"}
+                                                            </div>
+                                                            <div className={`mt-0.5 font-medium ${theme === "light" ? "text-slate-700" : "text-slate-300"}`}>
                                                                 {s.subject}
                                                             </div>
                                                             <div className={`mt-0.5 font-light ${theme === "light" ? "text-slate-500" : "text-slate-400"}`}>

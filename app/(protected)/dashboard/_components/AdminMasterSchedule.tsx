@@ -116,6 +116,7 @@ export default function AdminMasterSchedule({ organisationId, teachersMap }: Pro
                 <TeacherScheduleGrid
                     schedule={schedule}
                     loading={loading}
+                    teachersMap={teachersMap}
                 />
             </div>
         </div>
