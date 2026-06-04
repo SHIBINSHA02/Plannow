@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
-import { performClassroomAutoAssignment } from "@/lib/automate/classroom";
+import { optimizeClassroomSchedule, performClassroomAutoAssignment } from "@/lib/automate/classroom";
 
 export async function POST(
     request: Request,
@@ -25,11 +25,10 @@ export async function POST(
     session.startTransaction();
 
     try {
-        const result = await performClassroomAutoAssignment(
-            organisationId,
-            classroomid,
-            session
-        );
+        const result = await performClassroomAutoAssignment(organisationId,classroomid, session);
+if (result.success) {
+    await optimizeClassroomSchedule(organisationId,classroomid, session);
+}
 
         await session.commitTransaction();
         session.endSession();

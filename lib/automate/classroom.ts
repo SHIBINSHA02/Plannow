@@ -624,6 +624,7 @@ export async function performClassroomAutoAssignment(
                 break;
             }
         }
+        
     }
 
     const message =
@@ -643,4 +644,76 @@ export async function performClassroomAutoAssignment(
         assignedCount,
         message,
     };
+}
+
+
+/**
+ * Attempts to re-position existing schedule slots into earlier empty slots 
+ * to consolidate the schedule.
+ */
+export async function optimizeClassroomSchedule(
+    organisationId: string,
+    classroomId: string,
+    session: ClientSession
+): Promise<{ movedCount: number }> {
+    const slots = await ScheduleSlot.find({ organisationId, classroomId }).session(session);
+
+    // Sort slots to prioritize moving later ones first
+    const occupiedSlots = slots
+        .filter(s => s.teacherId && s.subject)
+        .sort((a, b) => (b.day * 100 + b.period) - (a.day * 100 + a.period));
+
+    let movedCount = 0;
+
+    for (const slot of occupiedSlots) {
+        // Find an earlier empty slot
+        const target = await findEarlierAvailableSlot(organisationId, classroomId, slot, session);
+
+        if (target) {
+            // Verify if teacher is free at the new time
+            if (await isTeacherFree(slot.teacherId!, target.day, target.period, organisationId, session)) {
+                slot.day = target.day;
+                slot.period = target.period;
+                await slot.save({ session });
+                movedCount++;
+            }
+        }
+    }
+
+    return { movedCount };
+}
+
+async function findEarlierAvailableSlot(
+    organisationId: string,
+    classroomId: string,
+    currentSlot: any,
+    session: ClientSession
+) {
+    const allSlots = await ScheduleSlot.find({ organisationId, classroomId }).session(session);
+
+  
+    for (let day = 1; day <= currentSlot.day; day++) {
+        for (let period = 1; period <= (day === currentSlot.day ? currentSlot.period - 1 : 6); period++) {
+            const isTaken = allSlots.some(s => s.day === day && s.period === period);
+            if (!isTaken) return { day, period };
+        }
+    }
+    return null;
+}
+
+async function isTeacherFree(
+    teacherId: string,
+    day: number,
+    period: number,
+    organisationId: string,
+    session: ClientSession
+): Promise<boolean> {
+    const conflict = await ScheduleSlot.findOne({
+        organisationId,
+        teacherId,
+        day,
+        period
+    }).session(session);
+
+    return !conflict;
 }
