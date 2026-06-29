@@ -66,7 +66,7 @@ const Footer: React.FC = () => {
 
                 {/* Bottom */}
                 <div className="pt-16 mt-16 border-t border-gray-100/50 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] text-gray-400 dark:text-slate-500 font-light tracking-widest uppercase">
-                    <p>&copy; 2025 Planora Systems.</p>
+                    <p>&copy; 2026 Plannow Systems.</p>
                     <div className="flex gap-10">
                         {['X (Twitter)', 'LinkedIn', 'GitHub'].map(social => (
                             <a key={social} href="#" className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
