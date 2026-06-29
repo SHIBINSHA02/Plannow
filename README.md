@@ -1,5 +1,10 @@
 <!-- README.md -->
+<<<<<<< HEAD
+<!-- README.md -->
 # Planora 📅
+=======
+# Plannow 📅
+>>>>>>> 278c8055d9d390a825551ab8b5f0fa3a78bfe7f2
 
 **Planora** is an intelligent scheduling and organization management platform tailored for educational institutions. It streamlines the complex task of managing classrooms, teachers, and schedules through a centralized, automated system.
 
