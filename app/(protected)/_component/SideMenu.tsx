@@ -1,3 +1,4 @@
+// app/(protected)/_component/SideMenu.tsx
 "use client";
 
 import { useState } from "react";
@@ -56,7 +57,7 @@ export default function Sidebar() {
                 <Link href="/">
                     <div className="relative">
                         <Image
-                            src="/logo.png"
+                            src="/logo2.png"
                             alt="App Logo"
                             width={150}
                             height={200}
@@ -101,7 +102,7 @@ export default function Sidebar() {
                     <Link href="/">
                         <div className="relative">
                             <Image
-                                src="/logo.png"
+                                src="/logo2.png"
                                 alt="App Logo"
                                 width={120}
                                 height={120}

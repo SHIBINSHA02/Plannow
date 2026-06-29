@@ -1,3 +1,4 @@
+// app/(protected)/dashboard/layout.tsx
 "use client";
 import Sidebar from "../_component/SideMenu";
 import { useTheme } from "@/app/theme-provider";

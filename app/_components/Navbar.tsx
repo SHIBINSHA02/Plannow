@@ -24,7 +24,7 @@ export default function Navbar() {
         <div className="flex items-center flex-shrink-0">
           <div className="relative">
             <Image
-              src="/logo.png"
+              src="/logo2.png"
               alt="App Logo"
               width={120} // FIX: Slightly scaled down base width so it fits smaller mobile screens smoothly
               height={32}
