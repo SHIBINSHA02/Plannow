@@ -1,3 +1,4 @@
+// app/(protected)/dashboard/schedules/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -65,8 +66,8 @@ export default function TeacherSchedulePage() {
                         setSelectedOrganisationId(t.organisations[0]?.id ?? null);
                     }
                 }
-            } catch (err: any) {
-                setError(err.message);
+            } catch (err: unknown) {
+                setError(err instanceof Error ? err.message : "An unknown error occurred");
                 setTeachers([]);
             } finally {
                 setLoadingTeachers(false);

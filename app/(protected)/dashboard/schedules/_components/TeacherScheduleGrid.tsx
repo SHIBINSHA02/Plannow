@@ -1,3 +1,4 @@
+// app/(protected)/dashboard/schedules/_components/TeacherScheduleGrid.tsx
 "use client";
 
 import { useTheme } from "@/app/theme-provider"; // Imported theme hook
@@ -19,11 +20,11 @@ type ScheduleSlot = {
 export default function TeacherScheduleGrid({
     schedule,
     loading,
-    teachersMap,
+    teachersMap={},
 }: {
     schedule: ScheduleSlot[];
     loading: boolean;
-    teachersMap: Record<string, string>;
+    teachersMap?: Record<string, string>;
 }) {
     const { theme } = useTheme(); // Subscribed to current theme
 

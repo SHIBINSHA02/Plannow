@@ -1,3 +1,4 @@
+// app/(protected)/dashboard/_components/AdminMasterSchedule.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -34,12 +35,12 @@ export default function AdminMasterSchedule({ organisationId, teachersMap }: Pro
 
                 // 1. Fetch Classrooms to get mapping of ID -> Name
                 const classroomsRes = await fetch(`/api/classrooms?organisationId=${organisationId}`);
-                let classroomsMap: Record<string, string> = {};
+                const classroomsMap: Record<string, string> = {};
                 if (classroomsRes.ok) {
                     const classroomsData = await classroomsRes.json();
-                    classroomsData.forEach((c: any) => {
-                        classroomsMap[c.classroomId] = c.className;
-                    });
+                    classroomsData.forEach((c: { classroomId: string; className: string }) => {
+        classroomsMap[c.classroomId] = c.className;
+    });
                 }
 
                 // 2. Fetch Schedule
