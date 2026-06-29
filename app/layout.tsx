@@ -17,18 +17,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://planora.plannow.in"),
+  metadataBase: new URL("https://plannow.in"),
 
   title: {
-    default: "Planora | Automated Timetable Scheduler",
-    template: "%s | Planora",
+    default: "Plannow | Automated Timetable Scheduler",
+    template: "%s | Plannow",
   },
 
   description:
-    "Planora is an AI-powered automated timetable scheduling platform for schools, colleges, and educational institutions. Generate optimized class schedules, manage teachers, classrooms, workloads, and automate timetable planning efficiently.",
+    "Plannow is an AI-powered automated timetable scheduling platform for schools, colleges, and educational institutions. Generate optimized class schedules, manage teachers, classrooms, workloads, and automate timetable planning efficiently.",
 
   keywords: [
-    "Planora",
+    "Plannow",
     "Automated Timetable Scheduler",
     "School Timetable Software",
     "College Timetable Generator",
@@ -38,39 +38,39 @@ export const metadata: Metadata = {
     "Education Management Software",
     "Automated Scheduling",
     "Timetable Automation",
-    "Planora Scheduler",
+    "Plannow Scheduler",
   ],
 
   authors: [
     {
       name: "Shibinsha",
-      url: "https://planora.plannow.in",
+      url: "https://plannow.in",
     },
   ],
 
   creator: "Shibinsha",
-  publisher: "Planora",
+  publisher: "Plannow",
 
-  applicationName: "Planora",
+  applicationName: "Plannow",
 
   category: "Education",
 
   alternates: {
-    canonical: "https://planora.plannow.in",
+    canonical: "https://plannow.in",
   },
 
   openGraph: {
-    title: "Planora | Automated Timetable Scheduler",
+    title: "Plannow | Automated Timetable Scheduler",
     description:
-      "AI-powered timetable scheduling platform for educational institutions. Automate schedules, manage workloads, optimize classrooms, and simplify timetable planning with Planora.",
-    url: "https://planora.plannow.in",
-    siteName: "Planora",
+      "AI-powered timetable scheduling platform for educational institutions. Automate schedules, manage workloads, optimize classrooms, and simplify timetable planning with Plannow.",
+    url: "https://plannow.in",
+    siteName: "Plannow",
     images: [
       {
         url: "/logo.png",
         width: 1200,
         height: 630,
-        alt: "Planora Logo",
+        alt: "Plannow Logo",
       },
     ],
     locale: "en_US",
@@ -79,11 +79,11 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Planora | Automated Timetable Scheduler",
+    title: "Plannow | Automated Timetable Scheduler",
     description:
-      "Automate timetable scheduling for schools and colleges using Planora.",
+      "Automate timetable scheduling for schools and colleges using Plannow.",
     images: ["/logo.png"],
-    creator: "@planora",
+    creator: "@plannow",
   },
 
   robots: {

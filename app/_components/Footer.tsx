@@ -1,3 +1,4 @@
+// app/_components/Footer.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -30,7 +31,7 @@ const Footer: React.FC = () => {
                             <div className="p-3 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm">
                                 <Calendar className="w-5 h-5 text-blue-500" />
                             </div>
-                            <span className="text-2xl font-light tracking-tight text-gray-800 dark:text-white">Planora</span>
+                            <span className="text-2xl font-light tracking-tight text-gray-800 dark:text-white">Plannow</span>
                         </div>
                         <p className="text-gray-400 dark:text-slate-400 font-light leading-relaxed hover:text-gray-500 dark:hover:text-slate-300 transition-colors duration-500">
                             Designing the future of institutional orchestration. Seamless, intelligent, and beautifully human.

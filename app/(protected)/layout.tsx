@@ -1,3 +1,4 @@
+// app/(protected)/layout.tsx
 import SyncUserOnce from "./_component/SyncUserOnce";
 import Footer from "../_components/Footer";
 import { ThemeProvider } from "../theme-provider";
