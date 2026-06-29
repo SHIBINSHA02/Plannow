@@ -26,9 +26,9 @@ export async function POST(
 
     try {
         const result = await performClassroomAutoAssignment(organisationId,classroomid, session);
-if (result.success) {
-    await optimizeClassroomSchedule(organisationId,classroomid, session);
-}
+// if (result.success) {
+//     await optimizeClassroomSchedule(organisationId,classroomid, session);
+// }
 
         await session.commitTransaction();
         session.endSession();

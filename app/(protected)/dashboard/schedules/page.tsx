@@ -141,7 +141,7 @@ export default function TeacherSchedulePage() {
 
                     <div className={cardBase}>
                         <h3 className={`text-xl font-bold mb-6 ${textColor}`}>Master Schedule</h3>
-                        <TeacherScheduleGrid schedule={schedule} loading={loadingSchedule} />
+                        <TeacherScheduleGrid schedule={schedule} loading={loadingSchedule} teachersMap={undefined} />
                     </div>
 
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">

@@ -1,3 +1,4 @@
+<!-- README.md -->
 # Planora 📅
 
 **Planora** is an intelligent scheduling and organization management platform tailored for educational institutions. It streamlines the complex task of managing classrooms, teachers, and schedules through a centralized, automated system.
