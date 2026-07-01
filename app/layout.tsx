@@ -105,13 +105,13 @@ export const metadata: Metadata = {
   },
 
   verification: {
-    google: "google-site-verification-code",
+    google: "5Nim4XDxhDmiNG1JSbKj_3L5pUd9oV4o4KBjCiluCQE", // Paste your actual token here
   },
-
   other: {
     "theme-color": "#0f172a",
     "contact:email": "shibin24666@gmail.com",
   },
+  
 };
 
 export default function RootLayout({

@@ -10,7 +10,10 @@ const Footer: React.FC = () => {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
+        const timer = setTimeout(() => {
+            setMounted(true);
+        }, 0);
+        return () => clearTimeout(timer);
     }, []);
 
     // Return null or a skeleton until mounted to prevent hydration flicker
